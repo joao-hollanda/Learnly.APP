@@ -1,0 +1,12 @@
+.calendario_card {
+  min-height: 25rem;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.eventos {
+  display: flex;
+  margin: 0;
+  gap: .3rem;
+}

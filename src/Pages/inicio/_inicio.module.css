@@ -1,0 +1,68 @@
+.container {
+    padding: 0 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.container h2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.container h3 {
+    font-size: 1.1rem;
+    font-weight: normal;
+    color: #6c757d;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+}
+
+.calendario_card {
+    height: 400px;
+    overflow: hidden;
+    position: relative;
+}
+
+.calendario_card .rbc-calendar {
+    height: 100% !important;
+}
+
+@media (max-width: 600px) {
+    .grid > div:nth-child(2) {
+        display: none !important;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    .info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .grid > div:nth-child(1),
+    .grid > div:nth-child(2) {
+        grid-column: span 1 !important;
+    }
+}

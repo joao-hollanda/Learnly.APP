@@ -1,0 +1,21 @@
+.botao_container{
+    width: 95vw;
+    display: flex;
+    justify-content: end;
+}
+
+.criar {
+    background-color: black;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: .5rem;
+    transition: background 0.2s ease;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.criar:hover{
+    background-color: rgba(0, 0, 0, 0.829);
+}

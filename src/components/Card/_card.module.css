@@ -1,0 +1,68 @@
+.card_example {
+    background-color: white;
+    margin: 1rem 0;
+    padding: 1rem 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.151);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: auto; 
+    min-height: 8rem;
+}
+
+.titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header{
+    display: flex;
+    gap: 1rem;
+}
+
+.titulo h4 {
+    margin: 0;
+    line-height: 1;
+}
+
+.icon{
+    margin: .2rem .5rem;
+}
+
+.pequeno{
+    min-height: 2rem;
+}
+
+.grande {
+    height: auto;
+    grid-column: span 2; 
+}
+
+.card_example h4 {
+    font-size: .95rem;
+    font-weight: normal;
+    margin: 0;
+}
+
+.card_example span {
+    margin-top: 1.3rem;
+    font-size: 1.5rem;
+    font-weight: bolder;
+}
+
+.card_example p {
+    margin: 0;
+    margin-top: auto;
+    margin-bottom: 1rem; 
+    color: rgba(20, 19, 19, 0.623);
+    font-size: 0.8rem;
+}
+
+.subtitulo span{
+    font-size: .8rem;
+    color: rgba(20, 19, 19, 0.623);
+    font-weight: normal;
+    margin-top: 0; 
+}

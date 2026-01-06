@@ -1,0 +1,200 @@
+import { useState, useRef } from "react";
+import style from "./_login.module.css";
+import Button from "../../components/Button/Button";
+import login from "../../img/Learnly.png";
+import service from "../../services/LoginService"
+
+const Login = ({ initialPage }) => {
+    const [isLogin, setIsLogin] = useState(initialPage === "login");
+
+    const [usuario, setUsuario] = useState("");
+    const [email, setEmail] = useState("");
+    const [senha, setSenha] = useState("");
+    const [confirmarSenha, setConfirmarSenha] = useState("");
+
+    const formRef = useRef(null);
+
+    function resetFields() {
+        setUsuario("");
+        setEmail("");
+        setSenha("");
+        setConfirmarSenha("");
+    }
+
+    function handleToggle(e) {
+        e && e.preventDefault();
+        const el = formRef.current;
+
+        if (!el) {
+            setIsLogin((s) => !s);
+            resetFields();
+            return;
+        }
+
+        el.classList.remove(style.fadeIn);
+        el.classList.add(style.fadeOut);
+
+        const timeout = 420;
+        setTimeout(() => {
+            setIsLogin((s) => !s);
+
+            resetFields();
+
+            el.classList.remove(style.fadeOut);
+            el.classList.add(style.fadeIn);
+        }, timeout);
+    }
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+
+        if (isLogin) {
+            try {
+                const response = await service.Login(email, senha);
+            } catch (error) {
+                if (error.response) {
+                    alert("Senha incorreta");
+                } else {
+                    alert("Erro ao conectar ao servidor.");
+                    console.log(error)
+                }
+            }
+        } else {
+            if (senha !== confirmarSenha) {
+                alert("As senhas não coincidem");
+                return;
+            }
+
+            try {
+                await service.Register(usuario, email, senha);
+                alert("Usuario criado com sucesso!");
+                window.location.reload();
+            } catch (err) {
+                alert("Erro ao registrar");
+            }
+        }
+    }
+
+    return (
+        <div className={style.main}>
+            <img src={login} alt="Learnly" className={style.loginImagem} />
+
+            <div
+                className={`${style.login} ${
+                    isLogin ? style.loginMode : style.registerMode
+                }`}
+                >
+                <div className={style.container}>
+                    <div
+                        ref={formRef}
+                        className={`${style.formBox} ${style.fadeIn} ${
+                            isLogin ? style.loginMode : style.registerMode
+                        }`}
+                    >
+                        <h2>{isLogin ? "Login" : "Cadastro"}</h2>
+                        <h3>
+                            {isLogin ? "Bem vindo de volta" : "Crie sua conta"}
+                        </h3>
+
+                        <form onSubmit={handleSubmit}>
+                            <div>
+                                {isLogin ? (
+                                    <>
+                                        <input
+                                            type="email"
+                                            placeholder="Email"
+                                            value={email}
+                                            onChange={(e) =>
+                                                setEmail(e.target.value)
+                                            }
+                                            required
+                                        />
+                                        <input
+                                            type="password"
+                                            placeholder="Senha"
+                                            value={senha}
+                                            onChange={(e) =>
+                                                setSenha(e.target.value)
+                                            }
+                                            required
+                                        />
+                                        <Button
+                                            color="blue"
+                                            size="medium"
+                                            type="submit"
+                                        >
+                                            Entrar
+                                        </Button>
+                                        <p>
+                                            Não tem uma conta?{" "}
+                                            <a href="#" onClick={handleToggle}>
+                                                Cadastre-se
+                                            </a>
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <input
+                                            type="text"
+                                            placeholder="Nome de usuário"
+                                            value={usuario}
+                                            onChange={(e) =>
+                                                setUsuario(e.target.value)
+                                            }
+                                            required
+                                        />
+                                        <input
+                                            type="email"
+                                            placeholder="Email"
+                                            value={email}
+                                            onChange={(e) =>
+                                                setEmail(e.target.value)
+                                            }
+                                            required
+                                        />
+                                        <input
+                                            type="password"
+                                            placeholder="Senha"
+                                            value={senha}
+                                            onChange={(e) =>
+                                                setSenha(e.target.value)
+                                            }
+                                            required
+                                        />
+                                        <input
+                                            type="password"
+                                            placeholder="Confirmar senha"
+                                            value={confirmarSenha}
+                                            onChange={(e) =>
+                                                setConfirmarSenha(
+                                                    e.target.value
+                                                )
+                                            }
+                                            required
+                                        />
+                                        <Button
+                                            color="blue"
+                                            size="medium"
+                                            type="submit"
+                                        >
+                                            Cadastrar
+                                        </Button>
+
+                                        <p>
+                                            Já tem uma conta?{" "}
+                                            <a href="#" onClick={handleToggle}>
+                                                Entrar
+                                            </a>
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Login;

@@ -1,0 +1,21 @@
+.event {
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.concluido {
+  background-color: #22c55e;
+}
+
+.atual {
+  background-color: #3b82f6;
+}
+
+.proximo {
+  background-color: #ef4444;
+}
