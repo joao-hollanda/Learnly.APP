@@ -8,10 +8,10 @@ import ReactMarkdown from "react-markdown";
 
 function Simulados() {
   const materias = [
-    "Linguagens",
-    "Matemática",
-    "Ciências da Natureza",
-    "Ciências Sociais",
+    { label: "Linguagens", value: "linguagens" },
+    { label: "Matemática", value: "matematica" },
+    { label: "Ciências da Natureza", value: "ciencias-natureza" },
+    { label: "Ciências Humanas", value: "ciencias-humanas" },
   ];
 
   const [mostrarCriar, setMostrarCriar] = useState(false);
@@ -22,27 +22,31 @@ function Simulados() {
   const [respostas, setRespostas] = useState({});
   const [mostrarResultado, setMostrarResultado] = useState(false);
   const [resultado, setResultado] = useState(null);
+  const [loadingEnvio, setLoadingEnvio] = useState(false);
 
   const handleClickCriar = () => setMostrarCriar(true);
   const handleFecharCriar = () => setMostrarCriar(false);
 
-  const handleSelecionarMateria = (materia) => {
+  const handleSelecionarMateria = (value) => {
     setMateriasSelecionadas((prev) =>
-      prev.includes(materia)
-        ? prev.filter((m) => m !== materia)
-        : [...prev, materia]
+      prev.includes(value) ? prev.filter((m) => m !== value) : [...prev, value]
     );
   };
 
   const handleGerarSimulado = async () => {
-    try {
-      const simuladoId = await SimuladoAPI.GerarSimulado(1, ["matematica"], 3);
+    localStorage.removeItem("simulado");
+    localStorage.removeItem("simuladoId");
+    localStorage.removeItem("respostas");
 
+    try {
+      const simuladoId = await SimuladoAPI.GerarSimulado(
+        1,
+        materiasSelecionadas,
+        quantidadeQuestoes
+      );
       setSimuladoId(simuladoId);
 
       const simulado = await SimuladoAPI.Obter(simuladoId);
-      console.log(simulado);
-
       setSimulado(simulado);
       setMostrarCriar(false);
     } catch (error) {
@@ -75,6 +79,7 @@ function Simulados() {
     }
 
     try {
+      setLoadingEnvio(true);
       const respostasFormatadas = formatarRespostas(respostas);
 
       const response = await SimuladoAPI.Responder(
@@ -86,6 +91,8 @@ function Simulados() {
       setMostrarResultado(true);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoadingEnvio(false);
     }
   };
 
@@ -193,12 +200,13 @@ function Simulados() {
             </div>
           ))}
 
-          <Button
-            style={{ backgroundColor: "black", border: 0, width: "100%" }}
+          <button
+            className={style.botaoEnviar}
             onClick={handleEnviarSimulado}
+            disabled={loadingEnvio}
           >
-            Enviar
-          </Button>
+            {loadingEnvio ? <span className={style.spinner} /> : "Enviar"}
+          </button>
         </div>
       )}
 
@@ -216,13 +224,13 @@ function Simulados() {
 
           <Form>
             {materias.map((materia) => (
-              <div key={materia} className="mb-3">
+              <div key={materia.value} className="mb-3">
                 <Form.Check
                   type="checkbox"
-                  id={materia}
-                  label={materia}
-                  checked={materiasSelecionadas.includes(materia)}
-                  onChange={() => handleSelecionarMateria(materia)}
+                  id={materia.value}
+                  label={materia.label}
+                  checked={materiasSelecionadas.includes(materia.value)}
+                  onChange={() => handleSelecionarMateria(materia.value)}
                 />
               </div>
             ))}
