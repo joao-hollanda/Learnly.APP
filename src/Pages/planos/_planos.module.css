@@ -78,6 +78,22 @@
     min-width: 230px;
 }
 
+.criar {
+    background-color: black;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: .5rem;
+    transition: background 0.2s ease;
+    display: flex;
+    gap: .1rem;
+    align-items: center;
+}
+
+.criar:hover{
+    background-color: rgba(0, 0, 0, 0.829);
+}
+
 @media (max-width: 1024px) {
     .planos_container {
         grid-template-columns: repeat(2, 1fr);
