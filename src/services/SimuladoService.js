@@ -24,6 +24,12 @@ const SimuladoAPI = {
 
     return resposta.data;
   },
+
+  async Listar(usuarioId) {
+    const resposta = await HTTPClient.get(`Simulado/Listar/${usuarioId}`);
+
+    return resposta.data;
+  },
 };
 
 export default SimuladoAPI;

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { FaPlay, FaPlus } from "react-icons/fa6";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Card from "../../components/Card/Card";
+import { toast } from "react-toastify";
 
 function Planos() {
   const [mostrarPlano, setMostrarPlano] = useState(false);
@@ -69,9 +70,7 @@ function Planos() {
     setViewingIndex(null);
   };
 
-  const handleClickCriar = () => {
-
-  };
+  const handleClickCriar = () => {};
 
   const handleAtivarPlano = (index) => {
     setPlanoAtivoIndex(index);
@@ -90,7 +89,7 @@ function Planos() {
 
   const handleConfirmarLancamento = () => {
     if (!materiaSelecionada || !horasLancar)
-      return alert("Preencha todos os campos!");
+      return toast("Preencha todos os campos!");
 
     setPlanosList((prev) =>
       prev.map((plano, index) => {
@@ -295,7 +294,12 @@ function Planos() {
               max="24"
               placeholder="Ex: 2"
               value={horasLancar}
-              onChange={(e) => setHorasLancar(e.target.value)}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") return setHorasLancar("");
+                if (+v < 1 || +v > 24) return;
+                setHorasLancar(+v);
+              }}
             />
           </div>
         </Modal.Body>

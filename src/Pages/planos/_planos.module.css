@@ -7,7 +7,7 @@
 .botao_exibir {
     width: 100%;
     background-color: black;
-    height: 2rem;
+    height: 2.5rem;
     border: 0;
     border-radius: 4px;
     color: #FFF;
@@ -67,7 +67,7 @@
 
 .planos_container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     justify-items: center;
 }

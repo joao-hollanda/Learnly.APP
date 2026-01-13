@@ -7,7 +7,7 @@ const LoginAPI = {
             senha: senha
         });
 
-        return resposta;
+        return resposta.data;
     },
 
     async Register(usuario, email, senha) {
@@ -18,7 +18,7 @@ const LoginAPI = {
             cidade: ""
         });
 
-        return resposta;
+        return resposta.data;
     },
 };
 

@@ -106,3 +106,224 @@
     font-size: 0.95rem;
   }
 }
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+h3 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  width: 100%;
+  min-width: 0;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 24px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  min-width: 0;
+}
+
+.contexto {
+  margin: 12px 0;
+  line-height: 1.6;
+  width: 100%;
+  min-width: 0;
+}
+
+.contexto p,
+.contexto span,
+.contexto div {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.contexto img,
+.imagem {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  margin: 16px auto;
+}
+
+.alternativa {
+  margin-bottom: 10px;
+}
+
+.botao {
+  background: black;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: 0.2s;
+  align-self: flex-end;
+}
+
+.botao:hover {
+  opacity: 0.9;
+}
+
+.botao.full {
+  width: 100%;
+  height: 2.5rem;
+}
+
+.botao.danger {
+  background: rgb(218, 11, 11);
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #fff;
+  border-top: 3px solid black;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.listaSimulados {
+  padding: 24px;
+  text-align: center;
+  width: 100%;
+}
+
+.listaSimulados h3 {
+  font-size: 3rem;
+  font-weight: 100;
+}
+
+.vazio {
+  padding: 32px;
+  font-size: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #374151;
+}
+
+.cardSimulado {
+  border: 0.1rem solid #374151;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 100%;
+  min-width: 0;
+}
+
+.correta {
+  border-left: 5px solid #22c55e;
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.errada {
+  border-left: 5px solid #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+}
+
+:global(.form-control) {
+  border: 2px solid #000 !important;
+  box-shadow: none !important;
+}
+
+:global(.form-control:focus) {
+  border-color: #000 !important;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25) !important;
+}
+
+:global(.form-check-input) {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid #000 !important;
+  background-color: #fff !important;
+}
+
+:global(.form-check-input:checked) {
+  background-color: #000 !important;
+  border-color: #000 !important;
+}
+
+:global(.form-check-input:focus) {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25) !important;
+}
+
+:global(.form-check-input[type="radio"]) {
+  border-radius: 50%;
+}
+
+:global(.form-check-input[type="checkbox"]) {
+  border-radius: 4px;
+}
+
+.markdown {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.markdown img {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  display: block;
+  margin: 12px auto;
+  object-fit: contain;
+}
+
+.imagem {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  display: block;
+  margin: 12px auto;
+}
+
+.markdown p,
+.markdown span {
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.conteudoAlternativa {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.imagemAlternativa {
+  max-width: 250px;
+  max-height: 150px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

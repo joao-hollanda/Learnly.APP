@@ -42,7 +42,7 @@ const Header = ({children}) => {
                     >
                         Simulados
                     </NavLink>
-                    <NavLink
+                    {/* <NavLink
                         to="/desempenho"
                         className={({ isActive }) =>
                             isActive ? style.active : style.inactive
@@ -50,7 +50,7 @@ const Header = ({children}) => {
                         onClick={() => setMenuAberto(false)}
                     >
                         Desempenho
-                    </NavLink>
+                    </NavLink> */}
                 </nav>
 
                 <div className={style.menu} onClick={() => setMenuAberto(!menuAberto)}>

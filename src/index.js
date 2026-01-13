@@ -8,20 +8,74 @@ import Inicio from "./Pages/inicio/Inicio";
 import Planos from "./Pages/planos/Planos";
 import Simulados from "./Pages/simulados/Simulados";
 import Desempenho from "./Pages/desempenho/Desempenho";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import { ToastContainer } from "react-toastify";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-    <React.StrictMode>
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Login />} />
-                <Route path="/home" element={<Inicio />} />
-                <Route path="/planos" element={<Planos />} />
-                <Route path="/simulados" element={<Simulados />} />
-                <Route path="/desempenho" element={<Desempenho />} />
-            </Routes>
-        </BrowserRouter>
-    </React.StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={4500}
+        closeOnClick
+        pauseOnHover
+        hideProgressBar
+        theme="light"
+        toastStyle={{
+          background: "#ffffff", // slate-900 com transparência
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          borderRadius: "4px",
+          color: "#1f1f20e3",
+          fontSize: "14px",
+          padding: "14px 16px",
+          boxShadow:
+            "0 10px 25px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.05)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          marginBottom: "0",
+          marginTop: ".5rem"
+        }}
+        bodyClassName="learnly-toast-body"
+      />
+
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Inicio />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/planos"
+          element={
+            <ProtectedRoute>
+              <Planos />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/simulados"
+          element={
+            <ProtectedRoute>
+              <Simulados />
+            </ProtectedRoute>
+          }
+        />
+        {/* <Route
+          path="/desempenho"
+          element={
+            <ProtectedRoute>
+              <Desempenho />
+          Q</ProtectedRoute>
+          }
+        /> */}
+      </Routes>
+    </BrowserRouter>
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

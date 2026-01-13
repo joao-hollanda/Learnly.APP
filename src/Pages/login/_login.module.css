@@ -61,9 +61,9 @@
 .container input {
     margin-top: 2rem;
     border: 1px solid rgba(110, 146, 167, 0.301);
-    width: 90%;
+    width: 100%;
     padding: 0.8rem;
-    border-radius: 1.5rem;
+    border-radius: .5rem;
     transition: box-shadow 0.3s ease-in-out, width 0.5s ease-in-out;
 }
 
@@ -103,6 +103,43 @@
     transition: opacity 0.4s ease, transform 0.4s ease;
     margin: 0;
     text-align: center;
+}
+
+.botaoEnviar {
+  background-color: #2563eb;
+  border: none;
+  width: 100%;
+  display: flex;
+  padding: 1rem;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  border-radius: .5rem;
+  margin: 2.5rem 0;
+  transition: box-shadow 0.3s ease-in-out, width 0.5s ease-in-out;
+}
+
+.botaoEnviar:hover {
+    outline: none;
+    box-shadow: 2px 2px 5px rgba(9, 12, 20, 0.795);
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #ffffff;
+  border-top: 3px solid #000000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 
