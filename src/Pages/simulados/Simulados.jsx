@@ -5,6 +5,7 @@ import { FaPlus } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import SimuladoAPI from "../../services/SimuladoService";
 import ReactMarkdown from "react-markdown";
+import { toast } from "react-toastify";
 
 function Simulados() {
   const materias = [
@@ -34,6 +35,9 @@ function Simulados() {
   };
 
   const handleGerarSimulado = async () => {
+    if (!materiasSelecionadas || !quantidadeQuestoes)
+      return toast("Preencha todos os campos!");
+
     localStorage.removeItem("simulado");
     localStorage.removeItem("simuladoId");
     localStorage.removeItem("respostas");
@@ -49,6 +53,7 @@ function Simulados() {
       const simulado = await SimuladoAPI.Obter(simuladoId);
       setSimulado(simulado);
       setMostrarCriar(false);
+      toast("Simulado gerado com sucesso!");
     } catch (error) {
       console.error(error);
     }
@@ -74,7 +79,7 @@ function Simulados() {
     );
 
     if (!todasRespondidas) {
-      alert("Você precisa responder todas as questões antes de enviar!");
+      toast("Você precisa responder todas as questões antes de enviar!");
       return;
     }
 
@@ -93,6 +98,7 @@ function Simulados() {
       console.error(error);
     } finally {
       setLoadingEnvio(false);
+      toast("Simulado enviado com sucesso!");
     }
   };
 

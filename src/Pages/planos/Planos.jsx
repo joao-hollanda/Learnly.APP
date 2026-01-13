@@ -6,6 +6,7 @@ import { useState } from "react";
 import { FaPlay, FaPlus } from "react-icons/fa6";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Card from "../../components/Card/Card";
+import { toast } from "react-toastify";
 
 function Planos() {
   const [mostrarPlano, setMostrarPlano] = useState(false);
@@ -90,7 +91,7 @@ function Planos() {
 
   const handleConfirmarLancamento = () => {
     if (!materiaSelecionada || !horasLancar)
-      return alert("Preencha todos os campos!");
+      return toast("Preencha todos os campos!");
 
     setPlanosList((prev) =>
       prev.map((plano, index) => {
