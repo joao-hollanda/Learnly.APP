@@ -88,6 +88,37 @@
   margin-bottom: 8px;
 }
 
+.botaoEnviar {
+  background-color: black;
+  border: none;
+  width: 100%;
+  display: flex;
+  height: 3rem;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  border-radius: 4px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #ffffff;
+  border-top: 3px solid #000000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
 @media (max-width: 600px) {
   .simulado {
     padding: 10px;
