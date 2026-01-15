@@ -141,7 +141,12 @@ export default function Simulados() {
           ) : (
             simulados.map((s) => (
               <div key={s.simuladoId} className={style.cardSimulado}>
-                <h4>Simulado</h4>
+                <h4>
+                  {new Date(s.data).toLocaleString("pt-BR", {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  })}
+                </h4>
                 <p>
                   Nota: {s.notaFinal.toFixed(1)} • {s.questoes.length} questões
                 </p>

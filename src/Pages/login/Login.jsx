@@ -6,13 +6,8 @@ import service from "../../services/LoginService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import service from "../../services/LoginService";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const Login = ({ initialPage }) => {
-  const [isLogin, setIsLogin] = useState(initialPage === "login");
   const [isLogin, setIsLogin] = useState(initialPage === "login");
 
   const [usuario, setUsuario] = useState("");
