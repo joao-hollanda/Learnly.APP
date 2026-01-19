@@ -68,7 +68,7 @@ const Plano = ({ tamanho, titulo, icon, botao, materias, ativo = false }) => {
                             </div>
                         </div>
 
-                        <div className={style.info}>
+                        {/* <div className={style.info}>
                             <div className={style.progresso}>
                                 <FaArrowTrendUp
                                     size="1.5rem"
@@ -79,7 +79,7 @@ const Plano = ({ tamanho, titulo, icon, botao, materias, ativo = false }) => {
                                 <h4>+12%</h4>
                                 <h5>esta semana</h5>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className={style.materias_container}>

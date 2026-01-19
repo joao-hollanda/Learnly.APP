@@ -11,19 +11,32 @@ import Bolinha from "../../components/Bolinha/Bolinha";
 import CalendarView from "../../components/Calendario/Calendario";
 import { IoSchool } from "react-icons/io5";
 import { jwtDecode } from "jwt-decode";
+import PlanoAPI from "../../services/PlanoService";
+import { toast } from "react-toastify";
+import SimuladoAPI from "../../services/SimuladoService";
 
 function Inicio() {
   const [horaAtual, setHoraAtual] = useState(new Date());
+  const [resumo, setResumo] = useState(null);
+  const [totalSimulados, setTotalSimulados] = useState(0);
 
   const token = sessionStorage.getItem("token");
 
-  if (token) {
-    const decoded = jwtDecode(token);
+  const usuarioId = sessionStorage.getItem("id");
 
-    console.log(decoded)
-    sessionStorage.setItem("id", decoded.id)
-    sessionStorage.setItem("nome", decoded.nome)
-  }
+  const REGISTROS_KEY = usuarioId
+    ? `registrosEstudo_usuario_${usuarioId}`
+    : null;
+
+  const PLANO_ATIVO_KEY = usuarioId ? `planoAtivo_usuario_${usuarioId}` : null;
+
+  useEffect(() => {
+    if (token) {
+      const decoded = jwtDecode(token);
+      sessionStorage.setItem("id", decoded.id);
+      sessionStorage.setItem("nome", decoded.nome);
+    }
+  }, [token]);
 
   const [eventos] = useState([
     {
@@ -67,7 +80,7 @@ function Inicio() {
   });
 
   const eventosHoje = eventosComStatus.filter(
-    (evento) => evento.start.toDateString() === horaAtual.toDateString()
+    (evento) => evento.start.toDateString() === horaAtual.toDateString(),
   );
 
   const getColor = (status) => {
@@ -83,13 +96,51 @@ function Inicio() {
     }
   };
 
-  const usuario = {
-    nome: "Hollanda",
-    quantidadeSimulados: 1,
-    planoAtual: "Enem",
-    horas: 4.5,
-    progressoSemanal: 50,
+  useEffect(() => {
+    obterResumo();
+  }, []);
+
+  const obterResumo = async () => {
+    try {
+      const usuarioId = sessionStorage.getItem("id");
+
+      const resposta = await PlanoAPI.ObterResumo(usuarioId);
+
+      const totalSimulados = await SimuladoAPI.Contar(usuarioId);
+
+      setTotalSimulados(totalSimulados);
+      setResumo(resposta);
+    } catch (erro) {
+      toast.error("Erro ao carregar resumo");
+      console.log(erro);
+    }
   };
+  const getHorasPorDia = (dataISO) => {
+    if (!REGISTROS_KEY) return 0;
+
+    const registros = JSON.parse(localStorage.getItem(REGISTROS_KEY)) || [];
+
+    return registros
+      .filter((r) => r.data === dataISO)
+      .reduce((soma, r) => soma + r.horas, 0);
+  };
+
+  const hojeISO = new Date().toISOString().split("T")[0];
+
+  const ontemISO = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.toISOString().split("T")[0];
+  })();
+
+  const horasHoje = getHorasPorDia(hojeISO);
+  const horasOntem = getHorasPorDia(ontemISO);
+  const diferenca = horasHoje - horasOntem;
+
+  const percentualGeral =
+    resumo && resumo.horasTotais > 0
+      ? Math.round((resumo.horasConcluidas / resumo.horasTotais) * 100)
+      : 0;
 
   return (
     <div>
@@ -97,33 +148,50 @@ function Inicio() {
       <div className={style.container}>
         <div>
           <h2>Olá, {sessionStorage.getItem("nome")}!</h2>
-          <h3>Aqui está seu resumo para hoje</h3>
+          <h3>Aqui está seu resumo</h3>
 
           <div className={style.info_container}>
             <div className={style.info}>
               <Card
                 titulo={"Horas de estudo hoje"}
-                children={<span>{usuario.horas}</span>}
-                tamanho="medio"
-                adicional="+1.2 desde ontem"
+                children={<span>{horasHoje}h</span>}
+                adicional={
+                  diferenca === 0
+                    ? "Mesmo que ontem"
+                    : diferenca > 0
+                      ? `+${diferenca}h desde ontem`
+                      : `${diferenca}h desde ontem`
+                }
                 icon={<LuClock3 />}
               />
               <Card
-                titulo={"Progresso semanal"}
-                children={<span>{usuario.progressoSemanal + "%"}</span>}
+                titulo={"Progresso geral"}
+                children={<span>{percentualGeral}%</span>}
                 tamanho="medio"
-                adicional="25/50 horas completadas"
+                adicional={
+                  resumo
+                    ? `${resumo.horasConcluidas}/${resumo.horasTotais} horas concluídas`
+                    : "Carregando..."
+                }
                 icon={<GiProgression />}
               />
+
               <Card
                 titulo={"Plano Atual"}
-                children={<span>{usuario.planoAtual}</span>}
+                children={
+                  <span>
+                    {PLANO_ATIVO_KEY
+                      ? localStorage.getItem(PLANO_ATIVO_KEY)
+                      : "-"}
+                  </span>
+                }
                 tamanho="medio"
                 icon={<RiFilePaper2Fill />}
               />
+
               <Card
                 titulo={"Simulados concluidos"}
-                children={<span>{usuario.quantidadeSimulados}</span>}
+                children={<span>{totalSimulados}</span>}
                 tamanho="medio"
                 icon={<FaBrain />}
               />

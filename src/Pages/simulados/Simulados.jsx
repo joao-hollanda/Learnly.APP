@@ -65,28 +65,28 @@ export default function Simulados() {
 
   const toggleMateria = (m) => {
     setMateriasSelecionadas((prev) =>
-      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
+      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m],
     );
   };
 
   const handleGerarSimulado = async () => {
     if (!materiasSelecionadas.length || !quantidade)
-      return toast("Preencha todos os campos");
+      return toast.warning("Preencha todos os campos");
 
     try {
       setLoading(true);
       const id = await SimuladoAPI.GerarSimulado(
         usuarioId,
         materiasSelecionadas,
-        quantidade
+        quantidade,
       );
       const data = await SimuladoAPI.Obter(id);
       setSimulado(data);
       setRespostas({});
       setMostrarCriar(false);
-      toast("Simulado gerado com sucesso");
+      toast.success("Simulado gerado com sucesso");
     } catch {
-      toast("Erro ao gerar simulado");
+      toast.error("Erro ao gerar simulado");
     } finally {
       setLoading(false);
     }
@@ -103,9 +103,9 @@ export default function Simulados() {
 
   const handleResponder = async () => {
     const todas = simulado.questoes.every(
-      (q) => respostas[q.questaoId] !== undefined
+      (q) => respostas[q.questaoId] !== undefined,
     );
-    if (!todas) return toast("Responda todas as questões");
+    if (!todas) return toast.warning("Responda todas as questões");
 
     try {
       setLoading(true);
@@ -116,7 +116,7 @@ export default function Simulados() {
       const r = await SimuladoAPI.Responder(simulado.simuladoId, payload);
       setResultado(r);
     } catch {
-      toast("Erro ao enviar respostas");
+      toast.error("Erro ao enviar respostas");
     } finally {
       setLoading(false);
     }
@@ -132,39 +132,44 @@ export default function Simulados() {
 
       {!simulado && (
         <div className={style.listaSimulados}>
-          <h3>Simulados recentes</h3>
-
           {simulados.length === 0 ? (
             <div className={style.vazio}>
               Nenhum simulado ainda, que tal criar um? <ImHappy />
             </div>
           ) : (
-            simulados.map((s) => (
-              <div key={s.simuladoId} className={style.cardSimulado}>
-                <h4>
-                  {new Date(s.data).toLocaleString("pt-BR", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
-                </h4>
-                <p>
-                  Nota: {s.notaFinal.toFixed(1)} • {s.questoes.length} questões
-                </p>
-                <button
-                  className={`${style.botao} ${style.full}`}
-                  onClick={() => {
-                    const respostasMap = {};
-                    (s.respostas || []).forEach((r) => {
-                      respostasMap[r.questaoId] = r.alternativaId;
-                    });
-                    setPreviewRespostas(respostasMap);
-                    setSimuladoPreview(s);
-                  }}
-                >
-                  Visualizar
-                </button>
-              </div>
-            ))
+            <>
+              <h3>Simulados recentes</h3>
+
+              {simulados.map((s) => (
+                <div key={s.simuladoId} className={style.cardSimulado}>
+                  <h4>
+                    {new Date(s.data).toLocaleString("pt-BR", {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    })}
+                  </h4>
+
+                  <p>
+                    Nota: {s.notaFinal.toFixed(1)} • {s.questoes.length}{" "}
+                    questões
+                  </p>
+
+                  <button
+                    className={`${style.botao} ${style.full}`}
+                    onClick={() => {
+                      const respostasMap = {};
+                      (s.respostas || []).forEach((r) => {
+                        respostasMap[r.questaoId] = r.alternativaId;
+                      });
+                      setPreviewRespostas(respostasMap);
+                      setSimuladoPreview(s);
+                    }}
+                  >
+                    Visualizar
+                  </button>
+                </div>
+              ))}
+            </>
           )}
         </div>
       )}
@@ -309,7 +314,7 @@ export default function Simulados() {
                 <strong>Acertos:</strong>{" "}
                 {resultado.desempenho.quantidadeDeAcertos}
               </p>
-              <p>{resultado.desempenho.feedback}</p>
+              <ReactMarkdown>{resultado.desempenho.feedback}</ReactMarkdown>
             </>
           )}
 

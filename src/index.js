@@ -19,23 +19,7 @@ root.render(
         position="bottom-right"
         autoClose={4500}
         closeOnClick
-        pauseOnHover
-        hideProgressBar
-        theme="light"
-        toastStyle={{
-          background: "#ffffff", // slate-900 com transparência
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          borderRadius: "4px",
-          color: "#1f1f20e3",
-          fontSize: "14px",
-          padding: "14px 16px",
-          boxShadow:
-            "0 10px 25px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          marginBottom: "0",
-          marginTop: ".5rem"
-        }}
+        pauseOnHover={false}
         bodyClassName="learnly-toast-body"
       />
 

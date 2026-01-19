@@ -30,6 +30,12 @@ const SimuladoAPI = {
 
     return resposta.data;
   },
+
+  async Contar (usuarioId) {
+    const resposta = await HTTPClient.get(`Simulado/Contar/${usuarioId}`);
+
+    return resposta.data
+  }
 };
 
 export default SimuladoAPI;

@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Login = ({ initialPage }) => {
-  const [isLogin, setIsLogin] = useState(initialPage === "login");
+  const [isLogin, setIsLogin] = useState(true);
 
   const [usuario, setUsuario] = useState("");
   const [email, setEmail] = useState("");
@@ -56,16 +56,16 @@ const Login = ({ initialPage }) => {
 
     try {
       if (isLogin) {
-        if (!email || !senha) return toast("Preencha todos os campos!");
+        if (!email || !senha) return toast.success("Preencha todos os campos!");
         try {
           const response = await service.Login(email, senha);
           sessionStorage.setItem("token", response);
           navigate("/home");
         } catch (error) {
           if (error.response) {
-            toast("Usuário ou senha incorretos!");
+            toast.warning("Usuário ou senha incorretos!");
           } else {
-            toast("Erro ao conectar ao servidor.");
+            toast.error("Erro ao conectar ao servidor.");
             console.log(error);
           }
         }
@@ -73,15 +73,17 @@ const Login = ({ initialPage }) => {
         if (!email || !senha || !usuario || !confirmarSenha)
           return toast("Preencha todos os campos!");
 
-        if (senha !== confirmarSenha) return toast("As senhas não coincidem");
+        if (senha !== confirmarSenha) return toast.warning("As senhas não coincidem");
 
         try {
           await service.Register(usuario, email, senha);
-          toast("Usuario criado com sucesso!");
-          await setTimeout(4500);
-          window.location.reload();
+          setUsuario("");
+          setEmail("");
+          setSenha("");
+          setConfirmarSenha("");
+          toast.success("Usuario criado com sucesso!");
         } catch (err) {
-          toast(err.response.data);
+          toast.error(err.response.data);
         }
       }
     } finally {

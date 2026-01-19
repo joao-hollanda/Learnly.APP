@@ -1,136 +1,210 @@
 .container {
-    padding: 0 1.5rem;
-    max-width: 1200px;
-    margin: 0 auto;
+  padding: 0 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .botao_exibir {
-    width: 100%;
-    background-color: black;
-    height: 2.5rem;
-    border: 0;
-    border-radius: 4px;
-    color: #FFF;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: .3rem;
-    cursor: pointer;
-    transition: background 0.2s ease;
+  width: 100%;
+  background-color: black;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .botao_exibir:hover {
-    background-color: #222;
+  background-color: #222;
 }
 
 .modal_titulo h4 {
-    font-size: 2rem;
+  font-size: 2rem;
+}
+
+.modal_body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .modal_corpo p {
-    font-size: 1rem;
+  font-size: 1rem;
 }
 
 .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    justify-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .cards > * {
-    width: 100%;
-    max-width: 280px;
+  width: 100%;
+  max-width: 280px;
 }
 
 .progress {
-    width: 100%;
-    height: 0.5rem;
-    background: rgba(202, 202, 202, 0.801);
-    border-radius: 9rem;
-    overflow: hidden;
+  width: 100%;
+  height: 0.5rem;
+  background: rgba(202, 202, 202, 0.801);
+  border-radius: 9rem;
+  overflow: hidden;
 }
 
 .progress_bar {
-    height: 100%;
-    width: 0;
-    background: black;
-    transition: width 400ms ease;
-    border-radius: 9rem;
+  height: 100%;
+  width: 0;
+  background: black;
+  transition: width 400ms ease;
+  border-radius: 9rem;
 }
 
 .atividade {
-    text-align: center;
-    font-size: 3rem;
-    margin: 3rem;
+  text-align: center;
+  font-size: 3rem;
+  margin: 3rem;
 }
 
 .planos_container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    justify-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  justify-items: center;
 }
 
 .planos_container > * {
-    width: 100%;
-    max-width: 350px;
-    min-width: 230px;
+  width: 100%;
+  max-width: 350px;
+  min-width: 230px;
 }
 
 .criar {
-    background-color: black;
-    border: none;
-    border-radius: 4px;
-    color: white;
-    padding: .5rem;
-    transition: background 0.2s ease;
-    display: flex;
-    gap: .1rem;
-    align-items: center;
+  background-color: black;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  padding: 0.5rem;
+  transition: background 0.2s ease;
+  display: flex;
+  gap: 0.1rem;
+  align-items: center;
 }
 
-.criar:hover{
-    background-color: rgba(0, 0, 0, 0.829);
+.criar:hover {
+  background-color: rgba(0, 0, 0, 0.829);
+}
+
+.botao {
+  background: black;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: 0.2s;
+  align-self: flex-end;
+}
+
+.botao:hover {
+  opacity: 0.9;
+}
+
+.botao.full {
+  width: 100%;
+  height: 2.5rem;
+}
+
+.botao.danger {
+  background: rgb(218, 11, 11);
+}
+
+.botao.concluir {
+  background: #2563eb;
+}
+
+.info_container {
+  display: flex;
+  gap: 24px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+.info_item {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.info_label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.info_value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.vazio {
+  padding: 32px;
+  font-size: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #374151;
 }
 
 @media (max-width: 1024px) {
-    .planos_container {
-        grid-template-columns: repeat(2, 1fr);
-    }
+  .planos_container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-    .atividade {
-        font-size: 2.2rem;
-        margin: 2rem;
-    }
+  .atividade {
+    font-size: 2.2rem;
+    margin: 2rem;
+  }
 
-    .planos_container {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
+  .planos_container {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
 
-    .cards {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
+  .cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
 }
 
 @media (max-width: 480px) {
-    .atividade {
-        font-size: 1.8rem;
-        margin: 1.5rem;
-    }
+  .atividade {
+    font-size: 1.8rem;
+    margin: 1.5rem;
+  }
 
-    .planos_container {
-        grid-template-columns: 1fr;
-    }
+  .planos_container {
+    grid-template-columns: 1fr;
+  }
 
-    .cards {
-        grid-template-columns: 1fr;
-    }
+  .cards {
+    grid-template-columns: 1fr;
+  }
 
-    .botao_exibir {
-        height: 2.5rem;
-        font-size: 0.9rem;
-    }
+  .botao_exibir {
+    height: 2.5rem;
+    font-size: 0.9rem;
+  }
 }
