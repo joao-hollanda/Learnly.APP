@@ -56,6 +56,11 @@ const PlanoAPI = {
     );
     return resposta.data;
   },
+  
+  async Excluir(planoId) {
+    const resposta = await HTTPClient.delete(`Plano/${planoId}`);
+    return resposta.data;
+  },
 };
 
 export default PlanoAPI;

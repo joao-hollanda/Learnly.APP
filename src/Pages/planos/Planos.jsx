@@ -17,7 +17,7 @@ const mapPlanoBackend = (plano) => ({
   ativo: plano.ativo,
   dataInicio: plano.dataInicio?.split("T")[0],
   dataFim: plano.dataFim?.split("T")[0],
-  materias: plano.planoMaterias.map((pm) => ({
+  materias: (plano.planoMaterias ?? []).map((pm) => ({
     planoMateriaId: pm.planoMateriaId,
     nome: pm.materia.nome,
     cor: pm.materia.cor,
@@ -52,10 +52,16 @@ function Planos() {
   const [horasTotais, setHorasTotais] = useState("");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
+  const [materiasDoPlano, setMateriasDoPlano] = useState([]);
 
   const [mostrarHoras, setMostrarHoras] = useState(false);
   const [materiaSelecionada, setMateriaSelecionada] = useState(null);
   const [horasLancadas, setHorasLancadas] = useState("");
+
+  const [mostrarExcluir, setMostrarExcluir] = useState(false);
+  const [planoParaExcluir, setPlanoParaExcluir] = useState(null);
+
+  const [loading, setLoading] = useState(false);
 
   const carregarPlanos = async () => {
     try {
@@ -89,12 +95,11 @@ function Planos() {
     }
 
     try {
+      setLoading(true);
       await PlanoAPI.LancarHoras(
         materiaSelecionada.planoMateriaId,
         Number(horasLancadas),
       );
-
-      registrarHorasDiarias(Number(horasLancadas));
 
       toast.success("Horas lançadas");
       setMostrarHoras(false);
@@ -102,6 +107,8 @@ function Planos() {
     } catch (erro) {
       toast.error("Erro ao lançar horas");
       console.log(erro);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -117,10 +124,12 @@ function Planos() {
       .catch(() => toast.error("Erro ao carregar matérias"));
   }, [mostrarConfigurar]);
 
-  const materiasJaAdicionadas =
-    planosList.find((p) => p.planoId === planoConfigId)?.materias || [];
-
   const abrirCriarPlano = () => {
+    if (planosList.length >= 5) {
+      toast.warn("Você já atingiu o limite de 5 planos.");
+      return;
+    }
+
     setTitulo("");
     setObjetivo("");
     setMostrarCriarPlano(true);
@@ -134,12 +143,14 @@ function Planos() {
       return toast.warn("Data final não pode ser anterior à data de inicio");
 
     try {
+      setLoading(true);
       const planoCriado = await PlanoAPI.Criar({
         titulo,
         objetivo,
         usuarioId,
         dataInicio,
         dataFim,
+        ativo: true,
       });
 
       await PlanoAPI.AtivarPlano(planoCriado.planoId, usuarioId);
@@ -150,40 +161,23 @@ function Planos() {
       setMostrarCriarPlano(false);
       setMostrarConfigurar(true);
 
-      carregarPlanos(); 
+      carregarPlanos();
+      setMateriasDoPlano([]);
+      setPlanoConfigId(planoCriado.planoId);
+      setMostrarCriarPlano(false);
+      setMostrarConfigurar(true);
+
       toast.success("Plano criado e ativado!");
     } catch {
       toast.error("Erro ao criar plano");
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const registrarHorasDiarias = (horas) => {
-    const hoje = new Date().toISOString().split("T")[0];
-
-    const registros = JSON.parse(localStorage.getItem(REGISTROS_KEY)) || [];
-
-    registros.push({
-      data: hoje,
-      horas,
-    });
-
-    localStorage.setItem(REGISTROS_KEY, JSON.stringify(registros));
   };
 
   const adicionarMateria = async () => {
     if (!materiaId || !horasTotais)
       return toast.warn("Preencha todos os campos");
-
-    if (horasTotais < 5)
-      return toast.warn("É necessário pelo menos 5 horas semanais!");
-
-    const materiaSelecionada = materiasDisponiveis.find(
-      (m) => m.materiaId == materiaId,
-    );
-
-    if (materiasJaAdicionadas.some((m) => m.nome === materiaSelecionada.nome)) {
-      return toast.warn("Essa matéria já foi adicionada");
-    }
 
     try {
       await PlanoAPI.AdicionarMateria(planoConfigId, {
@@ -191,10 +185,21 @@ function Planos() {
         horasTotais,
       });
 
+      const materia = materiasDisponiveis.find((m) => m.materiaId == materiaId);
+
+      setMateriasDoPlano((prev) => [
+        ...prev,
+        {
+          nome: materia.nome,
+          horasTotais,
+          horasConcluidas: 0,
+        },
+      ]);
+
       setMateriaId("");
       setHorasTotais("");
+
       toast.success("Matéria adicionada");
-      carregarPlanos();
     } catch {
       toast.error("Erro ao adicionar matéria");
     }
@@ -308,6 +313,17 @@ function Planos() {
       >
         <Modal.Header>
           <Modal.Title>{planoVisualizado?.titulo}</Modal.Title>
+          <div className={style.excluir}>
+            <button
+              className={`${style.botao} ${style.danger}`}
+              onClick={() => {
+                setPlanoParaExcluir(planoVisualizado);
+                setMostrarExcluir(true);
+              }}
+            >
+              Excluir
+            </button>
+          </div>
         </Modal.Header>
 
         {planoVisualizado && (
@@ -416,8 +432,12 @@ function Planos() {
         </Modal.Body>
 
         <Modal.Footer>
-          <button className={style.botao} onClick={criarPlano}>
-            Criar
+          <button
+            className={style.botao}
+            onClick={criarPlano}
+            disabled={loading}
+          >
+            {loading ? <span className={style.spinner} /> : "Criar"}
           </button>
           <button
             className={`${style.botao} ${style.danger}`}
@@ -441,9 +461,7 @@ function Planos() {
           >
             <option value="">Selecione a matéria</option>
             {materiasDisponiveis
-              .filter(
-                (m) => !materiasJaAdicionadas.some((pm) => pm.nome === m.nome),
-              )
+              .filter((m) => !materiasDoPlano.some((pm) => pm.nome === m.nome))
               .map((m) => (
                 <option key={m.materiaId} value={m.materiaId}>
                   {m.nome}
@@ -474,7 +492,7 @@ function Planos() {
           <button
             className={`${style.botao} ${style.concluir}`}
             onClick={() => {
-              if (materiasJaAdicionadas.length === 0) {
+              if (materiasDoPlano.length === 0) {
                 return toast.warn("Adicione ao menos uma matéria ao plano");
               }
 
@@ -518,12 +536,55 @@ function Planos() {
         </Modal.Body>
 
         <Modal.Footer>
-          <button className={style.botao} onClick={lancarHoras}>
-            Salvar
+          <button
+            className={style.botao}
+            onClick={lancarHoras}
+            disabled={loading}
+          >
+            {loading ? <span className={style.spinner} /> : "Salvar"}
           </button>
           <button
             className={`${style.botao} ${style.danger}`}
             onClick={() => setMostrarHoras(false)}
+          >
+            Cancelar
+          </button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={mostrarExcluir} centered>
+        <Modal.Header>
+          <Modal.Title>Excluir plano</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          Tem certeza que deseja excluir o plano{" "}
+          <strong>{planoParaExcluir?.titulo}</strong>?
+          <br />
+          Essa ação não poderá ser desfeita.
+        </Modal.Body>
+
+        <Modal.Footer>
+          <button
+            className={`${style.botao} ${style.danger}`}
+            onClick={async () => {
+              try {
+                await PlanoAPI.Excluir(planoParaExcluir.planoId);
+                toast.success("Plano excluído");
+                setMostrarExcluir(false);
+                setMostrarPlano(false);
+                carregarPlanos();
+              } catch {
+                toast.error("Erro ao excluir plano");
+              }
+            }}
+          >
+            Excluir
+          </button>
+
+          <button
+            className={style.botao}
+            onClick={() => setMostrarExcluir(false)}
           >
             Cancelar
           </button>

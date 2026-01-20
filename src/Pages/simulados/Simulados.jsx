@@ -250,6 +250,7 @@ export default function Simulados() {
           <button
             className={`${style.botao} ${style.full}`}
             onClick={handleResponder}
+            disabled={loading}
           >
             {loading ? <span className={style.spinner} /> : "Enviar"}
           </button>
