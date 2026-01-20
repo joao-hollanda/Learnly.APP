@@ -24,9 +24,10 @@ function Inicio() {
 
   const usuarioId = sessionStorage.getItem("id");
 
-  const REGISTROS_KEY = usuarioId
-    ? `registrosEstudo_usuario_${usuarioId}`
-    : null;
+  const [comparacaoHoras, setComparacaoHoras] = useState({
+    horasHoje: 0,
+    diferenca: 0,
+  });
 
   const PLANO_ATIVO_KEY = usuarioId ? `planoAtivo_usuario_${usuarioId}` : null;
 
@@ -98,6 +99,7 @@ function Inicio() {
 
   useEffect(() => {
     obterResumo();
+    obterComparacaoHoras();
   }, []);
 
   const obterResumo = async () => {
@@ -115,27 +117,17 @@ function Inicio() {
       console.log(erro);
     }
   };
-  const getHorasPorDia = (dataISO) => {
-    if (!REGISTROS_KEY) return 0;
 
-    const registros = JSON.parse(localStorage.getItem(REGISTROS_KEY)) || [];
-
-    return registros
-      .filter((r) => r.data === dataISO)
-      .reduce((soma, r) => soma + r.horas, 0);
+  const obterComparacaoHoras = async () => {
+    try {
+      const usuarioId = sessionStorage.getItem("id");
+      const resposta = await PlanoAPI.CompararHoras(usuarioId);
+      setComparacaoHoras(resposta);
+    } catch (erro) {
+      toast.error("Erro ao carregar horas de estudo");
+      console.log(erro);
+    }
   };
-
-  const hojeISO = new Date().toISOString().split("T")[0];
-
-  const ontemISO = (() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 1);
-    return d.toISOString().split("T")[0];
-  })();
-
-  const horasHoje = getHorasPorDia(hojeISO);
-  const horasOntem = getHorasPorDia(ontemISO);
-  const diferenca = horasHoje - horasOntem;
 
   const percentualGeral =
     resumo && resumo.horasTotais > 0
@@ -154,13 +146,13 @@ function Inicio() {
             <div className={style.info}>
               <Card
                 titulo={"Horas de estudo hoje"}
-                children={<span>{horasHoje}h</span>}
+                children={<span>{comparacaoHoras.horasHoje}h</span>}
                 adicional={
-                  diferenca === 0
+                  comparacaoHoras.diferenca === 0
                     ? "Mesmo que ontem"
-                    : diferenca > 0
-                      ? `+${diferenca}h desde ontem`
-                      : `${diferenca}h desde ontem`
+                    : comparacaoHoras.diferenca > 0
+                      ? `+${comparacaoHoras.diferenca}h desde ontem`
+                      : `${comparacaoHoras.diferenca}h desde ontem`
                 }
                 icon={<LuClock3 />}
               />

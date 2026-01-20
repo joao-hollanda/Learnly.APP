@@ -46,29 +46,13 @@ const PlanoAPI = {
   },
 
   async ObterResumo(usuarioId) {
+    const resposta = await HTTPClient.get(`Plano/gerar-resumo/${usuarioId}`);
+    return resposta.data;
+  },
+
+  async CompararHoras(usuarioId) {
     const resposta = await HTTPClient.get(
-      `Plano/gerar-resumo/${usuarioId}`,
-    );
-    return resposta.data;
-  },
-
-  async GerarAgenda(planoId) {
-    const resposta = await HTTPClient.post(
-      `Plano/${planoId}/gerar-agenda`,
-    );
-    return resposta.data;
-  },
-
-  async ObterAgenda(planoId) {
-    const resposta = await HTTPClient.get(
-      `Plano/${planoId}/agenda`,
-    );
-    return resposta.data;
-  },
-
-  async ConcluirEvento(eventoAgendaId) {
-    const resposta = await HTTPClient.put(
-      `Plano/agenda/${eventoAgendaId}/concluir`,
+      `Plano/horas/comparacao/${usuarioId}`,
     );
     return resposta.data;
   },
