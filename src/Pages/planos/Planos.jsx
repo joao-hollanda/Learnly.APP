@@ -29,9 +29,6 @@ const mapPlanoBackend = (plano) => ({
 function Planos() {
   const usuarioId = sessionStorage.getItem("id");
 
-  const REGISTROS_KEY = `registrosEstudo_usuario_${usuarioId}`;
-  const PLANO_ATIVO_KEY = `planoAtivo_usuario_${usuarioId}`;
-
   const hoje = new Date().toISOString().split("T")[0];
 
   const [planosList, setPlanosList] = useState([]);
@@ -81,11 +78,13 @@ function Planos() {
     setHorasLancadas("");
     setMostrarHoras(true);
   };
+
   const lancarHoras = async () => {
     if (!horasLancadas || horasLancadas <= 0)
       return toast.warn("Informe um valor válido");
 
-    const horasHoje = horasLancadasHoje();
+    const comparacao = PlanoAPI.CompararHoras(usuarioId);
+    const horasHoje = comparacao.horasHoje;
     const totalComNovoLancamento = horasHoje + Number(horasLancadas);
 
     if (totalComNovoLancamento > LIMITE_DIARIO) {
@@ -175,8 +174,6 @@ function Planos() {
 
       await PlanoAPI.AtivarPlano(planoCriado.planoId, usuarioId);
 
-      localStorage.setItem(PLANO_ATIVO_KEY, planoCriado.titulo);
-
       setPlanoConfigId(planoCriado.planoId);
       setMostrarCriarPlano(false);
       setMostrarConfigurar(true);
@@ -232,8 +229,6 @@ function Planos() {
       const plano = planosList[viewingIndex];
       await PlanoAPI.AtivarPlano(plano.planoId, usuarioId);
 
-      localStorage.setItem(PLANO_ATIVO_KEY, plano.titulo);
-
       setMostrarPlano(false);
       carregarPlanos();
       toast.success("Plano ativado");
@@ -247,15 +242,6 @@ function Planos() {
     viewingIndex !== null ? planosList[viewingIndex] : null;
 
   const LIMITE_DIARIO = 20;
-
-  const horasLancadasHoje = () => {
-    const hoje = new Date().toISOString().split("T")[0];
-    const registros = JSON.parse(localStorage.getItem(REGISTROS_KEY)) || [];
-
-    return registros
-      .filter((r) => r.data === hoje)
-      .reduce((soma, r) => soma + r.horas, 0);
-  };
 
   return (
     <div>
@@ -450,11 +436,16 @@ function Planos() {
 
         <Modal.Footer>
           <button
+            type="button"
             className={style.botao}
             onClick={criarPlano}
             disabled={loading}
           >
-            {loading ? <span className={style.spinner} /> : "Criar"}
+            <span className={loading ? style.hiddenText : ""}>
+              Criar Eventos
+            </span>
+
+            {loading && <span className={style.spinner} />}
           </button>
           <button
             className={`${style.botao} ${style.danger}`}
@@ -554,11 +545,16 @@ function Planos() {
 
         <Modal.Footer>
           <button
+            type="button"
             className={style.botao}
             onClick={lancarHoras}
             disabled={loading}
           >
-            {loading ? <span className={style.spinner} /> : "Salvar"}
+            <span className={loading ? style.hiddenText : ""}>
+              Criar Eventos
+            </span>
+
+            {loading && <span className={style.spinner} />}
           </button>
           <button
             className={`${style.botao} ${style.danger}`}

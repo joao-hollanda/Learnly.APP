@@ -4,23 +4,20 @@
   margin: 0 auto;
 }
 
-.info {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
+.info,
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 }
 
+.info {
+  margin-bottom: 1.5rem;
+}
+
 .container h2 {
   font-size: 1.8rem;
   font-weight: bold;
-  margin-top: 1.5rem;
   margin-bottom: 0.5rem;
 }
 
@@ -42,40 +39,47 @@
   height: 100% !important;
 }
 
-.botao {
-  background: black;
-  color: white;
+.botao,
+.botao_reset,
+.botao_modal,
+.botao_cancelar {
   border: none;
-  padding: 0.5rem 1.5rem;
   border-radius: 4px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
   transition: 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+  min-width: 100px;
+  min-height: 30px;
+}
+
+.botao,
+.botao_reset {
+  padding: 0.5rem 2rem;
   align-self: flex-end;
 }
 
+.botao {
+  background: black;
+  color: white;
+}
 .botao_reset {
   background: rgb(218, 11, 11);
   color: white;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: 0.2s;
-  align-self: flex-end;
+}
+
+.botao:hover,
+.botao_reset:hover {
+  opacity: 0.7;
 }
 
 .modal_body {
   padding: 1.6rem;
 }
-
 .modal_footer {
   display: flex;
   justify-content: flex-end;
@@ -106,14 +110,14 @@
     box-shadow 0.2s ease;
 }
 
-.input::placeholder {
-  color: #aaa;
-}
-
 .input:focus {
   outline: none;
   border-color: #2263c5;
   box-shadow: 0 0 0 2px rgba(34, 99, 197, 0.15);
+}
+
+.input::placeholder {
+  color: #aaa;
 }
 
 .horas {
@@ -128,15 +132,19 @@
   flex-wrap: wrap;
 }
 
-.dia {
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #444;
+.dia,
+.dia_ativo {
   border-radius: 999px;
   padding: 0.35rem 0.8rem;
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.dia {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #444;
 }
 
 .dia:hover {
@@ -148,20 +156,14 @@
   background: #2263c5;
   border: 1px solid #2263c5;
   color: #fff;
-  border-radius: 999px;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.75rem;
-  cursor: pointer;
 }
 
 .botao_modal {
   background: #2263c5;
   color: #fff;
-  border: none;
   border-radius: 10px;
   padding: 0.45rem 1.2rem;
   font-size: 0.85rem;
-  cursor: pointer;
 }
 
 .botao_modal:hover {
@@ -171,19 +173,8 @@
 
 .botao_cancelar {
   background: rgb(218, 11, 11);
-  border: 0;
-  border-radius: 4px;
   padding: 0.5rem 1.5rem;
   color: #fff;
-}
-
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 3px solid #fff;
-  border-top: 3px solid black;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
@@ -192,20 +183,35 @@
   }
 }
 
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.botao {
+  position: relative;
+}
+
+.hiddenText {
+  visibility: hidden; /* ocupa espaço, mas não aparece */
+}
+
+.spinner {
+  position: absolute;
+}
+
 @media (max-width: 600px) {
   .grid > div:nth-child(2) {
     display: none !important;
   }
-
   .container {
     padding: 0 1rem;
   }
-
-  .info {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
+  .info,
   .grid {
     grid-template-columns: 1fr;
     gap: 1rem;

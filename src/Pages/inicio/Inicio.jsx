@@ -92,9 +92,11 @@ function Inicio() {
     return { ...evento, status };
   });
 
-  const eventosHoje = eventosComStatus.filter(
-    (evento) => evento.start.toDateString() === horaAtual.toDateString(),
-  );
+  const eventosHoje = eventosComStatus
+    .filter(
+      (evento) => evento.start.toDateString() === horaAtual.toDateString(),
+    )
+    .sort((a, b) => a.start.getTime() - b.start.getTime());
 
   const getColor = (status) => {
     switch (status) {
@@ -499,7 +501,11 @@ function Inicio() {
             onClick={handleCriarEventos}
             disabled={loading}
           >
-            {loading ? <span className={style.spinner} /> : "Criar Eventos"}
+            <span className={loading ? style.hiddenText : ""}>
+              Criar Eventos
+            </span>
+
+            {loading && <span className={style.spinner} />}
           </button>
 
           <button
@@ -523,7 +529,7 @@ function Inicio() {
 
         <Modal.Body>
           <p>
-            ⚠️ Esta ação irá <strong>apagar todos os eventos de estudo</strong>{" "}
+            Esta ação irá <strong>apagar todos os eventos de estudo</strong>{" "}
             do seu calendário.
           </p>
           <p>Essa ação não pode ser desfeita.</p>
@@ -531,11 +537,16 @@ function Inicio() {
 
         <Modal.Footer>
           <button
+            type="button"
             className={style.botao}
             onClick={handleResetEventos}
             disabled={loading}
           >
-            {loading ? <span className={style.spinner} /> : "Confirmar"}
+            <span className={loading ? style.hiddenText : ""}>
+              Confirmar
+            </span>
+
+            {loading && <span className={style.spinner} />}
           </button>
 
           <button

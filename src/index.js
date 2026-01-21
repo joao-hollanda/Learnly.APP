@@ -10,6 +10,7 @@ import Simulados from "./Pages/simulados/Simulados";
 import Desempenho from "./Pages/desempenho/Desempenho";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
+import MentorIA from "./Pages/MentorIA/MentorIA";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -46,6 +47,14 @@ root.render(
           element={
             <ProtectedRoute>
               <Simulados />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mentoria"
+          element={
+            <ProtectedRoute>
+              <MentorIA />
             </ProtectedRoute>
           }
         />

@@ -42,6 +42,15 @@ const Header = ({children}) => {
                     >
                         Simulados
                     </NavLink>
+                    <NavLink
+                        to="/mentoria"
+                        className={({ isActive }) =>
+                            isActive ? style.active : style.inactive
+                        }
+                        onClick={() => setMenuAberto(false)}
+                    >
+                        MentorIA
+                    </NavLink>
                     {/* <NavLink
                         to="/desempenho"
                         className={({ isActive }) =>

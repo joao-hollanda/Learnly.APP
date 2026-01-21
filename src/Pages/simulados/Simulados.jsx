@@ -248,11 +248,14 @@ export default function Simulados() {
           ))}
 
           <button
-            className={`${style.botao} ${style.full}`}
+            type="button"
+            className={style.botao}
             onClick={handleResponder}
             disabled={loading}
           >
-            {loading ? <span className={style.spinner} /> : "Enviar"}
+            <span className={loading ? style.hiddenText : ""}>Enviar</span>
+
+            {loading && <span className={style.spinner} />}
           </button>
         </div>
       )}
@@ -286,11 +289,16 @@ export default function Simulados() {
 
           <div className="d-flex justify-content-end gap-2 mt-3">
             <button
+              type="button"
               className={style.botao}
               onClick={handleGerarSimulado}
               disabled={loading}
             >
-              {loading ? <span className={style.spinner} /> : "Criar"}
+              <span className={loading ? style.hiddenText : ""}>
+                Criar
+              </span>
+
+              {loading && <span className={style.spinner} />}
             </button>
 
             <button
