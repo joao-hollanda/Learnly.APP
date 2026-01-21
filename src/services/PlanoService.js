@@ -61,6 +61,11 @@ const PlanoAPI = {
     const resposta = await HTTPClient.delete(`Plano/${planoId}`);
     return resposta.data;
   },
+
+  async ObterPlanoAtivo(usuarioId) {
+    const resposta = await HTTPClient.get(`Plano/plano-ativo/${usuarioId}`)
+    return resposta.data;
+  }
 };
 
 export default PlanoAPI;

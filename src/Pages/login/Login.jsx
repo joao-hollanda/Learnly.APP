@@ -66,7 +66,6 @@ const Login = ({ initialPage }) => {
             toast.warning("Usuário ou senha incorretos!");
           } else {
             toast.error("Erro ao conectar ao servidor.");
-            console.log(error);
           }
         }
       } else {

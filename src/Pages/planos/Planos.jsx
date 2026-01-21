@@ -106,7 +106,6 @@ function Planos() {
       carregarPlanos();
     } catch (erro) {
       toast.error("Erro ao lançar horas");
-      console.log(erro);
     } finally {
       setLoading(false);
     }
@@ -135,15 +134,36 @@ function Planos() {
     setMostrarCriarPlano(true);
   };
 
-  const criarPlano = async () => {
-    if (!titulo || !objetivo || !dataInicio || !dataFim)
-      return toast.warn("Preencha todos os campos!");
+  const diferencaEmDias = (inicio, fim) => {
+    const dataInicio = new Date(inicio);
+    const dataFim = new Date(fim);
 
-    if (dataFim < dataInicio)
-      return toast.warn("Data final não pode ser anterior à data de inicio");
+    const diffTime = dataFim.getTime() - dataInicio.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const criarPlano = async () => {
+    if (!titulo || !objetivo || !dataInicio || !dataFim) {
+      return toast.warn("Preencha todos os campos!");
+    }
+
+    if (dataFim < dataInicio) {
+      return toast.warn("Data final não pode ser anterior à data de início");
+    }
+
+    const duracaoDias = diferencaEmDias(dataInicio, dataFim);
+
+    if (duracaoDias < 14) {
+      return toast.warn("O plano deve ter duração mínima de 2 semanas.");
+    }
+
+    if (duracaoDias > 365 * 5) {
+      return toast.warn("O plano não pode ter duração maior que 2 anos.");
+    }
 
     try {
       setLoading(true);
+
       const planoCriado = await PlanoAPI.Criar({
         titulo,
         objetivo,
@@ -163,9 +183,6 @@ function Planos() {
 
       carregarPlanos();
       setMateriasDoPlano([]);
-      setPlanoConfigId(planoCriado.planoId);
-      setMostrarCriarPlano(false);
-      setMostrarConfigurar(true);
 
       toast.success("Plano criado e ativado!");
     } catch {
@@ -244,7 +261,7 @@ function Planos() {
     <div>
       <Header
         children={
-          <button className={style.criar} onClick={abrirCriarPlano}>
+          <button className={style.botao} onClick={abrirCriarPlano}>
             <FaPlus />
           </button>
         }
