@@ -1,70 +1,151 @@
-# Getting Started with Create React App
+# 🎨 Learnly App – Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend da aplicação **Learnly**, uma plataforma educacional focada em organização de estudos, eventos e planos personalizados para alunos.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 📌 Visão Geral
 
-### `npm start`
+Esta aplicação web é a interface principal do sistema **Learnly**, responsável por fornecer uma experiência intuitiva para criação de planos de estudo, visualização de eventos, organização por disciplinas e acompanhamento de progresso.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+O frontend consome a **Learnly API** e apresenta os dados de forma interativa e responsiva.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🛠️ Tecnologias Utilizadas
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+* **React.js**
+* **JavaScript**
+* **CSS Modules**
+* **React Hooks**
+* **Axios** (consumo de API)
+* **React Icons**
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🧱 Estrutura do Projeto
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+Learnly.APP
+│
+├── src
+│   ├── components     # Componentes reutilizáveis
+│   ├── pages          # Páginas da aplicação
+│   ├── services       # Comunicação com a API
+│
+├── public
+├── package.json
+└── README.md
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## ⚙️ Pré-requisitos
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Antes de iniciar, certifique-se de ter instalado:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+* [Node.js](https://nodejs.org/) (versão LTS recomendada)
+* npm ou yarn
+* Git
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🔧 Configuração do Ambiente
 
-## Learn More
+### 1. Clonar o repositório
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+git clone https://github.com/joao-hollanda/Learnly.APP
+cd Learnly.APP
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+### 2. Instalar dependências
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Com npm:
 
-### Analyzing the Bundle Size
+```bash
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+ou com yarn:
 
-### Making a Progressive Web App
+```bash
+yarn
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+### 3. Configurar API
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Edite o arquivo de configuração do serviço (ex: `src/services/api.js` ou similar) e informe a URL da API:
 
-### Deployment
+```js
+export const api = axios.create({
+  baseURL: "https://localhost:5001",
+});
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## ▶️ Executando a Aplicação
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+npm start
+```
+
+ou
+
+```bash
+yarn dev
+```
+
+A aplicação ficará disponível em:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 📷 Screenshots
+
+<img width="1914" height="941" alt="image" src="https://github.com/user-attachments/assets/5912da9b-3965-452d-9a7e-e0ba9b905a4e" />
+<img width="1914" height="930" alt="image" src="https://github.com/user-attachments/assets/0479718a-38ba-4db4-be36-7131b1f18c47" />
+<img width="1912" height="935" alt="image" src="https://github.com/user-attachments/assets/4f2a7b8f-a807-4a2d-8b1b-a520d61a993a" />
+<img width="1913" height="841" alt="image" src="https://github.com/user-attachments/assets/e004a92e-ae47-440c-975f-dd2d4c7c8cf3" />
+<img width="1907" height="934" alt="image" src="https://github.com/user-attachments/assets/b85bf546-c63b-46d5-a08a-0c0c2173ed35" />
+
+---
+
+## 📌 Funcionalidades Principais
+
+* Criação e edição de planos de estudo
+* Visualização de eventos em calendário
+* Organização por disciplinas
+* Interface em formato de chat (aluno x IA)
+* Feedback visual de progresso
+
+---
+
+## 🎯 Boas Práticas
+
+* Componentização
+* Separação de responsabilidades
+* Consumo centralizado da API
+* Estilos isolados com CSS Modules
+
+---
+
+## 🧪 Testes
+
+*(Projeto de testes ainda não incluído — seção reservada para expansão futura)*
+
+---
+
+## 👤 Autor
+
+**João Victor Holanda**
+* Adaptar para README de portfólio profissional
+* Incluir seção de arquitetura de componentes
