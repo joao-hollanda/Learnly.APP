@@ -1,70 +1,171 @@
-# Getting Started with Create React App
+# 🚀 Learnly API – Backend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Backend da aplicação **Learnly**, uma plataforma educacional para gerenciamento de planos de estudo, eventos, disciplinas e progresso do aluno.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 📌 Visão Geral
 
-### `npm start`
+Esta API foi desenvolvida em **ASP.NET Core** seguindo uma arquitetura em camadas, com foco em organização, escalabilidade e boas práticas de engenharia de software.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Ela é responsável por:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+* Gerenciar usuários
+* Criar e organizar planos de estudo
+* Controlar eventos e horários
+* Gerar Simulados estilo ENEM
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠️ Tecnologias Utilizadas
 
-### `npm run build`
+* **.NET / ASP.NET Core Web API**
+* **C#**
+* **Entity Framework Core**
+* **SQL Server**
+* Arquitetura em camadas
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 🧱 Estrutura do Projeto
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+Learnly.API
+│
+├── Learnly.Api          # Controllers, Program.cs e configuração da API
+├── Learnly.Application # DTOs, casos de uso e regras de aplicação
+├── Learnly.Domain      # Entidades e regras de domínio
+├── Learnly.Repository  # Persistência e configuração do EF Core
+├── Learnly.Services    # Serviços de negócio
+├── Seeder              # Popular banco com dados iniciais
+└── Learnly.sln         # Solução principal
+```
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## ⚙️ Pré-requisitos
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Antes de iniciar, certifique-se de ter instalado:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+* [.NET SDK](https://dotnet.microsoft.com/) (versão compatível com o projeto)
+* SQL Server (ou outro banco configurado)
+* Git
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## 🔧 Configuração do Ambiente
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 1. Clonar o repositório
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+git clone https://github.com/joao-hollanda/Learnly.API
+cd Learnly.API
+```
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 2. Configurar o banco de dados
 
-### Analyzing the Bundle Size
+Edite o arquivo:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+`Learnly.Api/appsettings.json`
 
-### Making a Progressive Web App
+Exemplo:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=localhost;Database=LearnlyDB;Trusted_Connection=True;"
+}
+```
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### 3. Restaurar dependências
 
-### Deployment
+```bash
+dotnet restore
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## 🗄️ Migrations e Banco de Dados
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Para criar o banco e aplicar as migrations:
+
+```bash
+dotnet ef database update
+```
+
+> Observação: o comando pode variar dependendo da configuração da solução.
+
+---
+
+## 🌱 Seeder (Dados Iniciais)
+
+O projeto possui um **Seeder** para popular o banco com dados iniciais.
+
+Recomendado executar após criar o banco para facilitar testes e desenvolvimento.
+
+---
+
+## ▶️ Executando a API
+
+Na raiz da solução:
+
+```bash
+dotnet run --project Learnly.Api
+```
+
+A API ficará disponível em:
+
+```
+https://localhost:5001
+```
+
+ou
+
+```
+http://localhost:5000
+```
+
+---
+
+## 📚 Documentação da API
+
+Se o projeto estiver configurado com Swagger, acesse:
+
+```
+https://localhost:5001/swagger
+```
+
+---
+
+## 📌 Funcionalidades Principais
+
+* Cadastro e autenticação de usuários
+* Criação de planos de estudo
+* Gerenciamento de eventos
+* Simulados com Questões do Enem e Feedback gerado por IA
+* Controle de horários e progresso
+* Chatbot com Inteligência Artificial
+
+---
+
+## 🔒 Arquitetura e Padrões
+
+* Arquitetura em camadas
+* Separação clara de responsabilidades
+* Domínio isolado das regras de negócio
+* Persistência centralizada
+
+---
+
+## 🧪 Testes
+
+*(Projeto de testes ainda não incluído — seção reservada para expansão futura)*
+
+---
+
+## 👤 Autor
+
+**João Victor Hollanda**
