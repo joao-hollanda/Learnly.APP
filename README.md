@@ -1,44 +1,41 @@
-# 🚀 Learnly API – Backend
+# 🎨 Learnly App – Frontend
 
-Backend da aplicação **Learnly**, uma plataforma educacional para gerenciamento de planos de estudo, eventos, disciplinas e progresso do aluno.
+Frontend da aplicação **Learnly**, uma plataforma educacional focada em organização de estudos, eventos e planos personalizados para alunos.
 
 ---
 
 ## 📌 Visão Geral
 
-Esta API foi desenvolvida em **ASP.NET Core** seguindo uma arquitetura em camadas, com foco em organização, escalabilidade e boas práticas de engenharia de software.
+Esta aplicação web é a interface principal do sistema **Learnly**, responsável por fornecer uma experiência intuitiva para criação de planos de estudo, visualização de eventos, organização por disciplinas e acompanhamento de progresso.
 
-Ela é responsável por:
-
-* Gerenciar usuários
-* Criar e organizar planos de estudo
-* Controlar eventos e horários
-* Gerar Simulados estilo ENEM
+O frontend consome a **Learnly API** e apresenta os dados de forma interativa e responsiva.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-* **.NET / ASP.NET Core Web API**
-* **C#**
-* **Entity Framework Core**
-* **SQL Server**
-* Arquitetura em camadas
+* **React.js**
+* **JavaScript**
+* **CSS Modules**
+* **React Hooks**
+* **Axios** (consumo de API)
+* **React Icons**
 
 ---
 
 ## 🧱 Estrutura do Projeto
 
 ```
-Learnly.API
+Learnly.APP
 │
-├── Learnly.Api          # Controllers, Program.cs e configuração da API
-├── Learnly.Application # DTOs, casos de uso e regras de aplicação
-├── Learnly.Domain      # Entidades e regras de domínio
-├── Learnly.Repository  # Persistência e configuração do EF Core
-├── Learnly.Services    # Serviços de negócio
-├── Seeder              # Popular banco com dados iniciais
-└── Learnly.sln         # Solução principal
+├── src
+│   ├── components     # Componentes reutilizáveis
+│   ├── pages          # Páginas da aplicação
+│   ├── services       # Comunicação com a API
+│
+├── public
+├── package.json
+└── README.md
 ```
 
 ---
@@ -47,8 +44,8 @@ Learnly.API
 
 Antes de iniciar, certifique-se de ter instalado:
 
-* [.NET SDK](https://dotnet.microsoft.com/) (versão compatível com o projeto)
-* SQL Server (ou outro banco configurado)
+* [Node.js](https://nodejs.org/) (versão LTS recomendada)
+* npm ou yarn
 * Git
 
 ---
@@ -58,105 +55,86 @@ Antes de iniciar, certifique-se de ter instalado:
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/joao-hollanda/Learnly.API
-cd Learnly.API
+git clone https://github.com/joao-hollanda/Learnly.APP
+cd Learnly.APP
 ```
 
 ---
 
-### 2. Configurar o banco de dados
+### 2. Instalar dependências
 
-Edite o arquivo:
-
-`Learnly.Api/appsettings.json`
-
-Exemplo:
-
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=localhost;Database=LearnlyDB;Trusted_Connection=True;"
-}
-```
-
----
-
-### 3. Restaurar dependências
+Com npm:
 
 ```bash
-dotnet restore
+npm install
 ```
 
----
-
-## 🗄️ Migrations e Banco de Dados
-
-Para criar o banco e aplicar as migrations:
+ou com yarn:
 
 ```bash
-dotnet ef database update
+yarn
 ```
 
-> Observação: o comando pode variar dependendo da configuração da solução.
+---
+
+### 3. Configurar API
+
+Edite o arquivo de configuração do serviço (ex: `src/services/api.js` ou similar) e informe a URL da API:
+
+```js
+export const api = axios.create({
+  baseURL: "https://localhost:5001",
+});
+```
 
 ---
 
-## 🌱 Seeder (Dados Iniciais)
-
-O projeto possui um **Seeder** para popular o banco com dados iniciais.
-
-Recomendado executar após criar o banco para facilitar testes e desenvolvimento.
-
----
-
-## ▶️ Executando a API
-
-Na raiz da solução:
+## ▶️ Executando a Aplicação
 
 ```bash
-dotnet run --project Learnly.Api
-```
-
-A API ficará disponível em:
-
-```
-https://localhost:5001
+npm start
 ```
 
 ou
 
+```bash
+yarn dev
 ```
-http://localhost:5000
+
+A aplicação ficará disponível em:
+
+```
+http://localhost:3000
 ```
 
 ---
 
-## 📚 Documentação da API
+## 📷 Screenshots
 
-Se o projeto estiver configurado com Swagger, acesse:
-
-```
-https://localhost:5001/swagger
-```
+<img width="1914" height="941" alt="image" src="https://github.com/user-attachments/assets/5912da9b-3965-452d-9a7e-e0ba9b905a4e" />
+<img width="1914" height="930" alt="image" src="https://github.com/user-attachments/assets/0479718a-38ba-4db4-be36-7131b1f18c47" />
+<img width="1912" height="935" alt="image" src="https://github.com/user-attachments/assets/4f2a7b8f-a807-4a2d-8b1b-a520d61a993a" />
+<img width="1913" height="841" alt="image" src="https://github.com/user-attachments/assets/e004a92e-ae47-440c-975f-dd2d4c7c8cf3" />
+<img width="1907" height="934" alt="image" src="https://github.com/user-attachments/assets/b85bf546-c63b-46d5-a08a-0c0c2173ed35" />
 
 ---
 
 ## 📌 Funcionalidades Principais
 
-* Cadastro e autenticação de usuários
-* Criação de planos de estudo
-* Gerenciamento de eventos
-* Simulados com Questões do Enem e Feedback gerado por IA
-* Controle de horários e progresso
-* Chatbot com Inteligência Artificial
+* Criação e edição de planos de estudo
+* Visualização de eventos em calendário
+* Organização por disciplinas
+* Interface em formato de chat (aluno x IA)
+* Feedback visual de progresso
 
 ---
 
-## 🔒 Arquitetura e Padrões
+## 🎯 Boas Práticas
 
-* Arquitetura em camadas
-* Separação clara de responsabilidades
-* Domínio isolado das regras de negócio
-* Persistência centralizada
+* Componentização
+* Separação de responsabilidades
+* Consumo centralizado da API
+* Estilos isolados com CSS Modules
 
 ---
 
@@ -168,4 +146,6 @@ https://localhost:5001/swagger
 
 ## 👤 Autor
 
-**João Victor Hollanda**
+**João Victor Holanda**
+* Adaptar para README de portfólio profissional
+* Incluir seção de arquitetura de componentes
