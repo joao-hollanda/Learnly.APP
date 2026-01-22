@@ -249,7 +249,7 @@ export default function Simulados() {
 
           <button
             type="button"
-            className={style.botao}
+            className={`${style.botao} ${style.full}`}
             onClick={handleResponder}
             disabled={loading}
           >
@@ -328,7 +328,7 @@ export default function Simulados() {
           )}
 
           <button
-            className={`${style.botao} ${style.danger}`}
+            className={`${style.botao}  ${style.full} ${style.danger}`}
             onClick={finalizar}
           >
             Fechar

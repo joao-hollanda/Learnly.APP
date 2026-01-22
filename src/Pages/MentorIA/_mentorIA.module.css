@@ -1,0 +1,178 @@
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+}
+
+.chat {
+  flex: 1;
+  padding: 1.5rem;
+  padding-bottom: 110px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.balaoAluno,
+.balaoIA {
+  max-width: 70%;
+  width: fit-content;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.balaoAluno {
+  align-self: flex-end;
+  margin-left: auto;
+  background: #2263c5;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.balaoIA {
+  align-self: flex-start;
+  margin-right: auto;
+  background: #f1f3f5;
+  color: #333;
+  border: 1px solid #e5e5e5;
+  border-bottom-left-radius: 4px;
+}
+
+.inputWrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, #fafafa 70%, rgba(250, 250, 250, 0));
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.inputArea {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  width: 100%;
+  max-height: 150px;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+}
+
+.input::-webkit-scrollbar {
+  width: 6px;
+}
+
+.input::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.input::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+}
+
+.input:focus {
+  border-color: #2263c5;
+  box-shadow: 0 0 0 2px rgba(34, 99, 197, 0.15);
+}
+
+.botao {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #000;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+
+.botao:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+.loading {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  height: 18px;
+}
+
+.loading span {
+  width: 8px;
+  height: 8px;
+  background: #999;
+  border-radius: 2px;
+  animation: bounce 1.2s infinite ease-in-out;
+}
+
+.loading span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loading span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.loading span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .chat {
+    padding: 1rem;
+    padding-bottom: 100px;
+  }
+
+  .balaoAluno,
+  .balaoIA {
+    max-width: 90%;
+  }
+
+  .inputWrapper {
+    padding: 0.8rem;
+  }
+}

@@ -4,6 +4,7 @@ const SIZE = {
   grande: style.grande,
   medio: style.medio,
   pequeno: style.pequeno,
+  cheio: style.cheio
 };
 
 const Card = ({

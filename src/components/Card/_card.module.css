@@ -41,6 +41,11 @@
   grid-column: span 2;
 }
 
+.cheio {
+  height: 90vh;
+  width: 90vw;
+}
+
 .card_example h4 {
   font-size: 0.95rem;
   font-weight: normal;
