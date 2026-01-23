@@ -167,8 +167,8 @@ function Planos() {
         titulo,
         objetivo,
         usuarioId,
-        dataInicio,
-        dataFim,
+        dataInicio: new Date(dataInicio + "T00:00:00Z").toISOString(),
+        dataFim: new Date(dataFim + "T00:00:00Z").toISOString(),
         ativo: true,
       });
 
@@ -442,7 +442,7 @@ function Planos() {
             disabled={loading}
           >
             <span className={loading ? style.hiddenText : ""}>
-              Criar Eventos
+              Criar Plano
             </span>
 
             {loading && <span className={style.spinner} />}
@@ -551,7 +551,7 @@ function Planos() {
             disabled={loading}
           >
             <span className={loading ? style.hiddenText : ""}>
-              Criar Eventos
+              Lançar Horas
             </span>
 
             {loading && <span className={style.spinner} />}
