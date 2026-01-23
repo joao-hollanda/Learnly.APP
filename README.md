@@ -146,4 +146,4 @@ http://localhost:3000
 
 ## 👤 Autor
 
-**João Victor Holanda**
+**João Victor Hollanda**
