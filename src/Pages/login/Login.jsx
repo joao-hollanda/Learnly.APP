@@ -72,7 +72,8 @@ const Login = ({ initialPage }) => {
         if (!email || !senha || !usuario || !confirmarSenha)
           return toast("Preencha todos os campos!");
 
-        if (senha !== confirmarSenha) return toast.warning("As senhas não coincidem");
+        if (senha !== confirmarSenha)
+          return toast.warning("As senhas não coincidem");
 
         try {
           await service.Register(usuario, email, senha);
@@ -134,7 +135,10 @@ const Login = ({ initialPage }) => {
                     </button>
                     <p>
                       Não tem uma conta?{" "}
-                      <button onClick={handleToggle} className="link-style">
+                      <button
+                        onClick={handleToggle}
+                        className={style.link_style}
+                      >
                         Cadastre-se
                       </button>
                     </p>
@@ -170,12 +174,19 @@ const Login = ({ initialPage }) => {
                       onClick={handleSubmit}
                       disabled={loading}
                     >
-                      {loading ? <span className={style.spinner} /> : "Cadastrar"}
+                      {loading ? (
+                        <span className={style.spinner} />
+                      ) : (
+                        "Cadastrar"
+                      )}
                     </button>
 
                     <p>
                       Já tem uma conta?{" "}
-                      <button onClick={handleToggle} className="link-style">
+                      <button
+                        onClick={handleToggle}
+                        className={style.link_style}
+                      >
                         Entrar
                       </button>
                     </p>
