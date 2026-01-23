@@ -83,7 +83,7 @@ function Planos() {
     if (!horasLancadas || horasLancadas <= 0)
       return toast.warn("Informe um valor válido");
 
-    const comparacao = PlanoAPI.CompararHoras(usuarioId);
+    const comparacao = await PlanoAPI.CompararHoras(usuarioId);
     const horasHoje = comparacao.horasHoje;
     const totalComNovoLancamento = horasHoje + Number(horasLancadas);
 

@@ -56,7 +56,7 @@ const Login = ({ initialPage }) => {
 
     try {
       if (isLogin) {
-        if (!email || !senha) return toast.success("Preencha todos os campos!");
+        if (!email || !senha) return toast.warn("Preencha todos os campos!");
         try {
           const response = await service.Login(email, senha);
           sessionStorage.setItem("token", response);
@@ -70,7 +70,7 @@ const Login = ({ initialPage }) => {
         }
       } else {
         if (!email || !senha || !usuario || !confirmarSenha)
-          return toast("Preencha todos os campos!");
+          return toast.warn("Preencha todos os campos!");
 
         if (senha !== confirmarSenha)
           return toast.warning("As senhas não coincidem");
