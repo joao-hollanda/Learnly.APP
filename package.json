@@ -1,5 +1,4 @@
 {
-  "homepage": "https://joao-hollanda.github.io/Learnly.APP",
   "name": "tela-login",
   "version": "0.1.0",
   "private": true,
@@ -27,8 +26,6 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "CI=false react-scripts build",
     "test": "react-scripts test",
