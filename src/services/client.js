@@ -1,6 +1,6 @@
 import axios from "axios"
 
-export const HTTPClient = axios.create({baseURL: 'http://localhost:5080/api/', headers: {
+export const HTTPClient = axios.create({baseURL: 'https://learnly-api-yrdu.onrender.com/api/', headers: {
     'Access-Controll-Allow-Origins': '*',
     'Access-Controll-Allow-Headers': 'Authorization',
     'Access-Controll-Allow-Methods': 'GET, POST, OPTIONS, PUT, PATH, DELETE',
