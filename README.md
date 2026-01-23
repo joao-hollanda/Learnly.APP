@@ -146,6 +146,4 @@ http://localhost:3000
 
 ## 👤 Autor
 
-**João Victor Holanda**
-* Adaptar para README de portfólio profissional
-* Incluir seção de arquitetura de componentes
+**João Victor Hollanda**
