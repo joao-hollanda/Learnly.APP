@@ -134,9 +134,9 @@ const Login = ({ initialPage }) => {
                     </button>
                     <p>
                       Não tem uma conta?{" "}
-                      <a href="#" onClick={handleToggle}>
+                      <button onClick={handleToggle} className="link-style">
                         Cadastre-se
-                      </a>
+                      </button>
                     </p>
                   </>
                 ) : (
@@ -175,9 +175,9 @@ const Login = ({ initialPage }) => {
 
                     <p>
                       Já tem uma conta?{" "}
-                      <a href="#" onClick={handleToggle}>
+                      <button onClick={handleToggle} className="link-style">
                         Entrar
-                      </a>
+                      </button>
                     </p>
                   </>
                 )}
