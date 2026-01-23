@@ -15,7 +15,7 @@ import MentorIA from "./Pages/MentorIA/MentorIA";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <BrowserRouter basename="/Learnly.APP">
+    <BrowserRouter>
       <ToastContainer
         position="bottom-right"
         autoClose={4500}
