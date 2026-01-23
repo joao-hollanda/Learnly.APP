@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/Learnly.APP/static/css/main.3086f45b.css",
+    "main.js": "/Learnly.APP/static/js/main.0b8f0985.js",
+    "static/js/453.a6e456d0.chunk.js": "/Learnly.APP/static/js/453.a6e456d0.chunk.js",
+    "static/media/Learnly.png": "/Learnly.APP/static/media/Learnly.f7dd2b9529b12fb31834.png",
+    "static/media/LearnlyLogo.svg": "/Learnly.APP/static/media/LearnlyLogo.f36659092a2873370a11b4cd6423d475.svg",
+    "index.html": "/Learnly.APP/index.html",
+    "main.3086f45b.css.map": "/Learnly.APP/static/css/main.3086f45b.css.map",
+    "main.0b8f0985.js.map": "/Learnly.APP/static/js/main.0b8f0985.js.map",
+    "453.a6e456d0.chunk.js.map": "/Learnly.APP/static/js/453.a6e456d0.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3086f45b.css",
+    "static/js/main.0b8f0985.js"
+  ]
+}
