@@ -128,7 +128,7 @@ const Login = ({ initialPage }) => {
                     />
                     <button
                       className={style.botaoEnviar}
-                      onClick={handleSubmit}
+                      type="submit"
                       disabled={loading}
                     >
                       {loading ? <span className={style.spinner} /> : "Entrar"}
@@ -156,6 +156,7 @@ const Login = ({ initialPage }) => {
                       placeholder="Email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      required
                     />
                     <input
                       type="password"
@@ -171,7 +172,7 @@ const Login = ({ initialPage }) => {
                     />
                     <button
                       className={style.botaoEnviar}
-                      onClick={handleSubmit}
+                      type="submit"
                       disabled={loading}
                     >
                       {loading ? (
