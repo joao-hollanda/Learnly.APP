@@ -33,6 +33,7 @@
   height: 400px;
   overflow: hidden;
   position: relative;
+  border-radius: 12px;
 }
 
 .calendario_card .rbc-calendar {
@@ -67,6 +68,7 @@
   background: black;
   color: white;
 }
+
 .botao_reset {
   background: rgb(218, 11, 11);
   color: white;
@@ -80,6 +82,7 @@
 .modal_body {
   padding: 1.6rem;
 }
+
 .modal_footer {
   display: flex;
   justify-content: flex-end;
@@ -190,6 +193,7 @@
   border-top: 3px solid white;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+  position: absolute;
 }
 
 .botao {
@@ -197,23 +201,36 @@
 }
 
 .hiddenText {
-  visibility: hidden; /* ocupa espaço, mas não aparece */
-}
-
-.spinner {
-  position: absolute;
+  visibility: hidden;
 }
 
 @media (max-width: 600px) {
-  .grid > div:nth-child(2) {
-    display: none !important;
-  }
   .container {
     padding: 0 1rem;
   }
+
   .info,
   .grid {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+
+  .calendario_card {
+    height: 65vh;
+    min-height: 20rem;
+    margin-bottom: 1rem;
+  }
+
+  .calendario_card .rbc-calendar {
+    height: 100% !important;
+  }
+
+  .rbc-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .rbc-toolbar-label {
+    font-size: 1rem;
   }
 }

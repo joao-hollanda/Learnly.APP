@@ -67,8 +67,8 @@
 
 .atividade {
   text-align: center;
-  font-size: 3rem;
-  margin: 3rem;
+  font-size: 2.5rem;
+  margin: 24px 0 32px 0;
 }
 
 .planos_container {
@@ -104,7 +104,8 @@
   min-width: 4rem;
 }
 
-.botao:hover, .botao.full:hover {
+.botao:hover,
+.botao.full:hover {
   opacity: 0.7;
 }
 
@@ -161,8 +162,24 @@
   color: #374151;
 }
 
+.lixeira {
+  background-color: transparent;
+  color: rgb(218, 11, 11);
+  border: 0;
+  font-size: 1.25rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.lixeira:hover {
+  background-color: rgb(218, 11, 11);
+  color: #fff;
+  border-radius: 999px;
+}
+
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner {
@@ -179,26 +196,42 @@
 }
 
 .hiddenText {
-  visibility: hidden;   /* ocupa espaço, mas não aparece */
+  visibility: hidden; /* ocupa espaço, mas não aparece */
 }
 
 .spinner {
   position: absolute;
 }
 
-
 @media (max-width: 1024px) {
-  .planos_container { grid-template-columns: repeat(2, 1fr); }
+  .planos_container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-  .atividade { font-size: 2.2rem; margin: 2rem; }
-  .planos_container { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-  .cards { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .atividade {
+    font-size: 2.2rem;
+    margin: 2rem;
+  }
+  .planos_container {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  .cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
 }
 
 @media (max-width: 480px) {
-  .atividade { font-size: 1.8rem; margin: 1.5rem; }
-  .planos_container, .cards { grid-template-columns: 1fr; }
-  .botao_exibir { font-size: 0.9rem; }
+  .atividade {
+    font-size: 1.8rem;
+    margin: 1.5rem;
+  }
+  .planos_container,
+  .cards {
+    grid-template-columns: 1fr;
+  }
+  .botao_exibir {
+    font-size: 0.9rem;
+  }
 }

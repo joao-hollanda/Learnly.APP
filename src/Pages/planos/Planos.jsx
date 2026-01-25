@@ -2,13 +2,14 @@ import Header from "../../components/Header/Header";
 import Plano from "../../components/Plano/Plano";
 import style from "./_planos.module.css";
 import { useEffect, useState } from "react";
-import { FaPlay, FaPlus } from "react-icons/fa6";
+import { FaPlay, FaPlus, FaTrash } from "react-icons/fa6";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Card from "../../components/Card/Card";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../services/PlanoService";
 import { Modal } from "react-bootstrap";
 import { ImHappy } from "react-icons/im";
+import { BsTrash } from "react-icons/bs";
 
 const mapPlanoBackend = (plano) => ({
   planoId: plano.planoId,
@@ -244,7 +245,7 @@ function Planos() {
   const LIMITE_DIARIO = 20;
 
   return (
-    <div>
+    <div className="page">
       <Header
         children={
           <button className={style.botao} onClick={abrirCriarPlano}>
@@ -318,13 +319,14 @@ function Planos() {
           <Modal.Title>{planoVisualizado?.titulo}</Modal.Title>
           <div className={style.excluir}>
             <button
-              className={`${style.botao} ${style.danger}`}
+              className={`${style.lixeira}`}
               onClick={() => {
+                setMostrarPlano(false);
                 setPlanoParaExcluir(planoVisualizado);
                 setMostrarExcluir(true);
               }}
             >
-              Excluir
+              <BsTrash />
             </button>
           </div>
         </Modal.Header>
@@ -380,17 +382,17 @@ function Planos() {
         </Modal.Body>
 
         <Modal.Footer>
-          {viewingIndex !== planoAtivoIndex && (
-            <button className={style.botao} onClick={handleAtivarPlano}>
-              Ativar
-            </button>
-          )}
           <button
             className={`${style.botao} ${style.danger}`}
             onClick={() => setMostrarPlano(false)}
           >
             Fechar
           </button>
+          {viewingIndex !== planoAtivoIndex && (
+            <button className={style.botao} onClick={handleAtivarPlano}>
+              Ativar
+            </button>
+          )}
         </Modal.Footer>
       </Modal>
 
@@ -436,22 +438,20 @@ function Planos() {
 
         <Modal.Footer>
           <button
+            className={`${style.botao} ${style.danger}`}
+            onClick={() => setMostrarCriarPlano(false)}
+          >
+            Cancelar
+          </button>
+          <button
             type="button"
             className={style.botao}
             onClick={criarPlano}
             disabled={loading}
           >
-            <span className={loading ? style.hiddenText : ""}>
-              Criar Plano
-            </span>
+            <span className={loading ? style.hiddenText : ""}>Criar Plano</span>
 
             {loading && <span className={style.spinner} />}
-          </button>
-          <button
-            className={`${style.botao} ${style.danger}`}
-            onClick={() => setMostrarCriarPlano(false)}
-          >
-            Cancelar
           </button>
         </Modal.Footer>
       </Modal>
@@ -545,22 +545,22 @@ function Planos() {
 
         <Modal.Footer>
           <button
+            className={`${style.botao} ${style.danger}`}
+            onClick={() => setMostrarHoras(false)}
+          >
+            Cancelar
+          </button>
+          <button
             type="button"
             className={style.botao}
             onClick={lancarHoras}
             disabled={loading}
           >
+
             <span className={loading ? style.hiddenText : ""}>
               Lançar Horas
             </span>
-
             {loading && <span className={style.spinner} />}
-          </button>
-          <button
-            className={`${style.botao} ${style.danger}`}
-            onClick={() => setMostrarHoras(false)}
-          >
-            Cancelar
           </button>
         </Modal.Footer>
       </Modal>
@@ -579,27 +579,25 @@ function Planos() {
 
         <Modal.Footer>
           <button
+            className={style.botao}
+            onClick={() => setMostrarExcluir(false)}
+          >
+            Cancelar
+          </button>
+          <button
             className={`${style.botao} ${style.danger}`}
             onClick={async () => {
               try {
                 await PlanoAPI.Excluir(planoParaExcluir.planoId);
                 toast.success("Plano excluído");
                 setMostrarExcluir(false);
-                setMostrarPlano(false);
                 carregarPlanos();
               } catch {
                 toast.error("Erro ao excluir plano");
               }
             }}
           >
-            Excluir
-          </button>
-
-          <button
-            className={style.botao}
-            onClick={() => setMostrarExcluir(false)}
-          >
-            Cancelar
+            <BsTrash/> Excluir
           </button>
         </Modal.Footer>
       </Modal>

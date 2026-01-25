@@ -123,7 +123,7 @@ export default function Simulados() {
   };
 
   return (
-    <>
+    <div className="page">
       <Header>
         <button className={style.botao} onClick={() => setMostrarCriar(true)}>
           <FaPlus />
@@ -289,6 +289,13 @@ export default function Simulados() {
 
           <div className="d-flex justify-content-end gap-2 mt-3">
             <button
+              className={`${style.botao} ${style.danger}`}
+              onClick={() => setMostrarCriar(false)}
+              disabled={loading}
+            >
+              Fechar
+            </button>
+            <button
               type="button"
               className={style.botao}
               onClick={handleGerarSimulado}
@@ -301,13 +308,6 @@ export default function Simulados() {
               {loading && <span className={style.spinner} />}
             </button>
 
-            <button
-              className={`${style.botao} ${style.danger}`}
-              onClick={() => setMostrarCriar(false)}
-              disabled={loading}
-            >
-              Fechar
-            </button>
           </div>
         </Modal.Body>
       </Modal>
@@ -425,6 +425,6 @@ export default function Simulados() {
           </button>
         </Modal.Footer>
       </Modal>
-    </>
+    </div>
   );
 }

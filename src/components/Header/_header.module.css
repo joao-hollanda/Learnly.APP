@@ -1,22 +1,23 @@
 .header {
   width: 100%;
   max-width: 100vw;
-  background-color: #fff;
+  background-color: #f4f6f8;
   display: flex;
   align-items: center;
-  justify-content: start;
+  justify-content: flex-start;
   padding: 0 2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   font-family: "Inter", "Poppins", sans-serif;
   position: fixed;
   top: 0;
-  z-index: 20;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.158);
+  z-index: 50;
   height: 5rem;
+  box-shadow: 4px 1px 8px rgba(0, 0, 0, 0.06);
 }
 
 .headerWrapper {
-  margin-bottom: 6.5rem;
+  height: 5rem;
+  width: 100%;
 }
 
 .logoArea {
@@ -26,30 +27,26 @@
 }
 
 .logoIcon {
-  height: 3.5rem;
+  height: 3.2rem;
   user-select: none;
   pointer-events: none;
 }
 
 .nav {
   display: flex;
-  align-items: start;
+  align-items: center;
   gap: 2rem;
-  transition: all 0.3s ease-in-out;
 }
 
 .nav a {
   text-decoration: none;
   font-weight: 500;
-  font-size: 1.1rem;
-}
-
-.inactive {
+  font-size: 1.05rem;
   color: #374151;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-.inactive:hover {
+.nav a:hover {
   color: #2563eb;
 }
 
@@ -74,22 +71,23 @@
 @media (max-width: 900px) {
   .menu {
     display: flex;
-    z-index: 30;
+    z-index: 60;
   }
 
   .nav {
     position: fixed;
     top: 0;
     left: -100%;
-    width: 60%;
+    width: 65%;
     height: 100vh;
-    background-color: white;
+    background-color: #ffffff;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 2rem;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
     transition: left 0.3s ease-in-out;
+    z-index: 55;
   }
 
   .showMenu {
@@ -97,7 +95,8 @@
   }
 
   .nav a {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+    color: #111;
   }
 
   .logoIcon {
@@ -111,7 +110,7 @@
   }
 
   .nav a {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
   }
 
   .header {

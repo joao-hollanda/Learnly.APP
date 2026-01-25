@@ -108,7 +108,7 @@ function CalendarView({ eventos }) {
                         top: hovered.top - 8,
                         left: hovered.left + hovered.width / 2,
                         transform: "translate(-50%, -100%)",
-                        backgroundColor: "#fff",
+                        // backgroundColor: "#fff",
                         boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
                         padding: "10px",
                         borderRadius: 10,

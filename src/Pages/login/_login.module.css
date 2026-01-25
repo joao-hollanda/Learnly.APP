@@ -5,7 +5,7 @@
   max-width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: #f4f6f8;
 }
 
 .loginImagem {
@@ -21,7 +21,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.692);
   display: grid;
   place-items: center;
-  background-color: #ffffff;
+  background-color: #f4f6f8;
   width: 100%;
   max-width: 100%;
 }

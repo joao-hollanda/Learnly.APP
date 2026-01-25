@@ -18,6 +18,7 @@ import SimuladoAPI from "../../services/SimuladoService";
 import { Modal } from "react-bootstrap";
 import EventoEstudoAPI from "../../services/EventoService";
 import { MdOutlineRestartAlt } from "react-icons/md";
+import Logout from "../../components/Logout/Logout";
 
 function Inicio() {
   const [loading, setLoading] = useState(false);
@@ -170,9 +171,7 @@ function Inicio() {
       : 0;
 
   const toUtcString = (date) => {
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 19);
+    return date.toISOString().slice(0, 19);
   };
 
   const handleCriarEventos = async () => {
@@ -304,8 +303,8 @@ function Inicio() {
   };
 
   return (
-    <div>
-      <Header />
+    <div className="page">
+      <Header children={<Logout />} />
       <div className={style.container}>
         <div>
           <h2>Olá, {sessionStorage.getItem("nome")}!</h2>
@@ -497,6 +496,13 @@ function Inicio() {
         <Modal.Footer className={style.modal_footer}>
           <button
             type="button"
+            className={style.botao_cancelar}
+            onClick={() => setMostrarModalEvento(false)}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
             className={style.botao}
             onClick={handleCriarEventos}
             disabled={loading}
@@ -506,14 +512,6 @@ function Inicio() {
             </span>
 
             {loading && <span className={style.spinner} />}
-          </button>
-
-          <button
-            type="button"
-            className={style.botao_cancelar}
-            onClick={() => setMostrarModalEvento(false)}
-          >
-            Cancelar
           </button>
         </Modal.Footer>
       </Modal>
@@ -529,32 +527,29 @@ function Inicio() {
 
         <Modal.Body>
           <p>
-            Esta ação irá <strong>apagar todos os eventos de estudo</strong>{" "}
-            do seu calendário.
+            Esta ação irá <strong>apagar todos os eventos de estudo</strong> do
+            seu calendário.
           </p>
           <p>Essa ação não pode ser desfeita.</p>
         </Modal.Body>
 
         <Modal.Footer>
           <button
-            type="button"
-            className={style.botao}
-            onClick={handleResetEventos}
-            disabled={loading}
-          >
-            <span className={loading ? style.hiddenText : ""}>
-              Confirmar
-            </span>
-
-            {loading && <span className={style.spinner} />}
-          </button>
-
-          <button
             className={style.botao_cancelar}
             onClick={() => setMostrarModalReset(false)}
             disabled={loading}
           >
             Cancelar
+          </button>
+          <button
+            type="button"
+            className={style.botao}
+            onClick={handleResetEventos}
+            disabled={loading}
+          >
+            <span className={loading ? style.hiddenText : ""}>Confirmar</span>
+
+            {loading && <span className={style.spinner} />}
           </button>
         </Modal.Footer>
       </Modal>
