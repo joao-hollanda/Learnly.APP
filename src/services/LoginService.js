@@ -21,7 +21,7 @@ const LoginAPI = {
         return resposta.data;
     },
 
-    Awake() {
+    async Awake() {
         const resposta = await HTTPClient.get(`ping`);
         
         return resposta.data;
