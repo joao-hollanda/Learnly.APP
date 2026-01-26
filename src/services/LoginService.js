@@ -20,6 +20,12 @@ const LoginAPI = {
 
         return resposta.data;
     },
+
+    Awake() {
+        const resposta = await HTTPClient.get(`ping`);
+        
+        return resposta.data;
+    }
 };
 
 export default LoginAPI

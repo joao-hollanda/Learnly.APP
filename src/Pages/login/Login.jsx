@@ -91,6 +91,14 @@ const Login = ({ initialPage }) => {
     }
   }
 
+  useEffect(() => {
+    const wakeApi = async () => {
+      await service.Awake();
+    };
+
+    wakeApi();
+  }, []);
+
   return (
     <div className={style.main}>
       <img src={login} alt="Learnly" className={style.loginImagem} />
