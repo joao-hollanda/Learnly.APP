@@ -22,7 +22,7 @@ const LoginAPI = {
     },
 
     async Awake() {
-        const resposta = await HTTPClient.get(`ping`);
+        const resposta = await HTTPClient.get(`Login/ping`);
         
         return resposta.data;
     }

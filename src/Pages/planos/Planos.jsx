@@ -255,8 +255,10 @@ function Planos() {
       />
 
       {planosList.length === 0 ? (
-        <div className={style.vazio}>
-          Nenhum plano ainda, que tal criar um? <ImHappy />
+        <div className={style.container}>
+          <div className={style.vazio}>
+            Nenhum plano ainda, que tal criar um? <ImHappy />
+          </div>
         </div>
       ) : (
         <>
@@ -556,7 +558,6 @@ function Planos() {
             onClick={lancarHoras}
             disabled={loading}
           >
-
             <span className={loading ? style.hiddenText : ""}>
               Lançar Horas
             </span>
@@ -597,7 +598,7 @@ function Planos() {
               }
             }}
           >
-            <BsTrash/> Excluir
+            <BsTrash /> Excluir
           </button>
         </Modal.Footer>
       </Modal>

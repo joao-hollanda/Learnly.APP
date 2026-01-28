@@ -204,6 +204,22 @@
   visibility: hidden;
 }
 
+@media (max-width: 800px) {
+  .botao,
+  .botao_reset,
+  .botao_modal,
+  .botao_cancelar {
+    width: 100%;
+    min-width: unset;
+    padding: 0.6rem 1rem;
+  }
+
+  .botao,
+  .botao_reset {
+    align-self: stretch;
+  }
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 0 1rem;

@@ -68,7 +68,6 @@
 .atividade {
   text-align: center;
   font-size: 2.5rem;
-  margin: 24px 0 32px 0;
 }
 
 .planos_container {
@@ -159,6 +158,7 @@
   font-size: 2rem;
   border-radius: 8px;
   text-align: center;
+  margin-top: 7rem;
   color: #374151;
 }
 
