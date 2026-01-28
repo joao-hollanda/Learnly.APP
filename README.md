@@ -1,31 +1,38 @@
-# 🎨 Learnly App – Frontend
+---
 
-Frontend da aplicação **Learnly**, uma plataforma educacional focada em organização de estudos, eventos e planos personalizados para alunos.
+# Learnly App
+
+Frontend da aplicação **Learnly**, uma plataforma educacional voltada à organização de estudos, eventos acadêmicos e planos personalizados para alunos.
 
 ---
 
-## 📌 Visão Geral
+## Visão Geral
 
-Esta aplicação web é a interface principal do sistema **Learnly**, responsável por fornecer uma experiência intuitiva para criação de planos de estudo, visualização de eventos, organização por disciplinas e acompanhamento de progresso.
+Esta aplicação web representa a interface principal do sistema **Learnly**, sendo responsável por fornecer uma experiência intuitiva para:
 
-O frontend consome a **Learnly API** e apresenta os dados de forma interativa e responsiva.
+* Criação e gerenciamento de planos de estudo
+* Visualização de eventos e horários
+* Organização por disciplinas
+* Acompanhamento de progresso acadêmico
 
----
-
-## 🛠️ Tecnologias Utilizadas
-
-* **React.js**
-* **JavaScript**
-* **CSS Modules**
-* **React Hooks**
-* **Axios** (consumo de API)
-* **React Icons**
+O frontend consome a **Learnly API** e apresenta os dados de forma interativa, responsiva e organizada.
 
 ---
 
-## 🧱 Estrutura do Projeto
+## Tecnologias Utilizadas
 
-```
+* React.js
+* JavaScript
+* CSS Modules
+* React Hooks
+* Axios (consumo de API)
+* React Icons
+
+---
+
+## Estrutura do Projeto
+
+```text
 Learnly.APP
 │
 ├── src
@@ -40,19 +47,19 @@ Learnly.APP
 
 ---
 
-## ⚙️ Pré-requisitos
+## Pré-requisitos
 
-Antes de iniciar, certifique-se de ter instalado:
+Antes de iniciar, certifique-se de possuir:
 
-* [Node.js](https://nodejs.org/) (versão LTS recomendada)
+* Node.js (versão LTS recomendada)
 * npm ou yarn
 * Git
 
 ---
 
-## 🔧 Configuração do Ambiente
+## Configuração do Ambiente
 
-### 1. Clonar o repositório
+### Clonar o repositório
 
 ```bash
 git clone https://github.com/joao-hollanda/Learnly.APP
@@ -61,7 +68,7 @@ cd Learnly.APP
 
 ---
 
-### 2. Instalar dependências
+### Instalar dependências
 
 Com npm:
 
@@ -69,7 +76,7 @@ Com npm:
 npm install
 ```
 
-ou com yarn:
+Ou com yarn:
 
 ```bash
 yarn
@@ -77,11 +84,13 @@ yarn
 
 ---
 
-### 3. Configurar API
+### Configurar a API
 
-Edite o arquivo de configuração do serviço (ex: `src/services/api.js` ou similar) e informe a URL da API:
+Edite o arquivo de serviço (exemplo: `src/services/api.js`) e informe a URL da API:
 
 ```js
+import axios from "axios";
+
 export const api = axios.create({
   baseURL: "https://localhost:5001",
 });
@@ -89,7 +98,7 @@ export const api = axios.create({
 
 ---
 
-## ▶️ Executando a Aplicação
+## Executando a Aplicação
 
 ```bash
 npm start
@@ -109,7 +118,7 @@ http://localhost:3000
 
 ---
 
-## 📷 Screenshots
+## Screenshots
 
 <img width="1914" height="941" alt="image" src="https://github.com/user-attachments/assets/5912da9b-3965-452d-9a7e-e0ba9b905a4e" />
 <img width="1914" height="930" alt="image" src="https://github.com/user-attachments/assets/0479718a-38ba-4db4-be36-7131b1f18c47" />
@@ -119,7 +128,7 @@ http://localhost:3000
 
 ---
 
-## 📌 Funcionalidades Principais
+## Funcionalidades Principais
 
 * Criação e edição de planos de estudo
 * Visualização de eventos em calendário
@@ -129,7 +138,7 @@ http://localhost:3000
 
 ---
 
-## 🎯 Boas Práticas
+## Boas Práticas
 
 * Componentização
 * Separação de responsabilidades
@@ -138,12 +147,12 @@ http://localhost:3000
 
 ---
 
-## 🧪 Testes
+## Testes
 
-*(Projeto de testes ainda não incluído — seção reservada para expansão futura)*
+Projeto de testes ainda não incluído — seção reservada para evolução futura.
 
 ---
 
-## 👤 Autor
+## Autor
 
-**João Victor Hollanda**
+**João Victor Hollanda** - Desenvolvedor Frontend / Full Stack em formação
