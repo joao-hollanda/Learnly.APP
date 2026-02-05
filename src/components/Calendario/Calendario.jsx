@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import { createPortal } from "react-dom";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
@@ -19,9 +20,8 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-function CalendarView({ eventos }) {
+function Calendario({ eventos }) {
   const [hovered, setHovered] = useState(null);
-  const calendarWrapperRef = useRef(null);
 
   const CustomDateHeader = ({ label, date }) => {
     const eventosDoDia = eventos.filter(
@@ -32,20 +32,18 @@ function CalendarView({ eventos }) {
 
     return (
       <div
-        style={{ position: "relative", width: "100%", height: "100%" }}
+        className={style.dateHeader}
         onMouseEnter={(e) => {
           if (!eventosDoDia.length) return;
-          const cardRect = e.currentTarget.getBoundingClientRect();
-          const containerRect =
-            calendarWrapperRef.current.getBoundingClientRect();
+
+          const rect = e.currentTarget.getBoundingClientRect();
 
           setHovered({
             date,
             eventos: eventosDoDia,
-            top: cardRect.top - containerRect.top,
-            left: cardRect.left - containerRect.left,
-            width: cardRect.width,
-            height: cardRect.height,
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
           });
         }}
         onMouseLeave={() => setHovered(null)}
@@ -56,11 +54,7 @@ function CalendarView({ eventos }) {
   };
 
   return (
-    <div
-      ref={calendarWrapperRef}
-      className={style.calendario_card}
-      style={{ position: "relative" }}
-    >
+    <div className={style.calendarioCard}>
       <Calendar
         localizer={localizer}
         events={eventos}
@@ -80,91 +74,54 @@ function CalendarView({ eventos }) {
             dateHeader: CustomDateHeader,
           },
         }}
-        eventPropGetter={(event) => {
-          const cores = {
-            concluido: "#22c55e",
-            atual: "#3b82f6",
-            proximo: "#ef4444",
-          };
-
-          return {
-            style: {
-              backgroundColor: cores[event.status] || "#5B72F2",
-              color: "white",
-              fontSize: "0.7rem",
-              borderRadius: "6px",
-              padding: "2px 4px",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              textOverflow: "ellipsis",
-            },
-          };
-        }}
+        eventPropGetter={(event) => ({
+          className: style.calendarEvent,
+          style: {
+            backgroundColor:
+              {
+                concluido: "#22c55e",
+                atual: "#3b82f6",
+                proximo: "#ef4444",
+              }[event.status] || "#5B72F2",
+          },
+        })}
       />
 
-      {hovered && (
-        <div
-          style={{
-            position: "absolute",
-            top: hovered.top - 8,
-            left: hovered.left + hovered.width / 2,
-            transform: "translate(-50%, -100%)",
-            backgroundColor: "rgba(255,255,255,0.97)",
-            boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
-            padding: "10px",
-            borderRadius: 10,
-            zIndex: 9999,
-            minWidth: 200,
-            pointerEvents: "none",
-            overflow: "visible",
-            height: "auto"
-          }}
-        >
+      {hovered &&
+        createPortal(
           <div
+            className={style.tooltip}
             style={{
-              position: "absolute",
-              bottom: -8,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: 0,
-              height: 0,
-              borderLeft: "8px solid transparent",
-              borderRight: "8px solid transparent",
-              borderTop: "8px solid #fff",
+              top: hovered.top - 8,
+              left: hovered.left + hovered.width / 2,
             }}
-          />
-          <strong style={{ display: "block", marginBottom: 6 }}>
-            <div className={style.eventos}>
-              <CiCalendar />
-              <p>{hovered.date.toLocaleDateString("pt-BR")}</p>
-            </div>
-          </strong>
+          >
+            <div className={style.tooltipArrow} />
 
-          {hovered.eventos.map((e, i) => {
-            const inicio = e.start instanceof Date ? e.start.getHours() : "--";
-            const fim = e.end instanceof Date ? e.end.getHours() : "--";
-            return (
-              <div
-                key={i}
-                style={{ fontSize: "0.85rem", marginTop: 6, color: "#333" }}
-              >
-                <span
-                  style={{
-                    fontSize: "1rem",
-                    color: "black",
-                    marginRight: ".2rem",
-                  }}
-                >
-                  •
-                </span>{" "}
-                {e.title} ({inicio}h - {fim}h)
-              </div>
-            );
-          })}
-        </div>
-      )}
+            <div className={style.tooltipHeader}>
+              <CiCalendar />
+              <span>
+                {hovered.date.toLocaleDateString("pt-BR")}
+              </span>
+            </div>
+
+            {hovered.eventos.map((e, i) => {
+              const inicio =
+                e.start instanceof Date ? e.start.getHours() : "--";
+              const fim =
+                e.end instanceof Date ? e.end.getHours() : "--";
+
+              return (
+                <div key={i} className={style.tooltipItem}>
+                  • {e.title} ({inicio}h - {fim}h)
+                </div>
+              );
+            })}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
 
-export default CalendarView;
+export default Calendario;

@@ -419,7 +419,6 @@ function Planos() {
           />
 
           <label className="form-label">Data de Início</label>
-          <label className="form-label">Data de Início</label>
           <input
             type="date"
             className="form-control mb-3"
