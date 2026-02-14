@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const local = 'http://localhost:5080/api/'
-const deploy = 'https://learnly-api-yrdu.onrender.com/'
+const deploy = 'https://learnly-api-yrdu.onrender.com/api/'
 
 export const HTTPClient = axios.create({baseURL: deploy, headers: {
     'Access-Control-Allow-Origins': '*',
