@@ -272,7 +272,7 @@ export default function Simulados() {
             />
           ))}
 
-          <h3 className="mt-3">Quantidade</h3>
+          <h3 className="mt-3">Quantidade de Questões</h3>
           <input
             type="number"
             className="form-control mt-2"

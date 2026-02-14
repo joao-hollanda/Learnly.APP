@@ -2,28 +2,32 @@ import Header from "../../components/Header/Header";
 import Plano from "../../components/Plano/Plano";
 import style from "./_planos.module.css";
 import { useEffect, useState } from "react";
-import { FaPlay, FaPlus, FaTrash } from "react-icons/fa6";
+import { FaBrain, FaPlay, FaPlus, FaTrash } from "react-icons/fa6";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Card from "../../components/Card/Card";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../services/PlanoService";
 import { Modal } from "react-bootstrap";
 import { ImHappy } from "react-icons/im";
-import { BsTrash } from "react-icons/bs";
+import { BsRobot, BsTrash } from "react-icons/bs";
 
 const mapPlanoBackend = (plano) => ({
   planoId: plano.planoId,
   titulo: plano.titulo,
   objetivo: plano.objetivo,
+  dataInicio: plano.dataInicio,
+  dataFim: plano.dataFim,
+  horasPorSemana: plano.horasPorSemana,
   ativo: plano.ativo,
-  dataInicio: plano.dataInicio?.split("T")[0],
-  dataFim: plano.dataFim?.split("T")[0],
+
   materias: (plano.planoMaterias ?? []).map((pm) => ({
     planoMateriaId: pm.planoMateriaId,
+    materiaId: pm.materiaId,
     nome: pm.materia.nome,
     cor: pm.materia.cor,
     horasTotais: pm.horasTotais,
     horasConcluidas: pm.horasConcluidas,
+    topicos: pm.topicos ?? [],
   })),
 });
 
@@ -51,6 +55,7 @@ function Planos() {
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
   const [materiasDoPlano, setMateriasDoPlano] = useState([]);
+  const [horasSemana, setHorasSemana] = useState();
 
   const [mostrarHoras, setMostrarHoras] = useState(false);
   const [materiaSelecionada, setMateriaSelecionada] = useState(null);
@@ -58,6 +63,8 @@ function Planos() {
 
   const [mostrarExcluir, setMostrarExcluir] = useState(false);
   const [planoParaExcluir, setPlanoParaExcluir] = useState(null);
+
+  const [mostrarIa, setMostrarIa] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -134,6 +141,17 @@ function Planos() {
     setMostrarCriarPlano(true);
   };
 
+  const abrirPlanoIa = () => {
+    if (planosList.length >= 5) {
+      toast.warn("Você já atingiu o limite de 5 planos.");
+      return;
+    }
+
+    setTitulo("");
+    setObjetivo("");
+    setMostrarIa(true);
+  };
+
   const diferencaEmDias = (inicio, fim) => {
     const dataInicio = new Date(inicio);
     const dataFim = new Date(fim);
@@ -142,7 +160,7 @@ function Planos() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  const criarPlano = async () => {
+  const criarPlano = async (planoIA) => {
     if (!titulo || !objetivo || !dataInicio || !dataFim) {
       return toast.warn("Preencha todos os campos!");
     }
@@ -168,21 +186,29 @@ function Planos() {
         titulo,
         objetivo,
         usuarioId,
-        dataInicio: new Date(dataInicio + "T00:00:00Z").toISOString(),
-        dataFim: new Date(dataFim + "T00:00:00Z").toISOString(),
+        dataInicio: new Date(dataInicio + "T00:00:00").toISOString(),
+        dataFim: new Date(dataFim + "T00:00:00").toISOString(),
+        horasPorSemana: horasSemana,
         ativo: true,
+        planoIa: planoIA,
       });
 
       await PlanoAPI.AtivarPlano(planoCriado.planoId, usuarioId);
 
       setPlanoConfigId(planoCriado.planoId);
       setMostrarCriarPlano(false);
-      setMostrarConfigurar(true);
+
+      if (!planoIA) {
+        setMostrarConfigurar(true);
+      } else {
+        setMostrarConfigurar(false);
+      }
 
       carregarPlanos();
       setMateriasDoPlano([]);
 
       toast.success("Plano criado e ativado!");
+      setMostrarIa(false)
     } catch {
       toast.error("Erro ao criar plano");
     } finally {
@@ -253,6 +279,12 @@ function Planos() {
           </button>
         }
       />
+
+      <div className={style.fab_container}>
+        <button className={style.fab} onClick={abrirPlanoIa}>
+          <BsRobot className={style.icon} />
+        </button>
+      </div>
 
       {planosList.length === 0 ? (
         <div className={style.container}>
@@ -355,13 +387,26 @@ function Planos() {
 
         <Modal.Body className={style.modal_body}>
           <div className={style.cards}>
-            {planoVisualizado?.materias.map((m, i) => {
-              const progresso = (m.horasConcluidas / m.horasTotais) * 100 || 0;
+            {planoVisualizado?.materias?.map((pm, i) => {
+              const progresso =
+                (pm.horasConcluidas / pm.horasTotais) * 100 || 0;
 
               return (
-                <Card key={i} titulo={m.nome} subtitulo={m.objetivo}>
+                <Card key={i} titulo={pm.nome}>
+                  <div className={style.topicos}>
+                    {pm.topicos?.length > 0 && (
+                      <div className={style.topicos}>
+                        <strong>Tópicos:</strong>
+                        <ul>
+                          {pm.topicos.map((topico, index) => (
+                            <li key={index}>{topico}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                   <p>
-                    {m.horasConcluidas}h / {m.horasTotais}h
+                    {pm.horasConcluidas}h / {pm.horasTotais}h
                   </p>
 
                   <div className={style.progress}>
@@ -373,7 +418,7 @@ function Planos() {
 
                   <button
                     className={`${style.botao} ${style.full}`}
-                    onClick={() => abrirLancamentoHoras(m)}
+                    onClick={() => abrirLancamentoHoras(pm)}
                   >
                     Lançar horas
                   </button>
@@ -395,6 +440,81 @@ function Planos() {
               Ativar
             </button>
           )}
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={mostrarIa} centered>
+        <Modal.Header>
+          <Modal.Title>Criar Plano com IA</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <input
+            className="form-control mb-3"
+            placeholder="Título"
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+          />
+
+          <input
+            className="form-control mb-3"
+            placeholder="Objetivo"
+            value={objetivo}
+            onChange={(e) => setObjetivo(e.target.value)}
+          />
+
+          <label className="form-label">Carga Horaria Semanal</label>
+          <input
+            type="number"
+            className="form-control mb-3"
+            placeholder="Horas por semana (max: 60)"
+            value={horasSemana}
+            min={1}
+            max={60}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "") return setHorasSemana("");
+              if (+v < 1 || +v > 60) return;
+              setHorasSemana(+v);
+            }}
+          />
+
+          <label className="form-label">Data de Início</label>
+          <input
+            type="date"
+            className="form-control mb-3"
+            value={dataInicio}
+            min={hoje}
+            onChange={(e) => setDataInicio(e.target.value)}
+          />
+
+          <label className="form-label">Data Final</label>
+          <input
+            type="date"
+            className="form-control"
+            value={dataFim}
+            min={dataInicio || hoje}
+            onChange={(e) => setDataFim(e.target.value)}
+          />
+        </Modal.Body>
+
+        <Modal.Footer>
+          <button
+            className={`${style.botao} ${style.danger}`}
+            onClick={() => setMostrarIa(false)}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className={style.botao}
+            onClick={() => criarPlano(true)}
+            disabled={loading}
+          >
+            <span className={loading ? style.hiddenText : ""}>Criar Plano</span>
+
+            {loading && <span className={style.spinner} />}
+          </button>
         </Modal.Footer>
       </Modal>
 
@@ -447,7 +567,7 @@ function Planos() {
           <button
             type="button"
             className={style.botao}
-            onClick={criarPlano}
+            onClick={() => criarPlano(false)}
             disabled={loading}
           >
             <span className={loading ? style.hiddenText : ""}>Criar Plano</span>
