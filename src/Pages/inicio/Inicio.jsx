@@ -11,7 +11,6 @@ import { FaPlus } from "react-icons/fa6";
 import Bolinha from "../../components/Bolinha/Bolinha";
 import CalendarView from "../../components/Calendario/Calendario";
 import { IoSchool } from "react-icons/io5";
-import { jwtDecode } from "jwt-decode";
 import PlanoAPI from "../../services/PlanoService";
 import { toast } from "react-toastify";
 import SimuladoAPI from "../../services/SimuladoService";
@@ -19,6 +18,7 @@ import { Modal } from "react-bootstrap";
 import EventoEstudoAPI from "../../services/EventoService";
 import { MdOutlineRestartAlt } from "react-icons/md";
 import Logout from "../../components/Logout/Logout";
+import { getUserData } from "../../utils/cookieHelper";
 
 function Inicio() {
   const [loading, setLoading] = useState(false);
@@ -52,7 +52,7 @@ function Inicio() {
     { label: "Dom", value: 0 },
   ];
 
-  const token = sessionStorage.getItem("token");
+  const [userData, setUserData] = useState(null);
 
   const [comparacaoHoras, setComparacaoHoras] = useState({
     horasHoje: 0,
@@ -60,12 +60,17 @@ function Inicio() {
   });
 
   useEffect(() => {
-    if (token) {
-      const decoded = jwtDecode(token);
-      sessionStorage.setItem("id", decoded.id);
-      sessionStorage.setItem("nome", decoded.nome);
-    }
-  }, [token]);
+    const loadUserData = async () => {
+      const data = await getUserData();
+      if (data) {
+        setUserData(data);
+        sessionStorage.setItem("id", data.id.toString());
+        sessionStorage.setItem("nome", data.nome);
+      }
+    };
+    
+    loadUserData();
+  }, []);
 
   useEffect(() => {
     obterResumo();
@@ -307,7 +312,7 @@ function Inicio() {
       <Header children={<Logout />} />
       <div className={style.container}>
         <div>
-          <h2>Olá, {sessionStorage.getItem("nome")}!</h2>
+          <h2>Olá, {userData?.nome || "Usuário"}!</h2>
           <h3>Aqui está seu resumo</h3>
 
           <div className={style.info_container}>

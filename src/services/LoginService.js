@@ -25,6 +25,18 @@ const LoginAPI = {
         const resposta = await HTTPClient.get(`Login/ping`);
         
         return resposta.data;
+    },
+
+    async Logout() {
+        const resposta = await HTTPClient.post(`Login/logout`);
+        
+        return resposta.data;
+    },
+
+    async RefreshToken() {
+        const resposta = await HTTPClient.post(`Login/refresh`);
+        
+        return resposta.data;
     }
 };
 

@@ -6,6 +6,7 @@ import service from "../../services/LoginService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { startTokenRefresh } from "../../utils/tokenRefresh";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -80,8 +81,8 @@ const Login = () => {
           );
 
         try {
-          const response = await service.Login(email, senha);
-          sessionStorage.setItem("token", response);
+          await service.Login(email, senha);
+          startTokenRefresh(); // Inicia renovação automática
           navigate("/home");
         } catch (error) {
           if (error.response) {
