@@ -66,21 +66,20 @@ function Inicio() {
         setUserData(data);
         sessionStorage.setItem("id", data.id.toString());
         sessionStorage.setItem("nome", data.nome);
+
+        await Promise.all([
+          obterResumo(data.id),
+          obterComparacaoHoras(data.id),
+          obterPlanoAtivo(data.id),
+          obterEventos(data.id),
+        ]);
       }
     };
-    
+
     loadUserData();
   }, []);
 
-  useEffect(() => {
-    obterResumo();
-    obterComparacaoHoras();
-    obterPlanoAtivo();
-    obterEventos();
-  }, []);
-
-  const obterPlanoAtivo = async () => {
-    const usuarioId = sessionStorage.getItem("id");
+  const obterPlanoAtivo = async (usuarioId) => {
     const resposta = await PlanoAPI.ObterPlanoAtivo(usuarioId);
     setPlanoAtivo(resposta);
   };
@@ -120,31 +119,25 @@ function Inicio() {
   useEffect(() => {
     const interval = setInterval(() => {
       setHoraAtual(new Date());
-    }, 60000); // atualiza a cada 1 minuto
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
 
-  const obterResumo = async () => {
+  const obterResumo = async (usuarioId) => {
     try {
-      const usuarioId = sessionStorage.getItem("id");
-
       const resposta = await PlanoAPI.ObterResumo(usuarioId);
-
       const totalSimulados = await SimuladoAPI.Contar(usuarioId);
-
-      setTotalSimulados(totalSimulados);
+      setTotalSimulados(totalSimulados ?? 0);
       setResumo(resposta);
     } catch (erro) {
       toast.error("Erro ao carregar resumo");
     }
   };
 
-  const obterEventos = async () => {
+  const obterEventos = async (usuarioId) => {
     try {
-      const usuarioId = Number(sessionStorage.getItem("id"));
-
-      const eventosApi = await EventoEstudoAPI.Listar(usuarioId);
+      const eventosApi = await EventoEstudoAPI.Listar(Number(usuarioId));
 
       const eventosFormatados = eventosApi.map((e) => ({
         id: e.eventoId,
@@ -160,11 +153,10 @@ function Inicio() {
     }
   };
 
-  const obterComparacaoHoras = async () => {
+  const obterComparacaoHoras = async (usuarioId) => {
     try {
-      const usuarioId = sessionStorage.getItem("id");
       const resposta = await PlanoAPI.CompararHoras(usuarioId);
-      setComparacaoHoras(resposta);
+      setComparacaoHoras(resposta ?? { horasHoje: 0, diferenca: 0 });
     } catch (erro) {
       toast.error("Erro ao carregar horas de estudo");
     }
@@ -273,7 +265,7 @@ function Inicio() {
         });
       }
 
-      await obterEventos();
+      await obterEventos(usuarioId);
 
       setMostrarModalEvento(false);
       setNovoEvento({ titulo: "", inicio: "", fim: "", diasSemana: [] });
@@ -295,7 +287,7 @@ function Inicio() {
 
       await EventoEstudoAPI.Remover(usuarioId);
 
-      await obterEventos();
+      await obterEventos(usuarioId);
 
       toast.success("Todos os eventos foram removidos com sucesso!");
       setMostrarModalReset(false);
