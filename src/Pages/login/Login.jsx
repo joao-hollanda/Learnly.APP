@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const Login = ({ initialPage }) => {
+const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   const [usuario, setUsuario] = useState("");
@@ -18,6 +18,20 @@ const Login = ({ initialPage }) => {
 
   const formRef = useRef(null);
   const navigate = useNavigate();
+
+  const isValidEmail = (value) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(String(value).toLowerCase());
+  };
+
+  const isValidPassword = (value) => {
+    const password = String(value);
+
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])([^\s]){8,}$/;
+
+    return regex.test(password);
+  };
 
   function resetFields() {
     setUsuario("");
@@ -57,6 +71,14 @@ const Login = ({ initialPage }) => {
     try {
       if (isLogin) {
         if (!email || !senha) return toast.warn("Preencha todos os campos!");
+
+        if (!isValidEmail(email)) return toast.warn("Informe um e-mail válido.");
+
+        if (!isValidPassword(senha))
+          return toast.warn(
+            "A senha deve ter no mínimo 8 caracteres, com letra maiúscula, minúscula, número, caractere especial e sem espaços."
+          );
+
         try {
           const response = await service.Login(email, senha);
           sessionStorage.setItem("token", response);
@@ -72,6 +94,13 @@ const Login = ({ initialPage }) => {
         if (!email || !senha || !usuario || !confirmarSenha)
           return toast.warn("Preencha todos os campos!");
 
+        if (!isValidEmail(email)) return toast.warn("Informe um e-mail válido.");
+
+        if (!isValidPassword(senha))
+          return toast.warn(
+            "A senha deve ter no mínimo 8 caracteres, com letra maiúscula, minúscula, número, caractere especial e sem espaços."
+          );
+
         if (senha !== confirmarSenha)
           return toast.warning("As senhas não coincidem");
 
@@ -82,6 +111,7 @@ const Login = ({ initialPage }) => {
           setSenha("");
           setConfirmarSenha("");
           toast.success("Usuario criado com sucesso!");
+          setIsLogin(true)
         } catch (err) {
           toast.error(err.response.data);
         }
