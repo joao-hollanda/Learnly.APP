@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { startTokenRefresh } from "../../utils/tokenRefresh";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +16,9 @@ const Login = () => {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
 
   const formRef = useRef(null);
   const navigate = useNavigate();
@@ -37,6 +41,8 @@ const Login = () => {
     setEmail("");
     setSenha("");
     setConfirmarSenha("");
+    setMostrarSenha(false);
+    setMostrarConfirmarSenha(false);
   }
 
   function handleToggle(e) {
@@ -70,15 +76,14 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        if (!email || !senha)
-          return toast.warn("Preencha todos os campos!");
+        if (!email || !senha) return toast.warn("Preencha todos os campos!");
 
         if (!isValidEmail(email))
           return toast.warn("Informe um e-mail válido.");
 
         if (!isValidPassword(senha))
           return toast.warn(
-            "A senha deve ter no mínimo 8 caracteres, com letra maiúscula, minúscula, número, caractere especial e sem espaços."
+            "A senha deve ter no mínimo 8 caracteres, com letra maiúscula, minúscula, número, caractere especial e sem espaços.",
           );
 
         try {
@@ -103,7 +108,7 @@ const Login = () => {
 
         if (!isValidPassword(senha))
           return toast.warn(
-            "A senha deve ter no mínimo 8 caracteres, com letra maiúscula, minúscula, número, caractere especial e sem espaços."
+            "A senha deve ter no mínimo 8 caracteres, com letra maiúscula, minúscula, número, caractere especial e sem espaços.",
           );
 
         if (senha !== confirmarSenha)
@@ -164,23 +169,28 @@ const Login = () => {
                       onChange={(e) => setEmail(e.target.value)}
                     />
 
-                    <input
-                      type="password"
-                      placeholder="Senha"
-                      value={senha}
-                      onChange={(e) => setSenha(e.target.value)}
-                    />
+                    <div className={style.senhaWrapper}>
+                      <input
+                        type={mostrarSenha ? "text" : "password"}
+                        placeholder="Senha"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className={style.mostrarSenhaBtn}
+                        onClick={() => setMostrarSenha((prev) => !prev)}
+                      >
+                        {mostrarSenha ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
 
                     <button
                       className={style.botaoEnviar}
                       type="submit"
                       disabled={loading}
                     >
-                      {loading ? (
-                        <span className={style.spinner} />
-                      ) : (
-                        "Entrar"
-                      )}
+                      {loading ? <span className={style.spinner} /> : "Entrar"}
                     </button>
 
                     <p>
@@ -210,21 +220,39 @@ const Login = () => {
                       onChange={(e) => setEmail(e.target.value)}
                     />
 
-                    <input
-                      type="password"
-                      placeholder="Senha"
-                      value={senha}
-                      onChange={(e) => setSenha(e.target.value)}
-                    />
+                    <div className={style.senhaWrapper}>
+                      <input
+                        type={mostrarSenha ? "text" : "password"}
+                        placeholder="Senha"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className={style.mostrarSenhaBtn}
+                        onClick={() => setMostrarSenha((prev) => !prev)}
+                      >
+                        {mostrarSenha ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
 
-                    <input
-                      type="password"
-                      placeholder="Confirmar senha"
-                      value={confirmarSenha}
-                      onChange={(e) =>
-                        setConfirmarSenha(e.target.value)
-                      }
-                    />
+                    <div className={style.senhaWrapper}>
+                      <input
+                        type={mostrarConfirmarSenha ? "text" : "password"}
+                        placeholder="Confirmar Senha"
+                        value={confirmarSenha}
+                        onChange={(e) => setConfirmarSenha(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className={style.mostrarSenhaBtn}
+                        onClick={() =>
+                          setMostrarConfirmarSenha((prev) => !prev)
+                        }
+                      >
+                        {mostrarConfirmarSenha ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
 
                     <button
                       className={style.botaoEnviar}

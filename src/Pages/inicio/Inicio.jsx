@@ -389,7 +389,7 @@ function Inicio() {
               detalhe={
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button
-                    className={style.botao}
+                    className={style.botao_criar}
                     onClick={() => setMostrarModalEvento(true)}
                     title="Criar eventos"
                   >

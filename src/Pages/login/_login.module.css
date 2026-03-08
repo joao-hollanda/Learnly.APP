@@ -64,9 +64,8 @@
   width: 100%;
   padding: 0.8rem;
   border-radius: 0.5rem;
-  transition:
-    box-shadow 0.3s ease-in-out,
-    width 0.5s ease-in-out;
+  box-sizing: border-box;
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 .container input:focus,
@@ -77,6 +76,43 @@
 
 .container ::placeholder {
   color: #9ca3af;
+}
+
+/* Garante que form e o div interno ocupem largura total */
+.formBox form,
+.formBox form > div {
+  width: 100%;
+}
+
+.senhaWrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.senhaWrapper input {
+  margin-top: 0;
+  padding-right: 2.8rem;
+}
+
+.mostrarSenhaBtn {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.mostrarSenhaBtn:hover {
+  color: #2563eb;
 }
 
 .formBox {
@@ -131,9 +167,8 @@
   color: white;
   border-radius: 0.5rem;
   margin: 2.5rem 0;
-  transition:
-    box-shadow 0.3s ease-in-out,
-    width 0.5s ease-in-out;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 .botaoEnviar:hover {
@@ -151,12 +186,8 @@
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @media (max-width: 1024px) {
@@ -193,8 +224,11 @@
   }
 
   .container input {
-    width: 100%;
     padding: 0.7rem;
+  }
+
+  .senhaWrapper input {
+    padding-right: 2.8rem;
   }
 
   .container {
@@ -237,6 +271,10 @@
   .container input {
     padding: 1rem;
     font-size: 1rem;
+  }
+
+  .senhaWrapper input {
+    padding-right: 2.8rem;
   }
 
   .container button {

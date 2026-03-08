@@ -25,8 +25,7 @@
   font-size: 1.1rem;
   font-weight: normal;
   color: #6c757d;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin: 0 0 1.5rem 0;
 }
 
 .calendario_card {
@@ -56,27 +55,67 @@
   box-sizing: border-box;
   min-width: 100px;
   min-height: 30px;
-}
-
-.botao,
-.botao_reset {
-  padding: 0.5rem 2rem;
-  align-self: flex-end;
+  position: relative;
 }
 
 .botao {
+  padding: 0.5rem 2rem;
   background: black;
   color: white;
+  align-self: flex-end;
+}
+
+.botao:hover {
+  opacity: 0.7;
+}
+
+.botao_criar,
+.botao_reset {
+  background: none;
+  color: rgb(34, 99, 197);
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  min-width: unset;
+  cursor: pointer;
+  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.botao_criar:hover {
+  background-color: rgb(34, 99, 197);
+  color: #fff;
 }
 
 .botao_reset {
-  background: rgb(218, 11, 11);
-  color: white;
+  color: rgb(218, 11, 11);
 }
 
-.botao:hover,
 .botao_reset:hover {
-  opacity: 0.7;
+  background-color: rgb(218, 11, 11);
+  color: #fff;
+}
+.botao_modal {
+  background: #2263c5;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.45rem 1.2rem;
+  font-size: 0.85rem;
+}
+
+.botao_modal:hover {
+  background: #1b4fa0;
+  transform: translateY(-1px);
+}
+
+.botao_cancelar {
+  background: rgb(218, 11, 11);
+  padding: 0.5rem 1.5rem;
+  color: #fff;
 }
 
 .modal_body {
@@ -108,9 +147,7 @@
   border-radius: 10px;
   padding: 0.55rem 0.75rem;
   font-size: 0.9rem;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input:focus {
@@ -161,25 +198,6 @@
   color: #fff;
 }
 
-.botao_modal {
-  background: #2263c5;
-  color: #fff;
-  border-radius: 10px;
-  padding: 0.45rem 1.2rem;
-  font-size: 0.85rem;
-}
-
-.botao_modal:hover {
-  background: #1b4fa0;
-  transform: translateY(-1px);
-}
-
-.botao_cancelar {
-  background: rgb(218, 11, 11);
-  padding: 0.5rem 1.5rem;
-  color: #fff;
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -212,11 +230,6 @@
     width: 100%;
     min-width: unset;
     padding: 0.6rem 1rem;
-  }
-
-  .botao,
-  .botao_reset {
-    align-self: stretch;
   }
 }
 

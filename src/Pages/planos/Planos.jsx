@@ -10,6 +10,7 @@ import PlanoAPI from "../../services/PlanoService";
 import { Modal } from "react-bootstrap";
 import { ImHappy } from "react-icons/im";
 import { BsRobot, BsTrash } from "react-icons/bs";
+import Select from "react-select";
 
 const mapPlanoBackend = (plano) => ({
   planoId: plano.planoId,
@@ -208,7 +209,7 @@ function Planos() {
       setMateriasDoPlano([]);
 
       toast.success("Plano criado e ativado!");
-      setMostrarIa(false)
+      setMostrarIa(false);
     } catch {
       toast.error("Erro ao criar plano");
     } finally {
@@ -583,35 +584,59 @@ function Planos() {
         </Modal.Header>
 
         <Modal.Body>
-          <select
-            className="form-select mb-3"
-            value={materiaId}
-            onChange={(e) => setMateriaId(e.target.value)}
-          >
-            <option value="">Selecione a matéria</option>
-            {materiasDisponiveis
-              .filter((m) => !materiasDoPlano.some((pm) => pm.nome === m.nome))
-              .map((m) => (
-                <option key={m.materiaId} value={m.materiaId}>
-                  {m.nome}
-                </option>
-              ))}
-          </select>
-
-          <input
-            type="number"
-            min="5"
-            max="200"
-            className="form-control"
-            placeholder="Horas totais"
-            value={horasTotais}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") return setHorasTotais("");
-              if (+v < 1 || +v > 200) return;
-              setHorasTotais(+v);
-            }}
+          <Select
+            options={materiasDisponiveis.map((m) => ({
+              value: m.materiaId,
+              label: m.nome,
+              isDisabled: materiasDoPlano.some((pm) => pm.nome === m.nome),
+            }))}
+            value={
+              materiaId
+                ? materiasDisponiveis
+                    .map((m) => ({ value: m.materiaId, label: m.nome }))
+                    .find((o) => o.value === materiaId) || null
+                : null
+            }
+            onChange={(selected) => setMateriaId(selected?.value || "")}
+            placeholder="Selecione a matéria"
+            isClearable
           />
+
+          {materiasDisponiveis.filter(
+            (m) => !materiasDoPlano.some((pm) => pm.nome === m.nome),
+          ).length === 0 && (
+            <small className="text-muted">
+              Todas as matérias já foram adicionadas
+            </small>
+          )}
+
+          <div className="mt-3">
+            <label>Horas totais: {horasTotais || 0}</label>
+            <input
+              type="range"
+              min={5}
+              max={200}
+              step={1}
+              value={horasTotais || 5}
+              onChange={(e) => setHorasTotais(+e.target.value)}
+              className="form-range"
+            />
+            <input
+              type="number"
+              min={5}
+              max={200}
+              className="form-control mt-1"
+              placeholder="Horas totais"
+              value={horasTotais || ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") return setHorasTotais("");
+                const num = +v;
+                if (num < 5 || num > 200) return;
+                setHorasTotais(num);
+              }}
+            />
+          </div>
         </Modal.Body>
 
         <Modal.Footer>
@@ -624,7 +649,6 @@ function Planos() {
               if (materiasDoPlano.length === 0) {
                 return toast.warn("Adicione ao menos uma matéria ao plano");
               }
-
               setMostrarConfigurar(false);
               carregarPlanos();
             }}
