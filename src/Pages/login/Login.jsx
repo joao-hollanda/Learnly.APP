@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import style from "./_login.module.css";
-import Button from "../../components/Button/Button";
 import login from "../../img/Learnly.png";
 import service from "../../services/LoginService";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +26,6 @@ const Login = () => {
 
   const isValidPassword = (value) => {
     const password = String(value);
-
     const regex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])([^\s]){8,}$/;
 
@@ -42,7 +40,8 @@ const Login = () => {
   }
 
   function handleToggle(e) {
-    e && e.preventDefault();
+    e.preventDefault();
+
     const el = formRef.current;
 
     if (!el) {
@@ -55,9 +54,9 @@ const Login = () => {
     el.classList.add(style.fadeOut);
 
     const timeout = 420;
+
     setTimeout(() => {
       setIsLogin((s) => !s);
-
       resetFields();
 
       el.classList.remove(style.fadeOut);
@@ -66,14 +65,16 @@ const Login = () => {
   }
 
   async function handleSubmit(e) {
-    setLoading(true);
     e.preventDefault();
+    setLoading(true);
 
     try {
       if (isLogin) {
-        if (!email || !senha) return toast.warn("Preencha todos os campos!");
+        if (!email || !senha)
+          return toast.warn("Preencha todos os campos!");
 
-        if (!isValidEmail(email)) return toast.warn("Informe um e-mail válido.");
+        if (!isValidEmail(email))
+          return toast.warn("Informe um e-mail válido.");
 
         if (!isValidPassword(senha))
           return toast.warn(
@@ -82,7 +83,9 @@ const Login = () => {
 
         try {
           await service.Login(email, senha);
-          startTokenRefresh(); // Inicia renovação automática
+
+          startTokenRefresh();
+
           navigate("/home");
         } catch (error) {
           if (error.response) {
@@ -95,7 +98,8 @@ const Login = () => {
         if (!email || !senha || !usuario || !confirmarSenha)
           return toast.warn("Preencha todos os campos!");
 
-        if (!isValidEmail(email)) return toast.warn("Informe um e-mail válido.");
+        if (!isValidEmail(email))
+          return toast.warn("Informe um e-mail válido.");
 
         if (!isValidPassword(senha))
           return toast.warn(
@@ -107,14 +111,14 @@ const Login = () => {
 
         try {
           await service.Register(usuario, email, senha);
-          setUsuario("");
-          setEmail("");
-          setSenha("");
-          setConfirmarSenha("");
-          toast.success("Usuario criado com sucesso!");
-          setIsLogin(true)
+
+          resetFields();
+
+          toast.success("Usuário criado com sucesso!");
+
+          setIsLogin(true);
         } catch (err) {
-          toast.error(err.response.data);
+          toast.error(err.response?.data || "Erro ao registrar.");
         }
       }
     } finally {
@@ -159,22 +163,30 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
+
                     <input
                       type="password"
                       placeholder="Senha"
                       value={senha}
                       onChange={(e) => setSenha(e.target.value)}
                     />
+
                     <button
                       className={style.botaoEnviar}
                       type="submit"
                       disabled={loading}
                     >
-                      {loading ? <span className={style.spinner} /> : "Entrar"}
+                      {loading ? (
+                        <span className={style.spinner} />
+                      ) : (
+                        "Entrar"
+                      )}
                     </button>
+
                     <p>
                       Não tem uma conta?{" "}
                       <button
+                        type="button"
                         onClick={handleToggle}
                         className={style.link_style}
                       >
@@ -190,25 +202,30 @@ const Login = () => {
                       value={usuario}
                       onChange={(e) => setUsuario(e.target.value)}
                     />
+
                     <input
                       type="email"
                       placeholder="Email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      required
                     />
+
                     <input
                       type="password"
                       placeholder="Senha"
                       value={senha}
                       onChange={(e) => setSenha(e.target.value)}
                     />
+
                     <input
                       type="password"
                       placeholder="Confirmar senha"
                       value={confirmarSenha}
-                      onChange={(e) => setConfirmarSenha(e.target.value)}
+                      onChange={(e) =>
+                        setConfirmarSenha(e.target.value)
+                      }
                     />
+
                     <button
                       className={style.botaoEnviar}
                       type="submit"
@@ -224,6 +241,7 @@ const Login = () => {
                     <p>
                       Já tem uma conta?{" "}
                       <button
+                        type="button"
                         onClick={handleToggle}
                         className={style.link_style}
                       >
