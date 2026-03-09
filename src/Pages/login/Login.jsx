@@ -140,6 +140,7 @@ const Login = () => {
   }, []);
 
   return (
+    //#region JSX
     <div className={style.main}>
       <img src={login} alt="Learnly" className={style.loginImagem} />
 
@@ -284,6 +285,7 @@ const Login = () => {
         </div>
       </div>
     </div>
+    //#endregion
   );
 };
 

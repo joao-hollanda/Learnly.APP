@@ -14,7 +14,7 @@ import { IoSchool } from "react-icons/io5";
 import PlanoAPI from "../../services/PlanoService";
 import { toast } from "react-toastify";
 import SimuladoAPI from "../../services/SimuladoService";
-import { Modal } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import EventoEstudoAPI from "../../services/EventoService";
 import { MdOutlineRestartAlt } from "react-icons/md";
 import Logout from "../../components/Logout/Logout";
@@ -300,6 +300,7 @@ function Inicio() {
   };
 
   return (
+    //#region JSX
     <div className="page">
       <Header children={<Logout />} />
       <div className={style.container}>
@@ -409,7 +410,9 @@ function Inicio() {
           </div>
         </div>
       </div>
+      {/* //#endregion */}
 
+      {/* //#region Criar Evento */}
       <Modal
         show={mostrarModalEvento}
         centered
@@ -417,6 +420,9 @@ function Inicio() {
         onHide={() => setMostrarModalEvento(false)}
       >
         <Modal.Header closeButton>
+          <div className="modal-icon modal-icon-info">
+            <FaRegCalendarAlt />
+          </div>
           <Modal.Title>Criar evento de estudo</Modal.Title>
         </Modal.Header>
 
@@ -445,7 +451,6 @@ function Inicio() {
                 }
               />
             </div>
-
             <div className={style.form_group}>
               <label>Hora fim</label>
               <input
@@ -476,11 +481,7 @@ function Inicio() {
                     )
                       ? novoEvento.diasSemana.filter((d) => d !== dia.value)
                       : [...novoEvento.diasSemana, dia.value];
-
-                    setNovoEvento({
-                      ...novoEvento,
-                      diasSemana: selecionados,
-                    });
+                    setNovoEvento({ ...novoEvento, diasSemana: selecionados });
                   }}
                 >
                   {dia.label}
@@ -490,66 +491,76 @@ function Inicio() {
           </div>
         </Modal.Body>
 
-        <Modal.Footer className={style.modal_footer}>
-          <button
-            type="button"
-            className={style.botao_cancelar}
+        <Modal.Footer>
+          <Button
+            variant="secondary"
             onClick={() => setMostrarModalEvento(false)}
           >
             Cancelar
-          </button>
-          <button
-            type="button"
-            className={style.botao}
+          </Button>
+          <Button
+            variant="primary"
             onClick={handleCriarEventos}
             disabled={loading}
           >
-            <span className={loading ? style.hiddenText : ""}>
-              Criar Eventos
-            </span>
-
-            {loading && <span className={style.spinner} />}
-          </button>
+            {loading ? (
+              <span className={style.spinner} />
+            ) : (
+              <>
+                <FaPlus /> Criar eventos
+              </>
+            )}
+          </Button>
         </Modal.Footer>
       </Modal>
+      {/* //#endregion */}
 
+      {/* //#region Reset */}
       <Modal
         show={mostrarModalReset}
         centered
         onHide={() => setMostrarModalReset(false)}
       >
         <Modal.Header closeButton>
+          <div className="modal-icon modal-icon-danger">
+            <MdOutlineRestartAlt />
+          </div>
           <Modal.Title>Resetar eventos</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <p>
-            Esta ação irá <strong>apagar todos os eventos de estudo</strong> do
-            seu calendário.
-          </p>
-          <p>Essa ação não pode ser desfeita.</p>
+          Tem certeza que deseja apagar todos os eventos de estudo do seu
+          calendário?
+          <br />
+          <span className="modal-badge modal-badge-danger">
+            Essa ação não pode ser desfeita.
+          </span>
         </Modal.Body>
 
         <Modal.Footer>
-          <button
-            className={style.botao_cancelar}
+          <Button
+            variant="secondary"
             onClick={() => setMostrarModalReset(false)}
             disabled={loading}
           >
             Cancelar
-          </button>
-          <button
-            type="button"
-            className={style.botao}
+          </Button>
+          <Button
+            variant="danger"
             onClick={handleResetEventos}
             disabled={loading}
           >
-            <span className={loading ? style.hiddenText : ""}>Confirmar</span>
-
-            {loading && <span className={style.spinner} />}
-          </button>
+            {loading ? (
+              <span className={style.spinner} />
+            ) : (
+              <>
+                <MdOutlineRestartAlt /> Confirmar
+              </>
+            )}
+          </Button>
         </Modal.Footer>
       </Modal>
+      {/* //#endregion */}
     </div>
   );
 }

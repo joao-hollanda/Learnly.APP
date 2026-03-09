@@ -7,9 +7,20 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Card from "../../components/Card/Card";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../services/PlanoService";
-import { Modal } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import { ImHappy } from "react-icons/im";
-import { BsRobot, BsTrash } from "react-icons/bs";
+import {
+  BsCheckLg,
+  BsClock,
+  BsExclamationTriangle,
+  BsGear,
+  BsJournalPlus,
+  BsPlus,
+  BsRobot,
+  BsStar,
+  BsStars,
+  BsTrash,
+} from "react-icons/bs";
 import Select from "react-select";
 
 const mapPlanoBackend = (plano) => ({
@@ -222,6 +233,7 @@ function Planos() {
       return toast.warn("Preencha todos os campos");
 
     try {
+      setLoading(true);
       await PlanoAPI.AdicionarMateria(planoConfigId, {
         materiaId,
         horasTotais,
@@ -231,19 +243,16 @@ function Planos() {
 
       setMateriasDoPlano((prev) => [
         ...prev,
-        {
-          nome: materia.nome,
-          horasTotais,
-          horasConcluidas: 0,
-        },
+        { nome: materia.nome, horasTotais, horasConcluidas: 0 },
       ]);
 
       setMateriaId("");
       setHorasTotais("");
-
       toast.success("Matéria adicionada");
     } catch {
       toast.error("Erro ao adicionar matéria");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -272,6 +281,7 @@ function Planos() {
   const LIMITE_DIARIO = 20;
 
   return (
+    //#region JSX
     <div className="page">
       <Header
         children={
@@ -342,19 +352,19 @@ function Planos() {
           )}
         </>
       )}
+      {/* //#endregion */}
 
+      {/* //#region Mostrar Plano */}
       <Modal
         show={mostrarPlano}
         centered
         size="xl"
-        dialogClassName={style.modal_xl}
         onHide={() => setMostrarPlano(false)}
       >
-        <Modal.Header>
-          <Modal.Title>{planoVisualizado?.titulo}</Modal.Title>
-          <div className={style.excluir}>
+        <Modal.Header closeButton>
+          <div className={style.header_content}>
             <button
-              className={`${style.lixeira}`}
+              className={style.lixeira}
               onClick={() => {
                 setMostrarPlano(false);
                 setPlanoParaExcluir(planoVisualizado);
@@ -363,51 +373,53 @@ function Planos() {
             >
               <BsTrash />
             </button>
+
+            <Modal.Title>{planoVisualizado?.titulo}</Modal.Title>
+
+            {planoVisualizado && (
+              <div className={style.info_container}>
+                <div className={style.info_item}>
+                  <span className={style.info_label}>Início</span>
+                  <span className={style.info_value}>
+                    {new Date(planoVisualizado.dataInicio).toLocaleDateString(
+                      "pt-BR",
+                    )}
+                  </span>
+                </div>
+                <div className={style.info_item}>
+                  <span className={style.info_label}>Fim</span>
+                  <span className={style.info_value}>
+                    {new Date(planoVisualizado.dataFim).toLocaleDateString(
+                      "pt-BR",
+                    )}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </Modal.Header>
-
-        {planoVisualizado && (
-          <div className={style.info_container}>
-            <div className={style.info_item}>
-              <span className={style.info_label}>Início</span>
-              <span className={style.info_value}>
-                {new Date(planoVisualizado.dataInicio).toLocaleDateString(
-                  "pt-BR",
-                )}
-              </span>
-            </div>
-
-            <div className={style.info_item}>
-              <span className={style.info_label}>Fim</span>
-              <span className={style.info_value}>
-                {new Date(planoVisualizado.dataFim).toLocaleDateString("pt-BR")}
-              </span>
-            </div>
-          </div>
-        )}
 
         <Modal.Body className={style.modal_body}>
           <div className={style.cards}>
             {planoVisualizado?.materias?.map((pm, i) => {
               const progresso =
                 (pm.horasConcluidas / pm.horasTotais) * 100 || 0;
-
               return (
                 <Card key={i} titulo={pm.nome}>
-                  <div className={style.topicos}>
-                    {pm.topicos?.length > 0 && (
-                      <div className={style.topicos}>
-                        <strong>Tópicos:</strong>
-                        <ul>
-                          {pm.topicos.map((topico, index) => (
-                            <li key={index}>{topico}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                  <p>
-                    {pm.horasConcluidas}h / {pm.horasTotais}h
+                  {pm.topicos?.length > 0 && (
+                    <div className={style.topicos}>
+                      <strong>Tópicos:</strong>
+                      <ul>
+                        {pm.topicos.map((topico, index) => (
+                          <li key={index}>{topico}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <p className={style.horas}>
+                    <BsClock size={12} /> {pm.horasConcluidas}h /{" "}
+                    {pm.horasTotais}h
                   </p>
 
                   <div className={style.progress}>
@@ -430,29 +442,28 @@ function Planos() {
         </Modal.Body>
 
         <Modal.Footer>
-          <button
-            className={`${style.botao} ${style.danger}`}
-            onClick={() => setMostrarPlano(false)}
-          >
-            Fechar
-          </button>
           {viewingIndex !== planoAtivoIndex && (
-            <button className={style.botao} onClick={handleAtivarPlano}>
-              Ativar
-            </button>
+            <Button variant="primary" onClick={handleAtivarPlano}>
+              <BsCheckLg /> Ativar plano
+            </Button>
           )}
         </Modal.Footer>
       </Modal>
+      {/* //#endregion */}
 
-      <Modal show={mostrarIa} centered>
-        <Modal.Header>
-          <Modal.Title>Criar Plano com IA</Modal.Title>
+      {/* //#region Criar com IA */}
+      <Modal show={mostrarIa} centered onHide={() => setMostrarIa(false)}>
+        <Modal.Header closeButton>
+          <div className="modal-icon modal-icon-warning">
+            <BsStars />
+          </div>
+          <Modal.Title>Criar plano com IA</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           <input
             className="form-control mb-3"
-            placeholder="Título"
+            placeholder="Título do plano"
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
           />
@@ -464,11 +475,16 @@ function Planos() {
             onChange={(e) => setObjetivo(e.target.value)}
           />
 
-          <label className="form-label">Carga Horaria Semanal</label>
+          <label
+            className="form-label fw-semibold"
+            style={{ fontSize: "0.8125rem", color: "#475569" }}
+          >
+            Carga horária semanal
+          </label>
           <input
             type="number"
             className="form-control mb-3"
-            placeholder="Horas por semana (max: 60)"
+            placeholder="Horas por semana (máx: 60)"
             value={horasSemana}
             min={1}
             max={60}
@@ -480,54 +496,78 @@ function Planos() {
             }}
           />
 
-          <label className="form-label">Data de Início</label>
-          <input
-            type="date"
-            className="form-control mb-3"
-            value={dataInicio}
-            min={hoje}
-            onChange={(e) => setDataInicio(e.target.value)}
-          />
-
-          <label className="form-label">Data Final</label>
-          <input
-            type="date"
-            className="form-control"
-            value={dataFim}
-            min={dataInicio || hoje}
-            onChange={(e) => setDataFim(e.target.value)}
-          />
+          <div className="row g-3">
+            <div className="col-6">
+              <label
+                className="form-label fw-semibold"
+                style={{ fontSize: "0.8125rem", color: "#475569" }}
+              >
+                Data de início
+              </label>
+              <input
+                type="date"
+                className="form-control"
+                value={dataInicio}
+                min={hoje}
+                onChange={(e) => setDataInicio(e.target.value)}
+              />
+            </div>
+            <div className="col-6">
+              <label
+                className="form-label fw-semibold"
+                style={{ fontSize: "0.8125rem", color: "#475569" }}
+              >
+                Data final
+              </label>
+              <input
+                type="date"
+                className="form-control"
+                value={dataFim}
+                min={dataInicio || hoje}
+                onChange={(e) => setDataFim(e.target.value)}
+              />
+            </div>
+          </div>
         </Modal.Body>
 
         <Modal.Footer>
-          <button
-            className={`${style.botao} ${style.danger}`}
-            onClick={() => setMostrarIa(false)}
-          >
+          <Button variant="secondary" onClick={() => setMostrarIa(false)}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className={style.botao}
+          </Button>
+          <Button
+            variant="primary"
             onClick={() => criarPlano(true)}
             disabled={loading}
           >
-            <span className={loading ? style.hiddenText : ""}>Criar Plano</span>
-
-            {loading && <span className={style.spinner} />}
-          </button>
+            {loading ? (
+              <span className={style.spinner} />
+            ) : (
+              <>
+                <BsStars /> Criar
+              </>
+            )}
+          </Button>
         </Modal.Footer>
       </Modal>
+      {/* //#endregion */}
 
-      <Modal show={mostrarCriarPlano} centered>
-        <Modal.Header>
-          <Modal.Title>Criar Plano</Modal.Title>
+      {/* //#region Criar Plano */}
+      <Modal
+        show={mostrarCriarPlano}
+        centered
+        onHide={() => setMostrarCriarPlano(false)}
+      >
+        <Modal.Header closeButton>
+          <div className="modal-icon modal-icon-success">
+            <BsJournalPlus />
+          </div>
+          <Modal.Title>Criar plano</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
           <input
             className="form-control mb-3"
-            placeholder="Título"
+            placeholder="Título do plano"
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
           />
@@ -539,48 +579,75 @@ function Planos() {
             onChange={(e) => setObjetivo(e.target.value)}
           />
 
-          <label className="form-label">Data de Início</label>
-          <input
-            type="date"
-            className="form-control mb-3"
-            value={dataInicio}
-            min={hoje}
-            onChange={(e) => setDataInicio(e.target.value)}
-          />
-
-          <label className="form-label">Data Final</label>
-          <input
-            type="date"
-            className="form-control"
-            value={dataFim}
-            min={dataInicio || hoje}
-            onChange={(e) => setDataFim(e.target.value)}
-          />
+          <div className="row g-3">
+            <div className="col-6">
+              <label
+                className="form-label fw-semibold"
+                style={{ fontSize: "0.8125rem", color: "#475569" }}
+              >
+                Data de início
+              </label>
+              <input
+                type="date"
+                className="form-control"
+                value={dataInicio}
+                min={hoje}
+                onChange={(e) => setDataInicio(e.target.value)}
+              />
+            </div>
+            <div className="col-6">
+              <label
+                className="form-label fw-semibold"
+                style={{ fontSize: "0.8125rem", color: "#475569" }}
+              >
+                Data final
+              </label>
+              <input
+                type="date"
+                className="form-control"
+                value={dataFim}
+                min={dataInicio || hoje}
+                onChange={(e) => setDataFim(e.target.value)}
+              />
+            </div>
+          </div>
         </Modal.Body>
 
         <Modal.Footer>
-          <button
-            className={`${style.botao} ${style.danger}`}
+          <Button
+            variant="secondary"
             onClick={() => setMostrarCriarPlano(false)}
           >
             Cancelar
-          </button>
-          <button
-            type="button"
-            className={style.botao}
+          </Button>
+          <Button
+            variant="primary"
             onClick={() => criarPlano(false)}
             disabled={loading}
           >
-            <span className={loading ? style.hiddenText : ""}>Criar Plano</span>
-
-            {loading && <span className={style.spinner} />}
-          </button>
+            {loading ? (
+              <span className={style.spinner} />
+            ) : (
+              <>
+                <BsJournalPlus /> Criar plano
+              </>
+            )}
+          </Button>
         </Modal.Footer>
       </Modal>
+      {/* //#endregion */}
 
-      <Modal show={mostrarConfigurar} centered>
-        <Modal.Header>
-          <Modal.Title>Configurar Plano</Modal.Title>
+      {/* //#region Configurar */}
+      <Modal
+        show={mostrarConfigurar}
+        centered
+        onHide={() => setMostrarConfigurar(false)}
+      >
+        <Modal.Header closeButton>
+          <div className="modal-icon modal-icon-info">
+            <BsGear />
+          </div>
+          <Modal.Title>Configurar plano</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -605,13 +672,26 @@ function Planos() {
           {materiasDisponiveis.filter(
             (m) => !materiasDoPlano.some((pm) => pm.nome === m.nome),
           ).length === 0 && (
-            <small className="text-muted">
+            <small className="text-muted mt-1 d-block">
               Todas as matérias já foram adicionadas
             </small>
           )}
 
           <div className="mt-3">
-            <label>Horas totais: {horasTotais || 0}</label>
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label
+                className="fw-semibold"
+                style={{ fontSize: "0.875rem", color: "#475569" }}
+              >
+                Horas totais
+              </label>
+              <span
+                className="modal-badge modal-badge-info"
+                style={{ marginTop: 0 }}
+              >
+                {horasTotais || 0}h
+              </span>
+            </div>
             <input
               type="range"
               min={5}
@@ -626,7 +706,7 @@ function Planos() {
               min={5}
               max={200}
               className="form-control mt-1"
-              placeholder="Horas totais"
+              placeholder="Ou digite o valor (5–200)"
               value={horasTotais || ""}
               onChange={(e) => {
                 const v = e.target.value;
@@ -640,30 +720,44 @@ function Planos() {
         </Modal.Body>
 
         <Modal.Footer>
-          <button className={style.botao} onClick={adicionarMateria}>
-            Adicionar
-          </button>
-          <button
-            className={`${style.botao} ${style.concluir}`}
+          <Button variant="secondary" onClick={adicionarMateria}>
+            {loading ? (
+              <span className={style.spinner} />
+            ) : (
+              <>
+                <BsPlus /> Adicionar
+              </>
+            )}
+          </Button>
+          <Button
+            variant="primary"
             onClick={() => {
-              if (materiasDoPlano.length === 0) {
+              if (materiasDoPlano.length === 0)
                 return toast.warn("Adicione ao menos uma matéria ao plano");
-              }
               setMostrarConfigurar(false);
               carregarPlanos();
             }}
           >
-            Concluir
-          </button>
+            <BsCheckLg /> Concluir
+          </Button>
         </Modal.Footer>
       </Modal>
+      {/* //#endregion */}
 
+      {/* //#region Mostrar Horas */}
       <Modal show={mostrarHoras} centered onHide={() => setMostrarHoras(false)}>
-        <Modal.Header>
-          <Modal.Title>Lançar horas — {materiaSelecionada?.nome}</Modal.Title>
+        <Modal.Header closeButton>
+          <div className="modal-icon modal-icon-info">
+            <BsClock />
+          </div>
+          <Modal.Title>Lançar horas</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
+          <span className="modal-badge modal-badge-info">
+            {materiaSelecionada?.nome}
+          </span>
+
           <input
             type="number"
             min="1"
@@ -671,80 +765,93 @@ function Planos() {
               (materiaSelecionada?.horasTotais ?? 0) -
               (materiaSelecionada?.horasConcluidas ?? 0)
             }
-            className="form-control"
-            placeholder="Horas estudadas"
+            className="form-control mt-3"
+            placeholder="Quantas horas você estudou?"
             value={horasLancadas}
             onChange={(e) => {
               const v = e.target.value;
               const max =
                 (materiaSelecionada?.horasTotais ?? 0) -
                 (materiaSelecionada?.horasConcluidas ?? 0);
-
               if (v === "") return setHorasLancadas("");
               if (+v < 1 || +v > max) return;
-
               setHorasLancadas(+v);
             }}
           />
         </Modal.Body>
 
         <Modal.Footer>
-          <button
-            className={`${style.botao} ${style.danger}`}
-            onClick={() => setMostrarHoras(false)}
-          >
+          <Button variant="secondary" onClick={() => setMostrarHoras(false)}>
             Cancelar
-          </button>
-          <button
-            type="button"
-            className={style.botao}
-            onClick={lancarHoras}
-            disabled={loading}
-          >
-            <span className={loading ? style.hiddenText : ""}>
-              Lançar Horas
-            </span>
-            {loading && <span className={style.spinner} />}
-          </button>
+          </Button>
+          <Button variant="primary" onClick={lancarHoras} disabled={loading}>
+            {loading ? (
+              <span className={style.spinner} />
+            ) : (
+              <>
+                <BsClock /> Lançar horas
+              </>
+            )}
+          </Button>
         </Modal.Footer>
       </Modal>
+      {/* //#endregion */}
 
-      <Modal show={mostrarExcluir} centered>
-        <Modal.Header>
+      {/* //#region Excluir */}
+      <Modal
+        show={mostrarExcluir}
+        centered
+        onHide={() => setMostrarExcluir(false)}
+      >
+        <Modal.Header closeButton>
+          <div className="modal-icon modal-icon-danger">
+            <BsExclamationTriangle />
+          </div>
           <Modal.Title>Excluir plano</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          Tem certeza que deseja excluir o plano{" "}
-          <strong>{planoParaExcluir?.titulo}</strong>?
+          Tem certeza que deseja excluir o plano?
           <br />
-          Essa ação não poderá ser desfeita.
+          <span className="modal-badge modal-badge-danger">
+            {planoParaExcluir?.titulo}
+          </span>
+          <br />
+          <small>Essa ação não poderá ser desfeita.</small>
         </Modal.Body>
 
         <Modal.Footer>
-          <button
-            className={style.botao}
-            onClick={() => setMostrarExcluir(false)}
-          >
+          <Button variant="secondary" onClick={() => setMostrarExcluir(false)}>
             Cancelar
-          </button>
-          <button
-            className={`${style.botao} ${style.danger}`}
+          </Button>
+          <Button
+            variant="danger"
+            disabled={loading}
             onClick={async () => {
               try {
+                setLoading(true);
                 await PlanoAPI.Excluir(planoParaExcluir.planoId);
                 toast.success("Plano excluído");
                 setMostrarExcluir(false);
                 carregarPlanos();
               } catch {
                 toast.error("Erro ao excluir plano");
+              } finally {
+                setLoading(false);
               }
             }}
           >
-            <BsTrash /> Excluir
-          </button>
+            {loading ? (
+              <span className={style.spinner} />
+            ) : (
+              <>
+                <BsTrash /> Excluir
+              </>
+            )}
+          </Button>
         </Modal.Footer>
       </Modal>
+      {/* //#endregion */}
     </div>
   );
 }

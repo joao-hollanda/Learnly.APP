@@ -100,25 +100,33 @@ function Calendario({ eventos }) {
 
             <div className={style.tooltipHeader}>
               <CiCalendar />
-              <span>
-                {hovered.date.toLocaleDateString("pt-BR")}
-              </span>
+              <span>{hovered.date.toLocaleDateString("pt-BR")}</span>
             </div>
 
             {hovered.eventos.map((e, i) => {
               const inicio =
                 e.start instanceof Date ? e.start.getHours() : "--";
-              const fim =
-                e.end instanceof Date ? e.end.getHours() : "--";
+              const fim = e.end instanceof Date ? e.end.getHours() : "--";
 
               return (
                 <div key={i} className={style.tooltipItem}>
-                  • {e.title} ({inicio}h - {fim}h)
+                  <span
+                    className={style.tooltipDot}
+                    style={{
+                      background:
+                        {
+                          concluido: "#22c55e",
+                          atual: "#3b82f6",
+                          proximo: "#ef4444",
+                        }[e.status] || "#5B72F2",
+                    }}
+                  />
+                  {e.title} ({inicio}h - {fim}h)
                 </div>
               );
             })}
           </div>,
-          document.body
+          document.body,
         )}
     </div>
   );

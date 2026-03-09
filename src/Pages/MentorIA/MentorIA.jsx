@@ -118,6 +118,7 @@ function MentorIA() {
   }, [conversa]);
 
   return (
+    //#region JSX
     <div className={style.page}>
       <Header />
 
@@ -179,6 +180,7 @@ function MentorIA() {
         </div>
       </div>
     </div>
+    // #endregion
   );
 }
 

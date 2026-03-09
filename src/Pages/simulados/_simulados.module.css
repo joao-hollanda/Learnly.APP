@@ -222,7 +222,7 @@ h3 {
   max-width: 100%;
 }
 
-.botao.full:hover{
+.botao.full:hover {
   opacity: 0.7;
 }
 
@@ -243,6 +243,8 @@ h3 {
   padding: 24px;
   text-align: center;
   width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 .listaSimulados h3 {
@@ -259,15 +261,52 @@ h3 {
 }
 
 .cardSimulado {
-  border: 0.1rem solid #374151;
-  /* background: white; */
-  border-radius: 8px;
-  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e9edf2;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
   margin-top: 12px;
   cursor: pointer;
-  transition: 0.2s;
   width: 100%;
   min-width: 0;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.05);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease,
+    border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cardSimulado:hover {
+  border-color: #cbd5e1;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    0 8px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.cardSimuladoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cardSimuladoData {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.cardSimuladoBadges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .correta {
@@ -377,13 +416,12 @@ h3 {
 }
 
 .hiddenText {
-  visibility: hidden;   /* ocupa espaço, mas não aparece */
+  visibility: hidden; /* ocupa espaço, mas não aparece */
 }
 
 .spinner {
   position: absolute;
 }
-
 
 @keyframes spin {
   to {

@@ -7,6 +7,13 @@ import SimuladoAPI from "../../services/SimuladoService";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
 import { ImHappy } from "react-icons/im";
+import { Button } from "react-bootstrap";
+import {
+  BsClipboardPlus,
+  BsClipboardCheck,
+  BsTrophyFill,
+  BsCheckLg,
+} from "react-icons/bs";
 
 export default function Simulados() {
   const materias = [
@@ -123,6 +130,7 @@ export default function Simulados() {
   };
 
   return (
+    // #region JSX
     <div className="page">
       <Header>
         <button className={style.botao} onClick={() => setMostrarCriar(true)}>
@@ -142,17 +150,24 @@ export default function Simulados() {
 
               {simulados.map((s) => (
                 <div key={s.simuladoId} className={style.cardSimulado}>
-                  <h4>
-                    {new Date(s.data).toLocaleString("pt-BR", {
-                      dateStyle: "short",
-                      timeStyle: "short",
-                    })}
-                  </h4>
-
-                  <p>
-                    Nota: {s.notaFinal.toFixed(1)} • {s.questoes.length}{" "}
-                    questões
-                  </p>
+                  <div className={style.cardSimuladoHeader}>
+                    <span className={style.cardSimuladoData}>
+                      {new Date(s.data).toLocaleString("pt-BR", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
+                    </span>
+                    <div className={style.cardSimuladoBadges}>
+                      <span className={`modal-badge modal-badge-info`}>
+                        {s.questoes.length} questões
+                      </span>
+                      <span
+                        className={`modal-badge ${s.notaFinal >= 6 ? "modal-badge-success" : "modal-badge-danger"}`}
+                      >
+                        Nota {s.notaFinal.toFixed(1)}
+                      </span>
+                    </div>
+                  </div>
 
                   <button
                     className={`${style.botao} ${style.full}`}
@@ -259,26 +274,47 @@ export default function Simulados() {
           </button>
         </div>
       )}
+      {/* //#endregion */}
 
+      {/* //#region Criar */}
       <Modal centered show={mostrarCriar} onHide={() => setMostrarCriar(false)}>
+        <Modal.Header closeButton>
+          <div className="modal-icon modal-icon-info">
+            <BsClipboardPlus />
+          </div>
+          <Modal.Title>Novo simulado</Modal.Title>
+        </Modal.Header>
+
         <Modal.Body>
-          <h3>Matérias</h3>
+          <label
+            className="form-label fw-semibold"
+            style={{ fontSize: "0.8125rem", color: "#475569" }}
+          >
+            Matérias
+          </label>
           {materias.map((m) => (
             <Form.Check
               key={m.value}
               label={m.label}
               checked={materiasSelecionadas.includes(m.value)}
               onChange={() => toggleMateria(m.value)}
+              style={{ textAlign: "left" }}
             />
           ))}
 
-          <h3 className="mt-3">Quantidade de Questões</h3>
+          <label
+            className="form-label fw-semibold mt-3"
+            style={{ fontSize: "0.8125rem", color: "#475569" }}
+          >
+            Quantidade de questões
+          </label>
           <input
             type="number"
-            className="form-control mt-2"
+            className="form-control mt-1"
             value={quantidade}
             min={1}
             max={25}
+            placeholder="Máx: 25"
             onChange={(e) => {
               const v = e.target.value;
               if (v === "") return setQuantidade("");
@@ -286,63 +322,88 @@ export default function Simulados() {
               setQuantidade(+v);
             }}
           />
-
-          <div className="d-flex justify-content-end gap-2 mt-3">
-            <button
-              className={`${style.botao} ${style.danger}`}
-              onClick={() => setMostrarCriar(false)}
-              disabled={loading}
-            >
-              Fechar
-            </button>
-            <button
-              type="button"
-              className={style.botao}
-              onClick={handleGerarSimulado}
-              disabled={loading}
-            >
-              <span className={loading ? style.hiddenText : ""}>
-                Criar
-              </span>
-
-              {loading && <span className={style.spinner} />}
-            </button>
-
-          </div>
         </Modal.Body>
-      </Modal>
 
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setMostrarCriar(false)}
+            disabled={loading}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleGerarSimulado}
+            disabled={loading}
+          >
+            {loading ? (
+              <span className={style.spinner} />
+            ) : (
+              <>
+                <BsClipboardPlus /> Criar
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      {/* //#endregion */}
+
+      {/* //#region Resultado */}
       <Modal centered show={!!resultado} backdrop="static" keyboard={false}>
+        <Modal.Header>
+          <div className="modal-icon modal-icon-success">
+            <BsTrophyFill />
+          </div>
+          <Modal.Title>Resultado</Modal.Title>
+        </Modal.Header>
+
         <Modal.Body>
           {resultado && (
             <>
-              <p>
-                <strong>Nota:</strong> {resultado.nota.toFixed(1)}
-              </p>
-              <p>
-                <strong>Acertos:</strong>{" "}
-                {resultado.desempenho.quantidadeDeAcertos}
-              </p>
+              <div className="d-flex justify-content-center gap-2 mb-3">
+                <span className="modal-badge modal-badge-info">
+                  Nota: {resultado.nota.toFixed(1)}
+                </span>
+                <span className="modal-badge modal-badge-success">
+                  Acertos: {resultado.desempenho.quantidadeDeAcertos}
+                </span>
+              </div>
               <ReactMarkdown>{resultado.desempenho.feedback}</ReactMarkdown>
             </>
           )}
-
-          <button
-            className={`${style.botao}  ${style.full} ${style.danger}`}
-            onClick={finalizar}
-          >
-            Fechar
-          </button>
         </Modal.Body>
-      </Modal>
 
+        <Modal.Footer>
+          <Button variant="primary" onClick={finalizar}>
+            <BsCheckLg /> Concluir
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      {/* //#endregion */}
+
+      {/* //#region Preview */}
       <Modal
         show={!!simuladoPreview}
         size="lg"
         scrollable
         onHide={() => setSimuladoPreview(null)}
       >
-        <Modal.Body>
+        <Modal.Header closeButton>
+          <div className="modal-icon modal-icon-info">
+            <BsClipboardCheck />
+          </div>
+          <Modal.Title>
+            Simulado de{" "}
+            {simuladoPreview &&
+              new Date(simuladoPreview.data).toLocaleString("pt-BR", {
+                dateStyle: "short",
+                timeStyle: "short",
+              })}
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body style={{ textAlign: "left" }}>
           {simuladoPreview?.questoes.map((q, i) => (
             <div key={q.questaoId} className={style.card}>
               <h4>
@@ -367,7 +428,9 @@ export default function Simulados() {
                   </ReactMarkdown>
                 </div>
               )}
+
               {q.introducaoAlternativa}
+
               <Form>
                 {q.alternativas.map((a) => {
                   const imagem = getImagemAlternativa(a);
@@ -384,10 +447,10 @@ export default function Simulados() {
                       type="radio"
                       disabled
                       checked={marcada}
+                      className={classe}
                       label={
                         <div className={style.conteudoAlternativa}>
                           <span className={style.letra}>{a.letra})</span>
-
                           {a.texto ? (
                             <span>{a.texto}</span>
                           ) : imagem ? (
@@ -407,7 +470,6 @@ export default function Simulados() {
                           )}
                         </div>
                       }
-                      className={classe}
                     />
                   );
                 })}
@@ -415,16 +477,8 @@ export default function Simulados() {
             </div>
           ))}
         </Modal.Body>
-
-        <Modal.Footer>
-          <button
-            className={`${style.botao} ${style.danger}`}
-            onClick={() => setSimuladoPreview(null)}
-          >
-            Fechar
-          </button>
-        </Modal.Footer>
       </Modal>
+      {/* //#endregion */}
     </div>
   );
 }
