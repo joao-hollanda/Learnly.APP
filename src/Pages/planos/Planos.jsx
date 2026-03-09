@@ -408,8 +408,8 @@ function Planos() {
                 <Card key={i} titulo={pm.nome}>
                   {pm.topicos?.length > 0 && (
                     <div className={style.topicos}>
-                      <strong>Tópicos:</strong>
-                      <ul>
+                      <strong style={{textAlign: "center"}}>Tópicos:</strong>
+                      <ul style={{textAlign: "left"}}>
                         {pm.topicos.map((topico, index) => (
                           <li key={index}>{topico}</li>
                         ))}
