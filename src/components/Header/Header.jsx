@@ -1,11 +1,12 @@
 import logo from "../../img/LearnlyLogo.svg";
 import style from "../Header/_header.module.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { MdMenu, MdClose } from "react-icons/md";
 import { useState } from "react";
 
 const Header = ({ children }) => {
   const [menuAberto, setMenuAberto] = useState(false);
+  const nav = useNavigate();
 
   return (
     <div className={style.headerWrapper}>
@@ -15,7 +16,9 @@ const Header = ({ children }) => {
         </div>
 
         <div className={style.logoArea}>
-          <img src={logo} alt="Logo" className={style.logoIcon} />
+          <NavLink to="/home" className={style.nav}>
+            <img src={logo} alt="Logo" className={style.logoIcon} />
+          </NavLink>
         </div>
 
         <nav className={`${style.nav} ${menuAberto ? style.showMenu : ""}`}>
