@@ -14,22 +14,29 @@
 }
 
 .botao_exibir {
-  width: 100%;
-  background-color: black;
-  height: 2.5rem;
-  border: 0;
-  border-radius: 4px;
-  color: #fff;
+  background: #1e293b;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  gap: 0.5rem;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.1s ease;
+  align-self: flex-end;
+  min-width: 4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  position: relative;
+  width: 100%;
 }
 
 .botao_exibir:hover {
-  background-color: #222;
+  opacity: 0.7;
 }
 
 .modal_body {
