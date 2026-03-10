@@ -397,9 +397,9 @@ function Planos() {
               const progresso =
                 (pm.horasConcluidas / pm.horasTotais) * 100 || 0;
               return (
-                <Card key={i} titulo={pm.nome}>
+                <Card key={i} titulo={pm.nome} centralizado={true}>
                   {pm.topicos?.length > 0 && (
-                    <div className={style.topicos}>
+                    <div className={style.topicos} style={{ textAlign: "center" }}>
                       <strong style={{ textAlign: "center" }}>Tópicos:</strong>
                       <ul style={{ textAlign: "left" }}>
                         {pm.topicos.map((topico, index) => (

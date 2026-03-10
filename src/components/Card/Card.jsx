@@ -4,7 +4,7 @@ const SIZE = {
   grande: style.grande,
   medio: style.medio,
   pequeno: style.pequeno,
-  cheio: style.cheio
+  cheio: style.cheio,
 };
 
 const Card = ({
@@ -15,14 +15,17 @@ const Card = ({
   adicional,
   icon,
   detalhe,
+  centralizado = false,
 }) => {
   const cardSizeClass = SIZE[tamanho] || style.medio;
 
   return (
     <div className={`${style.card_example} ${cardSizeClass}`}>
       <div className={style.header}>
-        <div>
-          <div className={style.titulo}>
+        <div style={{ flex: 1 }}>
+          <div
+            className={`${style.titulo} ${centralizado ? style.titulo_centralizado : ""}`}
+          >
             <h4>{titulo}</h4>
             {icon && <div className={style.icon}>{icon}</div>}
           </div>
@@ -33,6 +36,7 @@ const Card = ({
             </div>
           )}
         </div>
+
         {detalhe && <div className={style.detalhe}>{detalhe}</div>}
       </div>
 
