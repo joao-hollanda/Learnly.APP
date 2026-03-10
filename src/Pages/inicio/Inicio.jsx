@@ -19,28 +19,21 @@ import EventoEstudoAPI from "../../services/EventoService";
 import { MdOutlineRestartAlt } from "react-icons/md";
 import Logout from "../../components/Logout/Logout";
 import { getUserData } from "../../utils/cookieHelper";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 function Inicio() {
   const [loading, setLoading] = useState(false);
-
   const [horaAtual, setHoraAtual] = useState(new Date());
-  const [resumo, setResumo] = useState(null);
-  const [totalSimulados, setTotalSimulados] = useState(0);
-
-  const [planoAtivo, setPlanoAtivo] = useState(null);
-
   const [mostrarModalEvento, setMostrarModalEvento] = useState(false);
-
-  const [eventos, setEventos] = useState([]);
-
   const [mostrarModalReset, setMostrarModalReset] = useState(false);
-
   const [novoEvento, setNovoEvento] = useState({
     titulo: "",
     inicio: "",
     fim: "",
     diasSemana: [],
   });
+
+  const queryClient = useQueryClient();
 
   const diasSemana = [
     { label: "Seg", value: 1 },
@@ -52,39 +45,73 @@ function Inicio() {
     { label: "Dom", value: 0 },
   ];
 
-  const [userData, setUserData] = useState(null);
+  const { data: userData } = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const data = await getUserData();
+      if (data) {
+        sessionStorage.setItem("id", data.id.toString());
+        sessionStorage.setItem("nome", data.nome);
+      }
+      return data;
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
 
-  const [comparacaoHoras, setComparacaoHoras] = useState({
-    horasHoje: 0,
-    diferenca: 0,
+  const usuarioId = userData?.id;
+
+  const { data: planoAtivo } = useQuery({
+    queryKey: ["planoAtivo", usuarioId],
+    queryFn: () => PlanoAPI.ObterPlanoAtivo(usuarioId),
+    enabled: !!usuarioId,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+
+  const { data: totalSimulados = 0 } = useQuery({
+    queryKey: ["totalSimulados", usuarioId],
+    queryFn: () => SimuladoAPI.Contar(usuarioId),
+    enabled: !!usuarioId,
+    staleTime: Infinity,
+  });
+
+  const { data: resumo } = useQuery({
+    queryKey: ["resumo", usuarioId],
+    queryFn: () => PlanoAPI.ObterResumo(usuarioId),
+    enabled: !!usuarioId,
+    onError: () => toast.error("Erro ao carregar resumo"),
+  });
+
+  const { data: comparacaoHoras = { horasHoje: 0, diferenca: 0 } } = useQuery({
+    queryKey: ["comparacaoHoras", usuarioId],
+    queryFn: () => PlanoAPI.CompararHoras(usuarioId),
+    enabled: !!usuarioId,
+    onError: () => toast.error("Erro ao carregar horas de estudo"),
+  });
+
+  const { data: eventosRaw = [] } = useQuery({
+    queryKey: ["eventos", usuarioId],
+    queryFn: async () => {
+      const eventosApi = await EventoEstudoAPI.Listar(Number(usuarioId));
+      return eventosApi.map((e) => ({
+        id: e.eventoId,
+        title: e.titulo,
+        start: new Date(e.inicio),
+        end: new Date(e.fim),
+      }));
+    },
+    enabled: !!usuarioId,
+    staleTime: Infinity,
+    onError: () => toast.error("Erro ao carregar eventos"),
   });
 
   useEffect(() => {
-    const loadUserData = async () => {
-      const data = await getUserData();
-      if (data) {
-        setUserData(data);
-        sessionStorage.setItem("id", data.id.toString());
-        sessionStorage.setItem("nome", data.nome);
-
-        await Promise.all([
-          obterResumo(data.id),
-          obterComparacaoHoras(data.id),
-          obterPlanoAtivo(data.id),
-          obterEventos(data.id),
-        ]);
-      }
-    };
-
-    loadUserData();
+    const interval = setInterval(() => setHoraAtual(new Date()), 60000);
+    return () => clearInterval(interval);
   }, []);
 
-  const obterPlanoAtivo = async (usuarioId) => {
-    const resposta = await PlanoAPI.ObterPlanoAtivo(usuarioId);
-    setPlanoAtivo(resposta);
-  };
-
-  const eventosComStatus = eventos.map((evento) => {
+  const eventosComStatus = eventosRaw.map((evento) => {
     const agora = horaAtual.getTime();
     const inicio = evento.start.getTime();
     const fim = evento.end.getTime();
@@ -116,60 +143,12 @@ function Inicio() {
     }
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHoraAtual(new Date());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const obterResumo = async (usuarioId) => {
-    try {
-      const resposta = await PlanoAPI.ObterResumo(usuarioId);
-      const totalSimulados = await SimuladoAPI.Contar(usuarioId);
-      setTotalSimulados(totalSimulados ?? 0);
-      setResumo(resposta);
-    } catch (erro) {
-      toast.error("Erro ao carregar resumo");
-    }
-  };
-
-  const obterEventos = async (usuarioId) => {
-    try {
-      const eventosApi = await EventoEstudoAPI.Listar(Number(usuarioId));
-
-      const eventosFormatados = eventosApi.map((e) => ({
-        id: e.eventoId,
-        title: e.titulo,
-        start: new Date(e.inicio),
-        end: new Date(e.fim),
-      }));
-
-      setEventos(eventosFormatados);
-    } catch (erro) {
-      toast.error("Erro ao carregar eventos");
-      console.error(erro);
-    }
-  };
-
-  const obterComparacaoHoras = async (usuarioId) => {
-    try {
-      const resposta = await PlanoAPI.CompararHoras(usuarioId);
-      setComparacaoHoras(resposta ?? { horasHoje: 0, diferenca: 0 });
-    } catch (erro) {
-      toast.error("Erro ao carregar horas de estudo");
-    }
-  };
-
   const percentualGeral =
     resumo && resumo.horasTotais > 0
       ? Math.round((resumo.horasConcluidas / resumo.horasTotais) * 100)
       : 0;
 
-  const toUtcString = (date) => {
-    return date.toISOString().slice(0, 19);
-  };
+  const toUtcString = (date) => date.toISOString().slice(0, 19);
 
   const handleCriarEventos = async () => {
     if (!planoAtivo) {
@@ -192,13 +171,8 @@ function Inicio() {
     const [hIni, mIni] = inicio.split(":").map(Number);
     const [hFim, mFim] = fim.split(":").map(Number);
 
-    const usuarioId = Number(sessionStorage.getItem("id"));
-
     const dataFimPlano = new Date(planoAtivo.dataFim);
     dataFimPlano.setHours(23, 59, 59, 999);
-
-    const dataAtualLoop = new Date();
-    dataAtualLoop.setHours(0, 0, 0, 0);
 
     const inicioBase = new Date();
     inicioBase.setHours(hIni, mIni, 0, 0);
@@ -206,9 +180,7 @@ function Inicio() {
     const fimBase = new Date();
     fimBase.setHours(hFim, mFim, 0, 0);
 
-    if (fimBase < inicioBase) {
-      fimBase.setDate(fimBase.getDate() + 1);
-    }
+    if (fimBase < inicioBase) fimBase.setDate(fimBase.getDate() + 1);
 
     const duracaoMinutos = (fimBase.getTime() - inicioBase.getTime()) / 60000;
 
@@ -222,6 +194,9 @@ function Inicio() {
       return;
     }
 
+    const dataAtualLoop = new Date();
+    dataAtualLoop.setHours(0, 0, 0, 0);
+
     const listaEventosParaEnviar = [];
 
     while (dataAtualLoop <= dataFimPlano) {
@@ -232,9 +207,8 @@ function Inicio() {
         const dataFimEvento = new Date(dataAtualLoop);
         dataFimEvento.setHours(hFim, mFim, 0, 0);
 
-        if (dataFimEvento < dataInicioEvento) {
+        if (dataFimEvento < dataInicioEvento)
           dataFimEvento.setDate(dataFimEvento.getDate() + 1);
-        }
 
         listaEventosParaEnviar.push({
           titulo,
@@ -255,21 +229,15 @@ function Inicio() {
       setLoading(true);
 
       const TAMANHO_LOTE = 100;
-
       for (let i = 0; i < listaEventosParaEnviar.length; i += TAMANHO_LOTE) {
         const lote = listaEventosParaEnviar.slice(i, i + TAMANHO_LOTE);
-
-        await EventoEstudoAPI.CriarEmLote({
-          usuarioId,
-          eventos: lote,
-        });
+        await EventoEstudoAPI.CriarEmLote({ usuarioId, eventos: lote });
       }
 
-      await obterEventos(usuarioId);
+      queryClient.invalidateQueries({ queryKey: ["eventos", usuarioId] });
 
       setMostrarModalEvento(false);
       setNovoEvento({ titulo: "", inicio: "", fim: "", diasSemana: [] });
-
       toast.success("Eventos criados com sucesso!");
     } catch (erro) {
       console.error("Erro ao salvar eventos:", erro);
@@ -281,13 +249,11 @@ function Inicio() {
 
   const handleResetEventos = async () => {
     try {
-      const usuarioId = Number(sessionStorage.getItem("id"));
-
       setLoading(true);
 
       await EventoEstudoAPI.Remover(usuarioId);
 
-      await obterEventos(usuarioId);
+      queryClient.invalidateQueries({ queryKey: ["eventos", usuarioId] });
 
       toast.success("Todos os eventos foram removidos com sucesso!");
       setMostrarModalReset(false);
@@ -410,9 +376,8 @@ function Inicio() {
           </div>
         </div>
       </div>
-      {/* //#endregion */}
 
-      {/* //#region Criar Evento */}
+      {/* Criar Evento */}
       <Modal
         show={mostrarModalEvento}
         centered
@@ -513,9 +478,8 @@ function Inicio() {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
 
-      {/* //#region Reset */}
+      {/* Reset */}
       <Modal
         show={mostrarModalReset}
         centered
@@ -560,7 +524,6 @@ function Inicio() {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
     </div>
   );
 }

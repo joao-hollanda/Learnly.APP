@@ -17,11 +17,11 @@ import {
   BsJournalPlus,
   BsPlus,
   BsRobot,
-  BsStar,
   BsStars,
   BsTrash,
 } from "react-icons/bs";
 import Select from "react-select";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const mapPlanoBackend = (plano) => ({
   planoId: plano.planoId,
@@ -31,7 +31,6 @@ const mapPlanoBackend = (plano) => ({
   dataFim: plano.dataFim,
   horasPorSemana: plano.horasPorSemana,
   ativo: plano.ativo,
-
   materias: (plano.planoMaterias ?? []).map((pm) => ({
     planoMateriaId: pm.planoMateriaId,
     materiaId: pm.materiaId,
@@ -44,22 +43,17 @@ const mapPlanoBackend = (plano) => ({
 });
 
 function Planos() {
-  const usuarioId = sessionStorage.getItem("id");
+  const usuarioId = Number(sessionStorage.getItem("id"));
+  const queryClient = useQueryClient();
 
   const hoje = new Date().toISOString().split("T")[0];
-
-  const [planosList, setPlanosList] = useState([]);
-  const [planoAtivoIndex, setPlanoAtivoIndex] = useState(0);
 
   const [mostrarPlano, setMostrarPlano] = useState(false);
   const [mostrarCriarPlano, setMostrarCriarPlano] = useState(false);
   const [mostrarConfigurar, setMostrarConfigurar] = useState(false);
-
   const [viewingIndex, setViewingIndex] = useState(null);
-
   const [titulo, setTitulo] = useState("");
   const [objetivo, setObjetivo] = useState("");
-
   const [planoConfigId, setPlanoConfigId] = useState(null);
   const [materiasDisponiveis, setMateriasDisponiveis] = useState([]);
   const [materiaId, setMateriaId] = useState("");
@@ -68,30 +62,40 @@ function Planos() {
   const [dataFim, setDataFim] = useState("");
   const [materiasDoPlano, setMateriasDoPlano] = useState([]);
   const [horasSemana, setHorasSemana] = useState();
-
   const [mostrarHoras, setMostrarHoras] = useState(false);
   const [materiaSelecionada, setMateriaSelecionada] = useState(null);
   const [horasLancadas, setHorasLancadas] = useState("");
-
   const [mostrarExcluir, setMostrarExcluir] = useState(false);
   const [planoParaExcluir, setPlanoParaExcluir] = useState(null);
-
   const [mostrarIa, setMostrarIa] = useState(false);
-
   const [loading, setLoading] = useState(false);
 
-  const carregarPlanos = async () => {
-    try {
-      const resposta = await PlanoAPI.Listar5(usuarioId);
-      const planosAdaptados = resposta.map(mapPlanoBackend);
-      setPlanosList(planosAdaptados);
+  const LIMITE_DIARIO = 20;
 
-      const ativoIndex = planosAdaptados.findIndex((p) => p.ativo);
-      setPlanoAtivoIndex(ativoIndex >= 0 ? ativoIndex : 0);
-    } catch {
-      toast.error("Erro ao carregar planos");
-    }
+  const { data: planosList = [] } = useQuery({
+    queryKey: ["planos", usuarioId],
+    queryFn: async () => {
+      const resposta = await PlanoAPI.Listar5(usuarioId);
+      return resposta.map(mapPlanoBackend);
+    },
+    staleTime: Infinity,
+    onError: () => toast.error("Erro ao carregar planos"),
+  });
+
+  const invalidarPlanos = () =>
+    queryClient.invalidateQueries({ queryKey: ["planos", usuarioId] });
+
+  const invalidarInicio = () => {
+    queryClient.invalidateQueries({ queryKey: ["planoAtivo", usuarioId] });
+    queryClient.invalidateQueries({ queryKey: ["resumo", usuarioId] });
+    queryClient.invalidateQueries({ queryKey: ["totalSimulados", usuarioId] });
+    queryClient.invalidateQueries({ queryKey: ["comparacaoHoras", usuarioId] });
   };
+
+  const planoAtivoIndex = planosList.findIndex((p) => p.ativo);
+  const planoAtivo = planosList[planoAtivoIndex >= 0 ? planoAtivoIndex : 0];
+  const planoVisualizado =
+    viewingIndex !== null ? planosList[viewingIndex] : null;
 
   const abrirLancamentoHoras = (materia) => {
     setMateriaSelecionada(materia);
@@ -122,8 +126,14 @@ function Planos() {
 
       toast.success("Horas lançadas");
       setMostrarHoras(false);
-      carregarPlanos();
-    } catch (erro) {
+
+      queryClient.invalidateQueries({ queryKey: ["resumo", usuarioId] });
+      queryClient.invalidateQueries({
+        queryKey: ["comparacaoHoras", usuarioId],
+      });
+      invalidarPlanos();
+      // invalidarInicio();
+    } catch {
       toast.error("Erro ao lançar horas");
     } finally {
       setLoading(false);
@@ -131,12 +141,7 @@ function Planos() {
   };
 
   useEffect(() => {
-    carregarPlanos();
-  }, []);
-
-  useEffect(() => {
     if (!mostrarConfigurar) return;
-
     PlanoAPI.ListarMaterias()
       .then(setMateriasDisponiveis)
       .catch(() => toast.error("Erro ao carregar matérias"));
@@ -147,7 +152,6 @@ function Planos() {
       toast.warn("Você já atingiu o limite de 5 planos.");
       return;
     }
-
     setTitulo("");
     setObjetivo("");
     setMostrarCriarPlano(true);
@@ -158,7 +162,6 @@ function Planos() {
       toast.warn("Você já atingiu o limite de 5 planos.");
       return;
     }
-
     setTitulo("");
     setObjetivo("");
     setMostrarIa(true);
@@ -167,29 +170,23 @@ function Planos() {
   const diferencaEmDias = (inicio, fim) => {
     const dataInicio = new Date(inicio);
     const dataFim = new Date(fim);
-
-    const diffTime = dataFim.getTime() - dataInicio.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.ceil(
+      (dataFim.getTime() - dataInicio.getTime()) / (1000 * 60 * 60 * 24),
+    );
   };
 
   const criarPlano = async (planoIA) => {
-    if (!titulo || !objetivo || !dataInicio || !dataFim) {
+    if (!titulo || !objetivo || !dataInicio || !dataFim)
       return toast.warn("Preencha todos os campos!");
-    }
 
-    if (dataFim < dataInicio) {
+    if (dataFim < dataInicio)
       return toast.warn("Data final não pode ser anterior à data de início");
-    }
 
     const duracaoDias = diferencaEmDias(dataInicio, dataFim);
-
-    if (duracaoDias < 14) {
+    if (duracaoDias < 14)
       return toast.warn("O plano deve ter duração mínima de 2 semanas.");
-    }
-
-    if (duracaoDias > 365 * 5) {
+    if (duracaoDias > 365 * 5)
       return toast.warn("O plano não pode ter duração maior que 2 anos.");
-    }
 
     try {
       setLoading(true);
@@ -209,16 +206,13 @@ function Planos() {
 
       setPlanoConfigId(planoCriado.planoId);
       setMostrarCriarPlano(false);
+      if (!planoIA) setMostrarConfigurar(true);
+      else setMostrarConfigurar(false);
 
-      if (!planoIA) {
-        setMostrarConfigurar(true);
-      } else {
-        setMostrarConfigurar(false);
-      }
+      invalidarPlanos();
+      invalidarInicio();
 
-      carregarPlanos();
       setMateriasDoPlano([]);
-
       toast.success("Plano criado e ativado!");
       setMostrarIa(false);
     } catch {
@@ -240,12 +234,10 @@ function Planos() {
       });
 
       const materia = materiasDisponiveis.find((m) => m.materiaId == materiaId);
-
       setMateriasDoPlano((prev) => [
         ...prev,
         { nome: materia.nome, horasTotais, horasConcluidas: 0 },
       ]);
-
       setMateriaId("");
       setHorasTotais("");
       toast.success("Matéria adicionada");
@@ -267,18 +259,15 @@ function Planos() {
       await PlanoAPI.AtivarPlano(plano.planoId, usuarioId);
 
       setMostrarPlano(false);
-      carregarPlanos();
+
+      invalidarPlanos();
+      invalidarInicio();
+
       toast.success("Plano ativado");
     } catch {
       toast.error("Erro ao ativar plano");
     }
   };
-
-  const planoAtivo = planosList[planoAtivoIndex];
-  const planoVisualizado =
-    viewingIndex !== null ? planosList[viewingIndex] : null;
-
-  const LIMITE_DIARIO = 20;
 
   return (
     //#region JSX
@@ -315,7 +304,11 @@ function Planos() {
                 botao={
                   <button
                     className={style.botao_exibir}
-                    onClick={() => handleClickPlano(planoAtivoIndex)}
+                    onClick={() =>
+                      handleClickPlano(
+                        planoAtivoIndex >= 0 ? planoAtivoIndex : 0,
+                      )
+                    }
                   >
                     <FaPlay /> Visualizar Plano
                   </button>
@@ -352,9 +345,8 @@ function Planos() {
           )}
         </>
       )}
-      {/* //#endregion */}
 
-      {/* //#region Mostrar Plano */}
+      {/* Mostrar Plano */}
       <Modal
         show={mostrarPlano}
         centered
@@ -408,27 +400,24 @@ function Planos() {
                 <Card key={i} titulo={pm.nome}>
                   {pm.topicos?.length > 0 && (
                     <div className={style.topicos}>
-                      <strong style={{textAlign: "center"}}>Tópicos:</strong>
-                      <ul style={{textAlign: "left"}}>
+                      <strong style={{ textAlign: "center" }}>Tópicos:</strong>
+                      <ul style={{ textAlign: "left" }}>
                         {pm.topicos.map((topico, index) => (
                           <li key={index}>{topico}</li>
                         ))}
                       </ul>
                     </div>
                   )}
-
                   <p className={style.horas}>
                     <BsClock size={12} /> {pm.horasConcluidas}h /{" "}
                     {pm.horasTotais}h
                   </p>
-
                   <div className={style.progress}>
                     <div
                       className={style.progress_bar}
                       style={{ width: `${progresso}%` }}
                     />
                   </div>
-
                   <button
                     className={`${style.botao} ${style.full}`}
                     onClick={() => abrirLancamentoHoras(pm)}
@@ -449,9 +438,8 @@ function Planos() {
           )}
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
 
-      {/* //#region Criar com IA */}
+      {/* Criar com IA */}
       <Modal show={mostrarIa} centered onHide={() => setMostrarIa(false)}>
         <Modal.Header closeButton>
           <div className="modal-icon modal-icon-warning">
@@ -459,7 +447,6 @@ function Planos() {
           </div>
           <Modal.Title>Criar plano com IA</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           <input
             className="form-control mb-3"
@@ -467,14 +454,12 @@ function Planos() {
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
           />
-
           <input
             className="form-control mb-3"
             placeholder="Objetivo"
             value={objetivo}
             onChange={(e) => setObjetivo(e.target.value)}
           />
-
           <label
             className="form-label fw-semibold"
             style={{ fontSize: "0.8125rem", color: "#475569" }}
@@ -495,7 +480,6 @@ function Planos() {
               setHorasSemana(+v);
             }}
           />
-
           <div className="row g-3">
             <div className="col-6">
               <label
@@ -529,7 +513,6 @@ function Planos() {
             </div>
           </div>
         </Modal.Body>
-
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setMostrarIa(false)}>
             Cancelar
@@ -549,9 +532,8 @@ function Planos() {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
 
-      {/* //#region Criar Plano */}
+      {/* Criar Plano */}
       <Modal
         show={mostrarCriarPlano}
         centered
@@ -563,7 +545,6 @@ function Planos() {
           </div>
           <Modal.Title>Criar plano</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           <input
             className="form-control mb-3"
@@ -571,14 +552,12 @@ function Planos() {
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
           />
-
           <input
             className="form-control mb-3"
             placeholder="Objetivo"
             value={objetivo}
             onChange={(e) => setObjetivo(e.target.value)}
           />
-
           <div className="row g-3">
             <div className="col-6">
               <label
@@ -612,7 +591,6 @@ function Planos() {
             </div>
           </div>
         </Modal.Body>
-
         <Modal.Footer>
           <Button
             variant="secondary"
@@ -635,9 +613,8 @@ function Planos() {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
 
-      {/* //#region Configurar */}
+      {/* Configurar */}
       <Modal
         show={mostrarConfigurar}
         centered
@@ -649,7 +626,6 @@ function Planos() {
           </div>
           <Modal.Title>Configurar plano</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           <Select
             options={materiasDisponiveis.map((m) => ({
@@ -668,7 +644,6 @@ function Planos() {
             placeholder="Selecione a matéria"
             isClearable
           />
-
           {materiasDisponiveis.filter(
             (m) => !materiasDoPlano.some((pm) => pm.nome === m.nome),
           ).length === 0 && (
@@ -676,7 +651,6 @@ function Planos() {
               Todas as matérias já foram adicionadas
             </small>
           )}
-
           <div className="mt-3">
             <div className="d-flex justify-content-between align-items-center mb-1">
               <label
@@ -718,7 +692,6 @@ function Planos() {
             />
           </div>
         </Modal.Body>
-
         <Modal.Footer>
           <Button variant="secondary" onClick={adicionarMateria}>
             {loading ? (
@@ -735,16 +708,15 @@ function Planos() {
               if (materiasDoPlano.length === 0)
                 return toast.warn("Adicione ao menos uma matéria ao plano");
               setMostrarConfigurar(false);
-              carregarPlanos();
+              invalidarPlanos();
             }}
           >
             <BsCheckLg /> Concluir
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
 
-      {/* //#region Mostrar Horas */}
+      {/* Lançar Horas */}
       <Modal show={mostrarHoras} centered onHide={() => setMostrarHoras(false)}>
         <Modal.Header closeButton>
           <div className="modal-icon modal-icon-info">
@@ -752,12 +724,10 @@ function Planos() {
           </div>
           <Modal.Title>Lançar horas</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           <span className="modal-badge modal-badge-info">
             {materiaSelecionada?.nome}
           </span>
-
           <input
             type="number"
             min="1"
@@ -779,7 +749,6 @@ function Planos() {
             }}
           />
         </Modal.Body>
-
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setMostrarHoras(false)}>
             Cancelar
@@ -795,9 +764,8 @@ function Planos() {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
 
-      {/* //#region Excluir */}
+      {/* Excluir */}
       <Modal
         show={mostrarExcluir}
         centered
@@ -809,7 +777,6 @@ function Planos() {
           </div>
           <Modal.Title>Excluir plano</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           Tem certeza que deseja excluir o plano?
           <br />
@@ -819,7 +786,6 @@ function Planos() {
           <br />
           <small>Essa ação não poderá ser desfeita.</small>
         </Modal.Body>
-
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setMostrarExcluir(false)}>
             Cancelar
@@ -833,7 +799,8 @@ function Planos() {
                 await PlanoAPI.Excluir(planoParaExcluir.planoId);
                 toast.success("Plano excluído");
                 setMostrarExcluir(false);
-                carregarPlanos();
+                invalidarPlanos();
+                invalidarInicio();
               } catch {
                 toast.error("Erro ao excluir plano");
               } finally {
@@ -851,7 +818,6 @@ function Planos() {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
     </div>
   );
 }

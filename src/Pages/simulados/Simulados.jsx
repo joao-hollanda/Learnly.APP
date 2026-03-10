@@ -2,7 +2,7 @@ import { Form, Modal } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import style from "./_simulados.module.css";
 import { FaPlus } from "react-icons/fa6";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SimuladoAPI from "../../services/SimuladoService";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
@@ -14,8 +14,12 @@ import {
   BsTrophyFill,
   BsCheckLg,
 } from "react-icons/bs";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function Simulados() {
+  const usuarioId = Number(sessionStorage.getItem("id"));
+  const queryClient = useQueryClient();
+
   const materias = [
     { label: "Linguagens", value: "linguagens" },
     { label: "Matemática", value: "matematica" },
@@ -26,49 +30,42 @@ export default function Simulados() {
   const [mostrarCriar, setMostrarCriar] = useState(false);
   const [quantidade, setQuantidade] = useState("");
   const [materiasSelecionadas, setMateriasSelecionadas] = useState([]);
-  const [simulado, setSimulado] = useState(null);
-  const [simulados, setSimulados] = useState([]);
   const [respostas, setRespostas] = useState({});
   const [resultado, setResultado] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [usuarioId, setUsuarioId] = useState(0);
   const [simuladoPreview, setSimuladoPreview] = useState(null);
   const [previewRespostas, setPreviewRespostas] = useState({});
 
-  const carregarSimulados = async () => {
-    try {
-      const id = sessionStorage.getItem("id");
-      setUsuarioId(id);
-      const response = await SimuladoAPI.Listar(id);
-      setSimulados(Array.isArray(response) ? response : []);
-    } catch {
-      setSimulados([]);
-    }
-  };
-
-  const getImagemAlternativa = (a) => {
-    return a.arquivo || null;
-  };
-
-  useEffect(() => {
-    const simuladoSalvo = sessionStorage.getItem("simulado");
+  const [simulado, setSimulado] = useState(() => {
+    const salvo = sessionStorage.getItem("simulado");
     const respostasSalvas = sessionStorage.getItem("respostas");
-    carregarSimulados();
-    if (simuladoSalvo) setSimulado(JSON.parse(simuladoSalvo));
     if (respostasSalvas) setRespostas(JSON.parse(respostasSalvas));
-  }, []);
+    return salvo ? JSON.parse(salvo) : null;
+  });
 
-  useEffect(() => {
-    if (simulado) {
-      sessionStorage.setItem("simulado", JSON.stringify(simulado));
-    }
-  }, [simulado]);
+  const salvarSimulado = (data) => {
+    setSimulado(data);
+    if (data) sessionStorage.setItem("simulado", JSON.stringify(data));
+    else sessionStorage.removeItem("simulado");
+  };
 
-  useEffect(() => {
-    if (Object.keys(respostas).length > 0) {
-      sessionStorage.setItem("respostas", JSON.stringify(respostas));
-    }
-  }, [respostas]);
+  const salvarRespostas = (r) => {
+    setRespostas(r);
+    if (Object.keys(r).length > 0)
+      sessionStorage.setItem("respostas", JSON.stringify(r));
+    else sessionStorage.removeItem("respostas");
+  };
+
+  const { data: simulados = [] } = useQuery({
+    queryKey: ["simulados", usuarioId],
+    queryFn: async () => {
+      const response = await SimuladoAPI.Listar(usuarioId);
+      return Array.isArray(response) ? response : [];
+    },
+    staleTime: Infinity,
+  });
+
+  const getImagemAlternativa = (a) => a.arquivo || null;
 
   const toggleMateria = (m) => {
     setMateriasSelecionadas((prev) =>
@@ -88,8 +85,8 @@ export default function Simulados() {
         quantidade,
       );
       const data = await SimuladoAPI.Obter(id);
-      setSimulado(data);
-      setRespostas({});
+      salvarSimulado(data);
+      salvarRespostas({});
       setMostrarCriar(false);
       toast.success("Simulado gerado com sucesso");
     } catch {
@@ -97,15 +94,6 @@ export default function Simulados() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const finalizar = async () => {
-    setResultado(null);
-    setSimulado(null);
-    setRespostas({});
-    sessionStorage.removeItem("simulado");
-    sessionStorage.removeItem("respostas");
-    await carregarSimulados();
   };
 
   const handleResponder = async () => {
@@ -129,8 +117,17 @@ export default function Simulados() {
     }
   };
 
+  const finalizar = () => {
+    setResultado(null);
+    salvarSimulado(null);
+    salvarRespostas({});
+
+    // Invalida lista de simulados e o contador no Inicio
+    queryClient.invalidateQueries({ queryKey: ["simulados", usuarioId] });
+    queryClient.invalidateQueries({ queryKey: ["totalSimulados", usuarioId] });
+  };
+
   return (
-    // #region JSX
     <div className="page">
       <Header>
         <button className={style.botao} onClick={() => setMostrarCriar(true)}>
@@ -147,7 +144,6 @@ export default function Simulados() {
           ) : (
             <>
               <h3>Simulados recentes</h3>
-
               {simulados.map((s) => (
                 <div key={s.simuladoId} className={style.cardSimulado}>
                   <div className={style.cardSimuladoHeader}>
@@ -158,7 +154,7 @@ export default function Simulados() {
                       })}
                     </span>
                     <div className={style.cardSimuladoBadges}>
-                      <span className={`modal-badge modal-badge-info`}>
+                      <span className="modal-badge modal-badge-info">
                         {s.questoes.length} questões
                       </span>
                       <span
@@ -168,7 +164,6 @@ export default function Simulados() {
                       </span>
                     </div>
                   </div>
-
                   <button
                     className={`${style.botao} ${style.full}`}
                     onClick={() => {
@@ -196,7 +191,6 @@ export default function Simulados() {
               <h4>
                 {i + 1}. {q.titulo}
               </h4>
-
               {q.contexto && (
                 <div className={style.markdown}>
                   <ReactMarkdown
@@ -219,23 +213,21 @@ export default function Simulados() {
               <Form>
                 {q.alternativas.map((a) => {
                   const imagem = getImagemAlternativa(a);
-
                   return (
                     <Form.Check
                       key={a.alternativaId}
                       type="radio"
                       checked={respostas[q.questaoId] === a.alternativaId}
                       onChange={() =>
-                        setRespostas((r) => ({
-                          ...r,
+                        salvarRespostas({
+                          ...respostas,
                           [q.questaoId]: a.alternativaId,
-                        }))
+                        })
                       }
                       className={style.alternativa}
                       label={
                         <div className={style.conteudoAlternativa}>
                           <span className={style.letra}>{a.letra})</span>
-
                           {a.texto ? (
                             <span>{a.texto}</span>
                           ) : imagem ? (
@@ -261,7 +253,6 @@ export default function Simulados() {
               </Form>
             </div>
           ))}
-
           <button
             type="button"
             className={`${style.botao} ${style.full}`}
@@ -269,14 +260,11 @@ export default function Simulados() {
             disabled={loading}
           >
             <span className={loading ? style.hiddenText : ""}>Enviar</span>
-
             {loading && <span className={style.spinner} />}
           </button>
         </div>
       )}
-      {/* //#endregion */}
 
-      {/* //#region Criar */}
       <Modal centered show={mostrarCriar} onHide={() => setMostrarCriar(false)}>
         <Modal.Header closeButton>
           <div className="modal-icon modal-icon-info">
@@ -284,7 +272,6 @@ export default function Simulados() {
           </div>
           <Modal.Title>Novo simulado</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           <label
             className="form-label fw-semibold"
@@ -301,7 +288,6 @@ export default function Simulados() {
               style={{ textAlign: "left" }}
             />
           ))}
-
           <label
             className="form-label fw-semibold mt-3"
             style={{ fontSize: "0.8125rem", color: "#475569" }}
@@ -323,7 +309,6 @@ export default function Simulados() {
             }}
           />
         </Modal.Body>
-
         <Modal.Footer>
           <Button
             variant="secondary"
@@ -347,9 +332,7 @@ export default function Simulados() {
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
 
-      {/* //#region Resultado */}
       <Modal centered show={!!resultado} backdrop="static" keyboard={false}>
         <Modal.Header>
           <div className="modal-icon modal-icon-success">
@@ -357,7 +340,6 @@ export default function Simulados() {
           </div>
           <Modal.Title>Resultado</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           {resultado && (
             <>
@@ -373,16 +355,13 @@ export default function Simulados() {
             </>
           )}
         </Modal.Body>
-
         <Modal.Footer>
           <Button variant="primary" onClick={finalizar}>
             <BsCheckLg /> Concluir
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* //#endregion */}
 
-      {/* //#region Preview */}
       <Modal
         show={!!simuladoPreview}
         size="lg"
@@ -402,14 +381,12 @@ export default function Simulados() {
               })}
           </Modal.Title>
         </Modal.Header>
-
         <Modal.Body style={{ textAlign: "left" }}>
           {simuladoPreview?.questoes.map((q, i) => (
             <div key={q.questaoId} className={style.card}>
               <h4>
                 {i + 1}. {q.titulo}
               </h4>
-
               {q.contexto && (
                 <div className={style.markdown}>
                   <ReactMarkdown
@@ -428,19 +405,15 @@ export default function Simulados() {
                   </ReactMarkdown>
                 </div>
               )}
-
               {q.introducaoAlternativa}
-
               <Form>
                 {q.alternativas.map((a) => {
                   const imagem = getImagemAlternativa(a);
                   const marcada =
                     previewRespostas[q.questaoId] === a.alternativaId;
-
                   let classe = style.alternativa;
                   if (a.correta) classe += ` ${style.correta}`;
                   if (marcada && !a.correta) classe += ` ${style.errada}`;
-
                   return (
                     <Form.Check
                       key={a.alternativaId}
@@ -478,7 +451,6 @@ export default function Simulados() {
           ))}
         </Modal.Body>
       </Modal>
-      {/* //#endregion */}
     </div>
   );
 }

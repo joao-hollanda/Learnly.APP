@@ -11,54 +11,58 @@ import Desempenho from "./Pages/desempenho/Desempenho";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MentorIA from "./Pages/MentorIA/MentorIA";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={4500}
-        closeOnClick
-        pauseOnHover={false}
-        bodyClassName="learnly-toast-body"
-      />
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={4500}
+          closeOnClick
+          pauseOnHover={false}
+          bodyClassName="learnly-toast-body"
+        />
 
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <Inicio />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/planos"
-          element={
-            <ProtectedRoute>
-              <Planos />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/simulados"
-          element={
-            <ProtectedRoute>
-              <Simulados />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/mentoria"
-          element={
-            <ProtectedRoute>
-              <MentorIA />
-            </ProtectedRoute>
-          }
-        />
-        {/* <Route
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <Inicio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/planos"
+            element={
+              <ProtectedRoute>
+                <Planos />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/simulados"
+            element={
+              <ProtectedRoute>
+                <Simulados />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/mentoria"
+            element={
+              <ProtectedRoute>
+                <MentorIA />
+              </ProtectedRoute>
+            }
+          />
+          {/* <Route
           path="/desempenho"
           element={
             <ProtectedRoute>
@@ -66,8 +70,9 @@ root.render(
           Q</ProtectedRoute>
           }
         /> */}
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   </React.StrictMode>,
 );
 
