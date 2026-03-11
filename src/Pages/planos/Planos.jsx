@@ -2,26 +2,19 @@ import Header from "../../components/Header/Header";
 import Plano from "../../components/Plano/Plano";
 import style from "./_planos.module.css";
 import { useEffect, useState } from "react";
-import { FaBrain, FaPlay, FaPlus, FaTrash } from "react-icons/fa6";
+import { FaPlay, FaPlus } from "react-icons/fa6";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Card from "../../components/Card/Card";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../services/PlanoService";
-import { Button, Modal } from "react-bootstrap";
 import { ImHappy } from "react-icons/im";
-import {
-  BsCheckLg,
-  BsClock,
-  BsExclamationTriangle,
-  BsGear,
-  BsJournalPlus,
-  BsPlus,
-  BsRobot,
-  BsStars,
-  BsTrash,
-} from "react-icons/bs";
-import Select from "react-select";
+import { BsRobot } from "react-icons/bs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import ModalExcluirPlano from "../../components/Modais/Planos/ModalExcluirPlano";
+import ModalLancarHoras from "../../components/Modais/Planos/ModalLancarHoras";
+import ModalConfigurarPlano from "../../components/Modais/Planos/ModalConfigurarPlano";
+import ModalCriarPlano from "../../components/Modais/Planos/ModalCriarPlano";
+import ModalVisualizarPlano from "../../components/Modais/Planos/ModalVisualizarPlano";
+import ModalCriarPlanoIA from "../../components/Modais/Planos/ModalCriarPlanoIA";
 
 const mapPlanoBackend = (plano) => ({
   planoId: plano.planoId,
@@ -94,8 +87,7 @@ function Planos() {
 
   const planoAtivoIndex = planosList.findIndex((p) => p.ativo);
   const planoAtivo = planosList[planoAtivoIndex >= 0 ? planoAtivoIndex : 0];
-  const planoVisualizado =
-    viewingIndex !== null ? planosList[viewingIndex] : null;
+  const planoVisualizado = viewingIndex !== null ? planosList[viewingIndex] : null;
 
   const abrirLancamentoHoras = (materia) => {
     setMateriaSelecionada(materia);
@@ -119,20 +111,14 @@ function Planos() {
 
     try {
       setLoading(true);
-      await PlanoAPI.LancarHoras(
-        materiaSelecionada.planoMateriaId,
-        Number(horasLancadas),
-      );
+      await PlanoAPI.LancarHoras(materiaSelecionada.planoMateriaId, Number(horasLancadas));
 
       toast.success("Horas lançadas");
       setMostrarHoras(false);
 
       queryClient.invalidateQueries({ queryKey: ["resumo", usuarioId] });
-      queryClient.invalidateQueries({
-        queryKey: ["comparacaoHoras", usuarioId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["comparacaoHoras", usuarioId] });
       invalidarPlanos();
-      // invalidarInicio();
     } catch {
       toast.error("Erro ao lançar horas");
     } finally {
@@ -223,15 +209,11 @@ function Planos() {
   };
 
   const adicionarMateria = async () => {
-    if (!materiaId || !horasTotais)
-      return toast.warn("Preencha todos os campos");
+    if (!materiaId || !horasTotais) return toast.warn("Preencha todos os campos");
 
     try {
       setLoading(true);
-      await PlanoAPI.AdicionarMateria(planoConfigId, {
-        materiaId,
-        horasTotais,
-      });
+      await PlanoAPI.AdicionarMateria(planoConfigId, { materiaId, horasTotais });
 
       const materia = materiasDisponiveis.find((m) => m.materiaId == materiaId);
       setMateriasDoPlano((prev) => [
@@ -259,7 +241,6 @@ function Planos() {
       await PlanoAPI.AtivarPlano(plano.planoId, usuarioId);
 
       setMostrarPlano(false);
-
       invalidarPlanos();
       invalidarInicio();
 
@@ -269,8 +250,22 @@ function Planos() {
     }
   };
 
+  const handleExcluirPlano = async () => {
+    try {
+      setLoading(true);
+      await PlanoAPI.Excluir(planoParaExcluir.planoId);
+      toast.success("Plano excluído");
+      setMostrarExcluir(false);
+      invalidarPlanos();
+      invalidarInicio();
+    } catch {
+      toast.error("Erro ao excluir plano");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    //#region JSX
     <div className="page">
       <Header
         children={
@@ -305,9 +300,7 @@ function Planos() {
                   <button
                     className={style.botao_exibir}
                     onClick={() =>
-                      handleClickPlano(
-                        planoAtivoIndex >= 0 ? planoAtivoIndex : 0,
-                      )
+                      handleClickPlano(planoAtivoIndex >= 0 ? planoAtivoIndex : 0)
                     }
                   >
                     <FaPlay /> Visualizar Plano
@@ -317,8 +310,7 @@ function Planos() {
             </div>
           )}
 
-          {planosList.filter((_, idx) => idx !== planoAtivoIndex).length >
-            0 && (
+          {planosList.filter((_, idx) => idx !== planoAtivoIndex).length > 0 && (
             <>
               <h4 className={style.atividade}>Planos Inativos</h4>
               <div className={style.planos_container}>
@@ -346,478 +338,88 @@ function Planos() {
         </>
       )}
 
-      {/* Mostrar Plano */}
-      <Modal
+      <ModalVisualizarPlano
         show={mostrarPlano}
-        centered
-        size="xl"
         onHide={() => setMostrarPlano(false)}
-      >
-        <Modal.Header closeButton>
-          <div className={style.header_content}>
-            <button
-              className={style.lixeira}
-              onClick={() => {
-                setMostrarPlano(false);
-                setPlanoParaExcluir(planoVisualizado);
-                setMostrarExcluir(true);
-              }}
-            >
-              <BsTrash />
-            </button>
+        planoVisualizado={planoVisualizado}
+        viewingIndex={viewingIndex}
+        planoAtivoIndex={planoAtivoIndex}
+        onAtivarPlano={handleAtivarPlano}
+        onExcluir={(plano) => {
+          setPlanoParaExcluir(plano);
+          setMostrarExcluir(true);
+        }}
+        onLancarHoras={abrirLancamentoHoras}
+      />
 
-            <Modal.Title>{planoVisualizado?.titulo}</Modal.Title>
+      <ModalCriarPlanoIA
+        show={mostrarIa}
+        onHide={() => setMostrarIa(false)}
+        titulo={titulo}
+        setTitulo={setTitulo}
+        objetivo={objetivo}
+        setObjetivo={setObjetivo}
+        horasSemana={horasSemana}
+        setHorasSemana={setHorasSemana}
+        dataInicio={dataInicio}
+        setDataInicio={setDataInicio}
+        dataFim={dataFim}
+        setDataFim={setDataFim}
+        hoje={hoje}
+        onCriar={() => criarPlano(true)}
+        loading={loading}
+      />
 
-            {planoVisualizado && (
-              <div className={style.info_container}>
-                <div className={style.info_item}>
-                  <span className={style.info_label}>Início</span>
-                  <span className={style.info_value}>
-                    {new Date(planoVisualizado.dataInicio).toLocaleDateString(
-                      "pt-BR",
-                    )}
-                  </span>
-                </div>
-                <div className={style.info_item}>
-                  <span className={style.info_label}>Fim</span>
-                  <span className={style.info_value}>
-                    {new Date(planoVisualizado.dataFim).toLocaleDateString(
-                      "pt-BR",
-                    )}
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-        </Modal.Header>
-
-        <Modal.Body className={style.modal_body}>
-          <div className={style.cards}>
-            {planoVisualizado?.materias?.map((pm, i) => {
-              const progresso =
-                (pm.horasConcluidas / pm.horasTotais) * 100 || 0;
-              return (
-                <Card key={i} titulo={pm.nome} centralizado={true}>
-                  {pm.topicos?.length > 0 && (
-                    <div className={style.topicos} style={{ textAlign: "center" }}>
-                      <strong style={{ textAlign: "center" }}>Tópicos:</strong>
-                      <ul style={{ textAlign: "left" }}>
-                        {pm.topicos.map((topico, index) => (
-                          <li key={index}>{topico}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  <p className={style.horas}>
-                    <BsClock size={12} /> {pm.horasConcluidas}h /{" "}
-                    {pm.horasTotais}h
-                  </p>
-                  <div className={style.progress}>
-                    <div
-                      className={style.progress_bar}
-                      style={{ width: `${progresso}%` }}
-                    />
-                  </div>
-                  <button
-                    className={`${style.botao} ${style.full}`}
-                    onClick={() => abrirLancamentoHoras(pm)}
-                  >
-                    Lançar horas
-                  </button>
-                </Card>
-              );
-            })}
-          </div>
-        </Modal.Body>
-
-        <Modal.Footer>
-          {viewingIndex !== planoAtivoIndex && (
-            <Button variant="primary" onClick={handleAtivarPlano}>
-              <BsCheckLg /> Ativar plano
-            </Button>
-          )}
-        </Modal.Footer>
-      </Modal>
-
-      {/* Criar com IA */}
-      <Modal show={mostrarIa} centered onHide={() => setMostrarIa(false)}>
-        <Modal.Header closeButton>
-          <div className="modal-icon modal-icon-warning">
-            <BsStars />
-          </div>
-          <Modal.Title>Criar plano com IA</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <input
-            className="form-control mb-3"
-            placeholder="Título do plano"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-          />
-          <input
-            className="form-control mb-3"
-            placeholder="Objetivo"
-            value={objetivo}
-            onChange={(e) => setObjetivo(e.target.value)}
-          />
-          <label
-            className="form-label fw-semibold"
-            style={{ fontSize: "0.8125rem", color: "#475569" }}
-          >
-            Carga horária semanal
-          </label>
-          <input
-            type="number"
-            className="form-control mb-3"
-            placeholder="Horas por semana (máx: 60)"
-            value={horasSemana}
-            min={1}
-            max={60}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") return setHorasSemana("");
-              if (+v < 1 || +v > 60) return;
-              setHorasSemana(+v);
-            }}
-          />
-          <div className="row g-3">
-            <div className="col-6">
-              <label
-                className="form-label fw-semibold"
-                style={{ fontSize: "0.8125rem", color: "#475569" }}
-              >
-                Data de início
-              </label>
-              <input
-                type="date"
-                className="form-control"
-                value={dataInicio}
-                min={hoje}
-                onChange={(e) => setDataInicio(e.target.value)}
-              />
-            </div>
-            <div className="col-6">
-              <label
-                className="form-label fw-semibold"
-                style={{ fontSize: "0.8125rem", color: "#475569" }}
-              >
-                Data final
-              </label>
-              <input
-                type="date"
-                className="form-control"
-                value={dataFim}
-                min={dataInicio || hoje}
-                onChange={(e) => setDataFim(e.target.value)}
-              />
-            </div>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setMostrarIa(false)}>
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => criarPlano(true)}
-            disabled={loading}
-          >
-            {loading ? (
-              <span className={style.spinner} />
-            ) : (
-              <>
-                <BsStars /> Criar
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Criar Plano */}
-      <Modal
+      <ModalCriarPlano
         show={mostrarCriarPlano}
-        centered
         onHide={() => setMostrarCriarPlano(false)}
-      >
-        <Modal.Header closeButton>
-          <div className="modal-icon modal-icon-success">
-            <BsJournalPlus />
-          </div>
-          <Modal.Title>Criar plano</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <input
-            className="form-control mb-3"
-            placeholder="Título do plano"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-          />
-          <input
-            className="form-control mb-3"
-            placeholder="Objetivo"
-            value={objetivo}
-            onChange={(e) => setObjetivo(e.target.value)}
-          />
-          <div className="row g-3">
-            <div className="col-6">
-              <label
-                className="form-label fw-semibold"
-                style={{ fontSize: "0.8125rem", color: "#475569" }}
-              >
-                Data de início
-              </label>
-              <input
-                type="date"
-                className="form-control"
-                value={dataInicio}
-                min={hoje}
-                onChange={(e) => setDataInicio(e.target.value)}
-              />
-            </div>
-            <div className="col-6">
-              <label
-                className="form-label fw-semibold"
-                style={{ fontSize: "0.8125rem", color: "#475569" }}
-              >
-                Data final
-              </label>
-              <input
-                type="date"
-                className="form-control"
-                value={dataFim}
-                min={dataInicio || hoje}
-                onChange={(e) => setDataFim(e.target.value)}
-              />
-            </div>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setMostrarCriarPlano(false)}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => criarPlano(false)}
-            disabled={loading}
-          >
-            {loading ? (
-              <span className={style.spinner} />
-            ) : (
-              <>
-                <BsJournalPlus /> Criar plano
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        titulo={titulo}
+        setTitulo={setTitulo}
+        objetivo={objetivo}
+        setObjetivo={setObjetivo}
+        dataInicio={dataInicio}
+        setDataInicio={setDataInicio}
+        dataFim={dataFim}
+        setDataFim={setDataFim}
+        hoje={hoje}
+        onCriar={() => criarPlano(false)}
+        loading={loading}
+      />
 
-      {/* Configurar */}
-      <Modal
+      <ModalConfigurarPlano
         show={mostrarConfigurar}
-        centered
         onHide={() => setMostrarConfigurar(false)}
-      >
-        <Modal.Header closeButton>
-          <div className="modal-icon modal-icon-info">
-            <BsGear />
-          </div>
-          <Modal.Title>Configurar plano</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Select
-            options={materiasDisponiveis.map((m) => ({
-              value: m.materiaId,
-              label: m.nome,
-              isDisabled: materiasDoPlano.some((pm) => pm.nome === m.nome),
-            }))}
-            value={
-              materiaId
-                ? materiasDisponiveis
-                    .map((m) => ({ value: m.materiaId, label: m.nome }))
-                    .find((o) => o.value === materiaId) || null
-                : null
-            }
-            onChange={(selected) => setMateriaId(selected?.value || "")}
-            placeholder="Selecione a matéria"
-            isClearable
-          />
-          {materiasDisponiveis.filter(
-            (m) => !materiasDoPlano.some((pm) => pm.nome === m.nome),
-          ).length === 0 && (
-            <small className="text-muted mt-1 d-block">
-              Todas as matérias já foram adicionadas
-            </small>
-          )}
-          <div className="mt-3">
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label
-                className="fw-semibold"
-                style={{ fontSize: "0.875rem", color: "#475569" }}
-              >
-                Horas totais
-              </label>
-              <span
-                className="modal-badge modal-badge-info"
-                style={{ marginTop: 0 }}
-              >
-                {horasTotais || 0}h
-              </span>
-            </div>
-            <input
-              type="range"
-              min={5}
-              max={200}
-              step={1}
-              value={horasTotais || 5}
-              onChange={(e) => setHorasTotais(+e.target.value)}
-              className="form-range"
-            />
-            <input
-              type="number"
-              min={5}
-              max={200}
-              className="form-control mt-1"
-              placeholder="Ou digite o valor (5–200)"
-              value={horasTotais || ""}
-              onChange={(e) => {
-                const v = e.target.value;
-                if (v === "") return setHorasTotais("");
-                const num = +v;
-                if (num < 5 || num > 200) return;
-                setHorasTotais(num);
-              }}
-            />
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={adicionarMateria}>
-            {loading ? (
-              <span className={style.spinner} />
-            ) : (
-              <>
-                <BsPlus /> Adicionar
-              </>
-            )}
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              if (materiasDoPlano.length === 0)
-                return toast.warn("Adicione ao menos uma matéria ao plano");
-              setMostrarConfigurar(false);
-              invalidarPlanos();
-            }}
-          >
-            <BsCheckLg /> Concluir
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        materiasDisponiveis={materiasDisponiveis}
+        materiasDoPlano={materiasDoPlano}
+        materiaId={materiaId}
+        setMateriaId={setMateriaId}
+        horasTotais={horasTotais}
+        setHorasTotais={setHorasTotais}
+        onAdicionarMateria={adicionarMateria}
+        onConcluir={() => {
+          setMostrarConfigurar(false);
+          invalidarPlanos();
+        }}
+        loading={loading}
+      />
 
-      {/* Lançar Horas */}
-      <Modal show={mostrarHoras} centered onHide={() => setMostrarHoras(false)}>
-        <Modal.Header closeButton>
-          <div className="modal-icon modal-icon-info">
-            <BsClock />
-          </div>
-          <Modal.Title>Lançar horas</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <span className="modal-badge modal-badge-info">
-            {materiaSelecionada?.nome}
-          </span>
-          <input
-            type="number"
-            min="1"
-            max={
-              (materiaSelecionada?.horasTotais ?? 0) -
-              (materiaSelecionada?.horasConcluidas ?? 0)
-            }
-            className="form-control mt-3"
-            placeholder="Quantas horas você estudou?"
-            value={horasLancadas}
-            onChange={(e) => {
-              const v = e.target.value;
-              const max =
-                (materiaSelecionada?.horasTotais ?? 0) -
-                (materiaSelecionada?.horasConcluidas ?? 0);
-              if (v === "") return setHorasLancadas("");
-              if (+v < 1 || +v > max) return;
-              setHorasLancadas(+v);
-            }}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setMostrarHoras(false)}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={lancarHoras} disabled={loading}>
-            {loading ? (
-              <span className={style.spinner} />
-            ) : (
-              <>
-                <BsClock /> Lançar horas
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalLancarHoras
+        show={mostrarHoras}
+        onHide={() => setMostrarHoras(false)}
+        materiaSelecionada={materiaSelecionada}
+        horasLancadas={horasLancadas}
+        setHorasLancadas={setHorasLancadas}
+        onLancar={lancarHoras}
+        loading={loading}
+      />
 
-      {/* Excluir */}
-      <Modal
+      <ModalExcluirPlano
         show={mostrarExcluir}
-        centered
         onHide={() => setMostrarExcluir(false)}
-      >
-        <Modal.Header closeButton>
-          <div className="modal-icon modal-icon-danger">
-            <BsExclamationTriangle />
-          </div>
-          <Modal.Title>Excluir plano</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Tem certeza que deseja excluir o plano?
-          <br />
-          <span className="modal-badge modal-badge-danger">
-            {planoParaExcluir?.titulo}
-          </span>
-          <br />
-          <small>Essa ação não poderá ser desfeita.</small>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setMostrarExcluir(false)}>
-            Cancelar
-          </Button>
-          <Button
-            variant="danger"
-            disabled={loading}
-            onClick={async () => {
-              try {
-                setLoading(true);
-                await PlanoAPI.Excluir(planoParaExcluir.planoId);
-                toast.success("Plano excluído");
-                setMostrarExcluir(false);
-                invalidarPlanos();
-                invalidarInicio();
-              } catch {
-                toast.error("Erro ao excluir plano");
-              } finally {
-                setLoading(false);
-              }
-            }}
-          >
-            {loading ? (
-              <span className={style.spinner} />
-            ) : (
-              <>
-                <BsTrash /> Excluir
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        planoParaExcluir={planoParaExcluir}
+        onExcluir={handleExcluirPlano}
+        loading={loading}
+      />
     </div>
   );
 }

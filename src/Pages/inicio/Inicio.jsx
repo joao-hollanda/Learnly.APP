@@ -20,6 +20,8 @@ import { MdOutlineRestartAlt } from "react-icons/md";
 import Logout from "../../components/Logout/Logout";
 import { getUserData } from "../../utils/cookieHelper";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import ModalCriarEvento from "../../components/Modais/Inicio/ModalCriarEvento";
+import ModalResetEventos from "../../components/Modais/Inicio/ModalResetEventos";
 
 function Inicio() {
   const [loading, setLoading] = useState(false);
@@ -377,153 +379,23 @@ function Inicio() {
         </div>
       </div>
 
-      {/* Criar Evento */}
-      <Modal
+      <ModalCriarEvento
         show={mostrarModalEvento}
-        centered
-        size="lg"
         onHide={() => setMostrarModalEvento(false)}
-      >
-        <Modal.Header closeButton>
-          <div className="modal-icon modal-icon-info">
-            <FaRegCalendarAlt />
-          </div>
-          <Modal.Title>Criar evento de estudo</Modal.Title>
-        </Modal.Header>
+        novoEvento={novoEvento}
+        setNovoEvento={setNovoEvento}
+        onConfirmar={handleCriarEventos}
+        loading={loading}
+        style={style}
+      />
 
-        <Modal.Body className={style.modal_body}>
-          <div className={style.form_group}>
-            <label>Nome do evento</label>
-            <input
-              className={style.input}
-              value={novoEvento.titulo}
-              onChange={(e) =>
-                setNovoEvento({ ...novoEvento, titulo: e.target.value })
-              }
-              placeholder="Ex: Matemática"
-            />
-          </div>
-
-          <div className={style.horas}>
-            <div className={style.form_group}>
-              <label>Hora início</label>
-              <input
-                type="time"
-                className={style.input}
-                value={novoEvento.inicio}
-                onChange={(e) =>
-                  setNovoEvento({ ...novoEvento, inicio: e.target.value })
-                }
-              />
-            </div>
-            <div className={style.form_group}>
-              <label>Hora fim</label>
-              <input
-                type="time"
-                className={style.input}
-                value={novoEvento.fim}
-                onChange={(e) =>
-                  setNovoEvento({ ...novoEvento, fim: e.target.value })
-                }
-              />
-            </div>
-          </div>
-
-          <div className={style.form_group}>
-            <label>Dias da semana</label>
-            <div className={style.dias}>
-              {diasSemana.map((dia) => (
-                <button
-                  key={dia.value}
-                  className={
-                    novoEvento.diasSemana.includes(dia.value)
-                      ? style.dia_ativo
-                      : style.dia
-                  }
-                  onClick={() => {
-                    const selecionados = novoEvento.diasSemana.includes(
-                      dia.value,
-                    )
-                      ? novoEvento.diasSemana.filter((d) => d !== dia.value)
-                      : [...novoEvento.diasSemana, dia.value];
-                    setNovoEvento({ ...novoEvento, diasSemana: selecionados });
-                  }}
-                >
-                  {dia.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Modal.Body>
-
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setMostrarModalEvento(false)}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleCriarEventos}
-            disabled={loading}
-          >
-            {loading ? (
-              <span className={style.spinner} />
-            ) : (
-              <>
-                <FaPlus /> Criar eventos
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Reset */}
-      <Modal
+      <ModalResetEventos
         show={mostrarModalReset}
-        centered
         onHide={() => setMostrarModalReset(false)}
-      >
-        <Modal.Header closeButton>
-          <div className="modal-icon modal-icon-danger">
-            <MdOutlineRestartAlt />
-          </div>
-          <Modal.Title>Resetar eventos</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          Tem certeza que deseja apagar todos os eventos de estudo do seu
-          calendário?
-          <br />
-          <span className="modal-badge modal-badge-danger">
-            Essa ação não pode ser desfeita.
-          </span>
-        </Modal.Body>
-
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setMostrarModalReset(false)}
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="danger"
-            onClick={handleResetEventos}
-            disabled={loading}
-          >
-            {loading ? (
-              <span className={style.spinner} />
-            ) : (
-              <>
-                <MdOutlineRestartAlt /> Confirmar
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        onConfirmar={handleResetEventos}
+        loading={loading}
+        style={style}
+      />
     </div>
   );
 }

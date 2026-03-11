@@ -1,4 +1,4 @@
-import { Form, Modal } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import style from "./_simulados.module.css";
 import { FaPlus } from "react-icons/fa6";
@@ -7,25 +7,16 @@ import SimuladoAPI from "../../services/SimuladoService";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
 import { ImHappy } from "react-icons/im";
-import { Button } from "react-bootstrap";
-import {
-  BsClipboardPlus,
-  BsClipboardCheck,
-  BsTrophyFill,
-  BsCheckLg,
-} from "react-icons/bs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import ModalCriarSimulado from "../../components/Modais/Simulados/ModalCriarSimulado";
+import ModalResultado from "../../components/Modais/Simulados/ModalResultado";
+import ModalPreviewSimulado from "../../components/Modais/Simulados/ModalPreviewResultado";
+
+const getImagemAlternativa = (a) => a.arquivo || null;
 
 export default function Simulados() {
   const usuarioId = Number(sessionStorage.getItem("id"));
   const queryClient = useQueryClient();
-
-  const materias = [
-    { label: "Linguagens", value: "linguagens" },
-    { label: "Matemática", value: "matematica" },
-    { label: "Ciências da Natureza", value: "ciencias-natureza" },
-    { label: "Ciências Humanas", value: "ciencias-humanas" },
-  ];
 
   const [mostrarCriar, setMostrarCriar] = useState(false);
   const [quantidade, setQuantidade] = useState("");
@@ -64,8 +55,6 @@ export default function Simulados() {
     },
     staleTime: Infinity,
   });
-
-  const getImagemAlternativa = (a) => a.arquivo || null;
 
   const toggleMateria = (m) => {
     setMateriasSelecionadas((prev) =>
@@ -121,8 +110,6 @@ export default function Simulados() {
     setResultado(null);
     salvarSimulado(null);
     salvarRespostas({});
-
-    // Invalida lista de simulados e o contador no Inicio
     queryClient.invalidateQueries({ queryKey: ["simulados", usuarioId] });
     queryClient.invalidateQueries({ queryKey: ["totalSimulados", usuarioId] });
   };
@@ -265,192 +252,24 @@ export default function Simulados() {
         </div>
       )}
 
-      <Modal centered show={mostrarCriar} onHide={() => setMostrarCriar(false)}>
-        <Modal.Header closeButton>
-          <div className="modal-icon modal-icon-info">
-            <BsClipboardPlus />
-          </div>
-          <Modal.Title>Novo simulado</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <label
-            className="form-label fw-semibold"
-            style={{ fontSize: "0.8125rem", color: "#475569" }}
-          >
-            Matérias
-          </label>
-          {materias.map((m) => (
-            <Form.Check
-              key={m.value}
-              label={m.label}
-              checked={materiasSelecionadas.includes(m.value)}
-              onChange={() => toggleMateria(m.value)}
-              style={{ textAlign: "left" }}
-            />
-          ))}
-          <label
-            className="form-label fw-semibold mt-3"
-            style={{ fontSize: "0.8125rem", color: "#475569" }}
-          >
-            Quantidade de questões
-          </label>
-          <input
-            type="number"
-            className="form-control mt-1"
-            value={quantidade}
-            min={1}
-            max={25}
-            placeholder="Máx: 25"
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") return setQuantidade("");
-              if (+v < 1 || +v > 25) return;
-              setQuantidade(+v);
-            }}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setMostrarCriar(false)}
-            disabled={loading}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleGerarSimulado}
-            disabled={loading}
-          >
-            {loading ? (
-              <span className={style.spinner} />
-            ) : (
-              <>
-                <BsClipboardPlus /> Criar
-              </>
-            )}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalCriarSimulado
+        show={mostrarCriar}
+        onHide={() => setMostrarCriar(false)}
+        loading={loading}
+        quantidade={quantidade}
+        setQuantidade={setQuantidade}
+        materiasSelecionadas={materiasSelecionadas}
+        toggleMateria={toggleMateria}
+        onGerar={handleGerarSimulado}
+      />
 
-      <Modal centered show={!!resultado} backdrop="static" keyboard={false}>
-        <Modal.Header>
-          <div className="modal-icon modal-icon-success">
-            <BsTrophyFill />
-          </div>
-          <Modal.Title>Resultado</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {resultado && (
-            <>
-              <div className="d-flex justify-content-center gap-2 mb-3">
-                <span className="modal-badge modal-badge-info">
-                  Nota: {resultado.nota.toFixed(1)}
-                </span>
-                <span className="modal-badge modal-badge-success">
-                  Acertos: {resultado.desempenho.quantidadeDeAcertos}
-                </span>
-              </div>
-              <ReactMarkdown>{resultado.desempenho.feedback}</ReactMarkdown>
-            </>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={finalizar}>
-            <BsCheckLg /> Concluir
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ModalResultado resultado={resultado} onFinalizar={finalizar} />
 
-      <Modal
-        show={!!simuladoPreview}
-        size="lg"
-        scrollable
+      <ModalPreviewSimulado
+        simuladoPreview={simuladoPreview}
+        previewRespostas={previewRespostas}
         onHide={() => setSimuladoPreview(null)}
-      >
-        <Modal.Header closeButton>
-          <div className="modal-icon modal-icon-info">
-            <BsClipboardCheck />
-          </div>
-          <Modal.Title>
-            Simulado de{" "}
-            {simuladoPreview &&
-              new Date(simuladoPreview.data).toLocaleString("pt-BR", {
-                dateStyle: "short",
-                timeStyle: "short",
-              })}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ textAlign: "left" }}>
-          {simuladoPreview?.questoes.map((q, i) => (
-            <div key={q.questaoId} className={style.card}>
-              <h4>
-                {i + 1}. {q.titulo}
-              </h4>
-              {q.contexto && (
-                <div className={style.markdown}>
-                  <ReactMarkdown
-                    components={{
-                      img: ({ node, ...props }) => (
-                        <img
-                          {...props}
-                          className={style.imagem}
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      ),
-                    }}
-                  >
-                    {q.contexto}
-                  </ReactMarkdown>
-                </div>
-              )}
-              {q.introducaoAlternativa}
-              <Form>
-                {q.alternativas.map((a) => {
-                  const imagem = getImagemAlternativa(a);
-                  const marcada =
-                    previewRespostas[q.questaoId] === a.alternativaId;
-                  let classe = style.alternativa;
-                  if (a.correta) classe += ` ${style.correta}`;
-                  if (marcada && !a.correta) classe += ` ${style.errada}`;
-                  return (
-                    <Form.Check
-                      key={a.alternativaId}
-                      type="radio"
-                      disabled
-                      checked={marcada}
-                      className={classe}
-                      label={
-                        <div className={style.conteudoAlternativa}>
-                          <span className={style.letra}>{a.letra})</span>
-                          {a.texto ? (
-                            <span>{a.texto}</span>
-                          ) : imagem ? (
-                            <ReactMarkdown
-                              components={{
-                                img: ({ node, ...props }) => (
-                                  <img {...props} className={style.imagem} />
-                                ),
-                              }}
-                            >
-                              {`![](${imagem})`}
-                            </ReactMarkdown>
-                          ) : (
-                            <span className={style.semConteudo}>
-                              (alternativa sem conteúdo)
-                            </span>
-                          )}
-                        </div>
-                      }
-                    />
-                  );
-                })}
-              </Form>
-            </div>
-          ))}
-        </Modal.Body>
-      </Modal>
+      />
     </div>
   );
 }
