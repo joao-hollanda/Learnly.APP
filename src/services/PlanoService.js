@@ -11,8 +11,8 @@ const PlanoAPI = {
     return resposta.data;
   },
 
-  async Listar5(usuarioId) {
-    const resposta = await HTTPClient.get(`Plano/usuario/${usuarioId}`);
+  async Listar5() {
+    const resposta = await HTTPClient.get(`Plano/usuario`);
     return resposta.data;
   },
 
@@ -21,9 +21,9 @@ const PlanoAPI = {
     return resposta.data;
   },
 
-  async AtivarPlano(planoId, usuarioId) {
+  async AtivarPlano(planoId) {
     const resposta = await HTTPClient.put(
-      `Plano/${planoId}/ativar?usuarioId=${usuarioId}`,
+      `Plano/${planoId}/ativar`,
     );
     return resposta.data;
   },
@@ -45,14 +45,14 @@ const PlanoAPI = {
     return resposta.data;
   },
 
-  async ObterResumo(usuarioId) {
-    const resposta = await HTTPClient.get(`Plano/gerar-resumo/${usuarioId}`);
+  async ObterResumo() {
+    const resposta = await HTTPClient.get(`Plano/gerar-resumo`);
     return resposta.data;
   },
 
-  async CompararHoras(usuarioId) {
+  async CompararHoras() {
     const resposta = await HTTPClient.get(
-      `Plano/horas/comparacao/${usuarioId}`,
+      `Plano/horas/comparacao`,
     );
     return resposta.data;
   },
@@ -62,8 +62,8 @@ const PlanoAPI = {
     return resposta.data;
   },
 
-  async ObterPlanoAtivo(usuarioId) {
-    const resposta = await HTTPClient.get(`Plano/plano-ativo/${usuarioId}`)
+  async ObterPlanoAtivo() {
+    const resposta = await HTTPClient.get(`Plano/plano-ativo`)
     return resposta.data;
   }
 };

@@ -14,7 +14,6 @@ import { IoSchool } from "react-icons/io5";
 import PlanoAPI from "../../services/PlanoService";
 import { toast } from "react-toastify";
 import SimuladoAPI from "../../services/SimuladoService";
-import { Button, Modal } from "react-bootstrap";
 import EventoEstudoAPI from "../../services/EventoService";
 import { MdOutlineRestartAlt } from "react-icons/md";
 import Logout from "../../components/Logout/Logout";
@@ -49,53 +48,40 @@ function Inicio() {
 
   const { data: userData } = useQuery({
     queryKey: ["userData"],
-    queryFn: async () => {
-      const data = await getUserData();
-      if (data) {
-        sessionStorage.setItem("id", data.id.toString());
-        sessionStorage.setItem("nome", data.nome);
-      }
-      return data;
-    },
+    queryFn: getUserData,
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
-  const usuarioId = userData?.id;
-
   const { data: planoAtivo } = useQuery({
-    queryKey: ["planoAtivo", usuarioId],
-    queryFn: () => PlanoAPI.ObterPlanoAtivo(usuarioId),
-    enabled: !!usuarioId,
+    queryKey: ["planoAtivo"],
+    queryFn: () => PlanoAPI.ObterPlanoAtivo(),
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
   const { data: totalSimulados = 0 } = useQuery({
-    queryKey: ["totalSimulados", usuarioId],
-    queryFn: () => SimuladoAPI.Contar(usuarioId),
-    enabled: !!usuarioId,
+    queryKey: ["totalSimulados"],
+    queryFn: () => SimuladoAPI.Contar(),
     staleTime: Infinity,
   });
 
   const { data: resumo } = useQuery({
-    queryKey: ["resumo", usuarioId],
-    queryFn: () => PlanoAPI.ObterResumo(usuarioId),
-    enabled: !!usuarioId,
+    queryKey: ["resumo"],
+    queryFn: () => PlanoAPI.ObterResumo(),
     onError: () => toast.error("Erro ao carregar resumo"),
   });
 
   const { data: comparacaoHoras = { horasHoje: 0, diferenca: 0 } } = useQuery({
-    queryKey: ["comparacaoHoras", usuarioId],
-    queryFn: () => PlanoAPI.CompararHoras(usuarioId),
-    enabled: !!usuarioId,
+    queryKey: ["comparacaoHoras"],
+    queryFn: () => PlanoAPI.CompararHoras(),
     onError: () => toast.error("Erro ao carregar horas de estudo"),
   });
 
   const { data: eventosRaw = [] } = useQuery({
-    queryKey: ["eventos", usuarioId],
+    queryKey: ["eventos"],
     queryFn: async () => {
-      const eventosApi = await EventoEstudoAPI.Listar(Number(usuarioId));
+      const eventosApi = await EventoEstudoAPI.Listar();
       return eventosApi.map((e) => ({
         id: e.eventoId,
         title: e.titulo,
@@ -103,7 +89,6 @@ function Inicio() {
         end: new Date(e.fim),
       }));
     },
-    enabled: !!usuarioId,
     staleTime: Infinity,
     onError: () => toast.error("Erro ao carregar eventos"),
   });
@@ -233,10 +218,10 @@ function Inicio() {
       const TAMANHO_LOTE = 100;
       for (let i = 0; i < listaEventosParaEnviar.length; i += TAMANHO_LOTE) {
         const lote = listaEventosParaEnviar.slice(i, i + TAMANHO_LOTE);
-        await EventoEstudoAPI.CriarEmLote({ usuarioId, eventos: lote });
+        await EventoEstudoAPI.CriarEmLote({ eventos: lote });
       }
 
-      queryClient.invalidateQueries({ queryKey: ["eventos", usuarioId] });
+      queryClient.invalidateQueries({ queryKey: ["eventos"] });
 
       setMostrarModalEvento(false);
       setNovoEvento({ titulo: "", inicio: "", fim: "", diasSemana: [] });
@@ -253,9 +238,9 @@ function Inicio() {
     try {
       setLoading(true);
 
-      await EventoEstudoAPI.Remover(usuarioId);
+      await EventoEstudoAPI.Remover();
 
-      queryClient.invalidateQueries({ queryKey: ["eventos", usuarioId] });
+      queryClient.invalidateQueries({ queryKey: ["eventos"] });
 
       toast.success("Todos os eventos foram removidos com sucesso!");
       setMostrarModalReset(false);

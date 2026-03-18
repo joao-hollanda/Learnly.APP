@@ -1,8 +1,8 @@
 import { HTTPClient } from "./client";
 
 const SimuladoAPI = {
-  async GerarSimulado(usuarioId, disciplinas, quantidadeQuestoes) {
-    const resposta = await HTTPClient.post(`Simulado/${usuarioId}`, {
+  async GerarSimulado( disciplinas, quantidadeQuestoes) {
+    const resposta = await HTTPClient.post(`Simulado`, {
       disciplinas,
       quantidadeQuestoes,
     });
@@ -25,14 +25,14 @@ const SimuladoAPI = {
     return resposta.data;
   },
 
-  async Listar(usuarioId) {
-    const resposta = await HTTPClient.get(`Simulado/Listar/${usuarioId}`);
+  async Listar() {
+    const resposta = await HTTPClient.get(`Simulado/Listar`);
 
     return resposta.data;
   },
 
-  async Contar (usuarioId) {
-    const resposta = await HTTPClient.get(`Simulado/Contar/${usuarioId}`);
+  async Contar () {
+    const resposta = await HTTPClient.get(`Simulado/Contar`);
 
     return resposta.data
   }

@@ -36,7 +36,6 @@ const mapPlanoBackend = (plano) => ({
 });
 
 function Planos() {
-  const usuarioId = Number(sessionStorage.getItem("id"));
   const queryClient = useQueryClient();
 
   const hoje = new Date().toISOString().split("T")[0];
@@ -66,9 +65,9 @@ function Planos() {
   const LIMITE_DIARIO = 20;
 
   const { data: planosList = [] } = useQuery({
-    queryKey: ["planos", usuarioId],
+    queryKey: ["planos"],
     queryFn: async () => {
-      const resposta = await PlanoAPI.Listar5(usuarioId);
+      const resposta = await PlanoAPI.Listar5();
       return resposta.map(mapPlanoBackend);
     },
     staleTime: Infinity,
@@ -76,13 +75,13 @@ function Planos() {
   });
 
   const invalidarPlanos = () =>
-    queryClient.invalidateQueries({ queryKey: ["planos", usuarioId] });
+    queryClient.invalidateQueries({ queryKey: ["planos"] });
 
   const invalidarInicio = () => {
-    queryClient.invalidateQueries({ queryKey: ["planoAtivo", usuarioId] });
-    queryClient.invalidateQueries({ queryKey: ["resumo", usuarioId] });
-    queryClient.invalidateQueries({ queryKey: ["totalSimulados", usuarioId] });
-    queryClient.invalidateQueries({ queryKey: ["comparacaoHoras", usuarioId] });
+    queryClient.invalidateQueries({ queryKey: ["planoAtivo"] });
+    queryClient.invalidateQueries({ queryKey: ["resumo"] });
+    queryClient.invalidateQueries({ queryKey: ["totalSimulados"] });
+    queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"] });
   };
 
   const planoAtivoIndex = planosList.findIndex((p) => p.ativo);
@@ -95,11 +94,11 @@ function Planos() {
     setMostrarHoras(true);
   };
 
-  const lancarHoras = async () => {
+  const lancarHoras = async () => { 
     if (!horasLancadas || horasLancadas <= 0)
       return toast.warn("Informe um valor válido");
 
-    const comparacao = await PlanoAPI.CompararHoras(usuarioId);
+    const comparacao = await PlanoAPI.CompararHoras();
     const horasHoje = comparacao.horasHoje;
     const totalComNovoLancamento = horasHoje + Number(horasLancadas);
 
@@ -116,8 +115,8 @@ function Planos() {
       toast.success("Horas lançadas");
       setMostrarHoras(false);
 
-      queryClient.invalidateQueries({ queryKey: ["resumo", usuarioId] });
-      queryClient.invalidateQueries({ queryKey: ["comparacaoHoras", usuarioId] });
+      queryClient.invalidateQueries({ queryKey: ["resumo"] });
+      queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"] });
       invalidarPlanos();
     } catch {
       toast.error("Erro ao lançar horas");
@@ -180,7 +179,6 @@ function Planos() {
       const planoCriado = await PlanoAPI.Criar({
         titulo,
         objetivo,
-        usuarioId,
         dataInicio: new Date(dataInicio + "T00:00:00").toISOString(),
         dataFim: new Date(dataFim + "T00:00:00").toISOString(),
         horasPorSemana: horasSemana,
@@ -188,7 +186,7 @@ function Planos() {
         planoIa: planoIA,
       });
 
-      await PlanoAPI.AtivarPlano(planoCriado.planoId, usuarioId);
+      await PlanoAPI.AtivarPlano(planoCriado.planoId);
 
       setPlanoConfigId(planoCriado.planoId);
       setMostrarCriarPlano(false);
@@ -238,7 +236,7 @@ function Planos() {
   const handleAtivarPlano = async () => {
     try {
       const plano = planosList[viewingIndex];
-      await PlanoAPI.AtivarPlano(plano.planoId, usuarioId);
+      await PlanoAPI.AtivarPlano(plano.planoId);
 
       setMostrarPlano(false);
       invalidarPlanos();

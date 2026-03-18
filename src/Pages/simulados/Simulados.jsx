@@ -15,7 +15,6 @@ import ModalPreviewSimulado from "../../components/Modais/Simulados/ModalPreview
 const getImagemAlternativa = (a) => a.arquivo || null;
 
 export default function Simulados() {
-  const usuarioId = Number(sessionStorage.getItem("id"));
   const queryClient = useQueryClient();
 
   const [mostrarCriar, setMostrarCriar] = useState(false);
@@ -48,9 +47,9 @@ export default function Simulados() {
   };
 
   const { data: simulados = [] } = useQuery({
-    queryKey: ["simulados", usuarioId],
+    queryKey: ["simulados"],
     queryFn: async () => {
-      const response = await SimuladoAPI.Listar(usuarioId);
+      const response = await SimuladoAPI.Listar();
       return Array.isArray(response) ? response : [];
     },
     staleTime: Infinity,
@@ -69,7 +68,6 @@ export default function Simulados() {
     try {
       setLoading(true);
       const id = await SimuladoAPI.GerarSimulado(
-        usuarioId,
         materiasSelecionadas,
         quantidade,
       );
@@ -110,8 +108,8 @@ export default function Simulados() {
     setResultado(null);
     salvarSimulado(null);
     salvarRespostas({});
-    queryClient.invalidateQueries({ queryKey: ["simulados", usuarioId] });
-    queryClient.invalidateQueries({ queryKey: ["totalSimulados", usuarioId] });
+    queryClient.invalidateQueries({ queryKey: ["simulados"] });
+    queryClient.invalidateQueries({ queryKey: ["totalSimulados"] });
   };
 
   return (

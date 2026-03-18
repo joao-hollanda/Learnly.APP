@@ -1,33 +1,31 @@
 import { HTTPClient } from "./client";
 
 const EventoEstudoAPI = {
-  async Listar(usuarioId) {
-    const resposta = await HTTPClient.get(`eventos/usuario/${usuarioId}`);
+  async Listar() {
+    const resposta = await HTTPClient.get(`eventos/usuario`);
     return resposta.data;
   },
 
-  async Criar({ titulo, inicio, fim, usuarioId }) {
+  async Criar({ titulo, inicio, fim }) {
     const resposta = await HTTPClient.post("eventos", {
       titulo,
       inicio,
       fim,
-      usuarioId,
     });
 
     return resposta.data;
   },
 
-  async CriarEmLote({ usuarioId, eventos }) {
+  async CriarEmLote({ eventos }) {
     const resposta = await HTTPClient.post("eventos/lote", {
-      usuarioId,
       eventos,
     });
 
     return resposta.data;
   },
 
-  async Remover(usuarioId) {
-    await HTTPClient.delete(`eventos/${usuarioId}`);
+  async Remover() {
+    await HTTPClient.delete(`eventos`);
   },
 };
 
