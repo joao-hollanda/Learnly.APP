@@ -36,16 +36,6 @@ function Inicio() {
 
   const queryClient = useQueryClient();
 
-  const diasSemana = [
-    { label: "Seg", value: 1 },
-    { label: "Ter", value: 2 },
-    { label: "Qua", value: 3 },
-    { label: "Qui", value: 4 },
-    { label: "Sex", value: 5 },
-    { label: "Sáb", value: 6 },
-    { label: "Dom", value: 0 },
-  ];
-
   const { data: userData } = useQuery({
     queryKey: ["userData"],
     queryFn: getUserData,

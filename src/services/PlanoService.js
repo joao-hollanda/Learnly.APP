@@ -12,7 +12,7 @@ const PlanoAPI = {
   },
 
   async Listar5() {
-    const resposta = await HTTPClient.get(`Plano/usuario`);
+    const resposta = await HTTPClient.get(`Plano`);
     return resposta.data;
   },
 

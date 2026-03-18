@@ -2,7 +2,7 @@ import { HTTPClient } from "./client";
 
 const EventoEstudoAPI = {
   async Listar() {
-    const resposta = await HTTPClient.get(`eventos/usuario`);
+    const resposta = await HTTPClient.get(`eventos`);
     return resposta.data;
   },
 
