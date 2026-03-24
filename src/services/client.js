@@ -19,7 +19,7 @@ const processQueue = (error, token = null) => {
 };
 
 export const HTTPClient = axios.create({
-  baseURL: deploy,
+  baseURL: local,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json;charset=UTF-8",

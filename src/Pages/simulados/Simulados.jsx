@@ -97,8 +97,9 @@ export default function Simulados() {
       }));
       const r = await SimuladoAPI.Responder(simulado.simuladoId, payload);
       setResultado(r);
-    } catch {
+    } catch (ex){
       toast.error("Erro ao enviar respostas");
+      console.log(ex)
     } finally {
       setLoading(false);
     }

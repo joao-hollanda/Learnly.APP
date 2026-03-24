@@ -11,12 +11,7 @@ export default function ModalPreviewSimulado({
   onHide,
 }) {
   return (
-    <Modal
-      show={!!simuladoPreview}
-      size="lg"
-      scrollable
-      onHide={onHide}
-    >
+    <Modal show={!!simuladoPreview} size="lg" scrollable onHide={onHide}>
       <Modal.Header closeButton>
         <div className="modal-icon modal-icon-info">
           <BsClipboardCheck />
@@ -96,6 +91,30 @@ export default function ModalPreviewSimulado({
                 );
               })}
             </Form>
+            {simuladoPreview.respostas?.find((r) => r.questaoId === q.questaoId)
+              ?.explicacao && (
+              <div className={style.explicacaoBox}>
+                <h5>Explicação:</h5>
+                <ReactMarkdown
+                  components={{
+                    img: ({ node, ...props }) => (
+                      <img
+                        {...props}
+                        className={style.imagem}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ),
+                  }}
+                >
+                  {
+                    simuladoPreview.respostas.find(
+                      (r) => r.questaoId === q.questaoId,
+                    ).explicacao
+                  }
+                </ReactMarkdown>
+              </div>
+            )}
           </div>
         ))}
       </Modal.Body>
