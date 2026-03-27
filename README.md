@@ -1,58 +1,80 @@
-# Learnly API
+# Learnly — Frontend
 
-Backend da plataforma **Learnly** — preparatório inteligente para o ENEM com planos de estudo, simulados com correção automática e feedback gerado por IA.
+Interface web da plataforma **Learnly** — preparatório inteligente para o ENEM com planos de estudo, simulados e MentorIA.
 
 ---
 
 ## Visão Geral
 
-A Learnly API é construída em **ASP.NET Core (.NET 8)** seguindo **Clean Architecture** com separação clara entre as camadas de API, Application, Domain, Repository e Services. Toda a comunicação com o banco é feita via **Entity Framework Core** com **PostgreSQL** (hospedado no Neon).
-
-O backend centraliza:
-
-- Autenticação via **JWT com HttpOnly Cookie**
-- Gerenciamento de usuários, planos de estudo e eventos
-- Geração e correção de simulados no padrão ENEM
-- Feedback e explicações de erros gerados via **Groq API** (LLaMA 3)
-- Chatbot educacional com contexto de mentor
+SPA construída em **React 19** com roteamento via React Router, gerenciamento de server state com **TanStack Query v5** e estilização por **CSS Modules**. A autenticação é feita via **HttpOnly Cookie JWT**, com refresh automático do token a cada 23 horas.
 
 ---
 
 ## Stack
 
-| Camada | Tecnologia |
+| Categoria | Tecnologia |
 |---|---|
-| Runtime | .NET 8 / ASP.NET Core |
-| Linguagem | C# |
-| ORM | Entity Framework Core 8 |
-| Banco | PostgreSQL (Neon) |
-| IA | Groq API — `llama-3.1-8b-instant`, `llama-3.3-70b-versatile` |
-| Auth | JWT Bearer + HttpOnly Cookie |
-| Container | Docker |
+| Framework | React 19 |
+| Roteamento | React Router v7 |
+| Server State | TanStack Query v5 |
+| HTTP Client | Axios |
+| UI Components | React Bootstrap 2 |
+| Calendário | React Big Calendar |
+| Markdown | React Markdown |
+| Gráficos | Recharts |
+| Ícones | React Icons, Lucide React |
+| Toasts | React Toastify |
+| Deploy | Vercel |
 
 ---
 
 ## Estrutura do Projeto
 
 ```
-Learnly.API/
-├── Learnly.Api/           # Controllers, Program.cs, modelos de request/response
-├── Learnly.Application/   # Casos de uso (Aplicações) e interfaces
-├── Learnly.Domain/        # Entidades, enums e DTOs de domínio
-├── Learnly.Repository/    # DbContext, configs EF Core, migrations, repositórios
-├── Learnly.Services/      # Serviços externos (Groq IA)
-├── Seeder/                # Seed de questões via API pública do ENEM
-└── Learnly.sln
+src/
+├── Pages/
+│   ├── login/          # Tela de login e cadastro (split-panel + animação de slide)
+│   ├── inicio/         # Dashboard com cards de resumo e calendário semanal
+│   ├── planos/         # Gerenciamento de planos de estudo (manual ou IA)
+│   ├── simulados/      # Geração, resposta e histórico de simulados
+│   ├── MentorIA/       # Chat com o mentor IA (streaming de texto)
+│   └── desempenho/     # (Em desenvolvimento)
+│
+├── components/
+│   ├── Header/         # Navbar responsiva com menu hambúrguer
+│   ├── Card/           # Card genérico reutilizável
+│   ├── Plano/          # Card de plano de estudo com barra de progresso
+│   ├── Calendario/     # Wrapper do React Big Calendar com tooltip customizado
+│   ├── Bolinha/        # Indicador de status colorido
+│   ├── Evento/         # Card de evento de estudo
+│   ├── Logout/         # Botão de logout com limpeza de sessão
+│   ├── ProtectedRoute/ # Guard de rota com AuthCheck no backend
+│   └── Modais/
+│       ├── Inicio/     # ModalCriarEvento, ModalResetEventos
+│       ├── Planos/     # ModalCriarPlano, ModalCriarPlanoIA, ModalConfigurarPlano,
+│       │               # ModalVisualizarPlano, ModalLancarHoras, ModalExcluirPlano
+│       └── Simulados/  # ModalCriarSimulado, ModalResultado, ModalPreviewResultado
+│
+├── services/
+│   ├── client.js       # Instância Axios + interceptor de refresh automático
+│   ├── LoginService.js
+│   ├── PlanoService.js
+│   ├── SimuladoService.js
+│   ├── EventoService.js
+│   └── MentorIAService.js
+│
+└── utils/
+    ├── cookieHelper.js  # Busca dados do usuário logado via JWT
+    └── tokenRefresh.js  # Gerencia o timer de renovação automática do token
 ```
 
 ---
 
 ## Pré-requisitos
 
-- [.NET SDK 8.0.417](https://dotnet.microsoft.com/download)
-- PostgreSQL ou string de conexão Neon
-- Chave de API da [Groq](https://console.groq.com)
-- Docker (opcional)
+- Node.js 18+
+- npm ou yarn
+- Backend da Learnly rodando (local ou Render)
 
 ---
 
@@ -61,166 +83,113 @@ Learnly.API/
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/joao-hollanda/Learnly.API
-cd Learnly.API
+git clone https://github.com/joao-hollanda/Learnly
+cd Learnly
 ```
 
-### 2. Configure o `appsettings.json`
+### 2. Instale as dependências
 
-Crie o arquivo `Learnly.Api/appsettings.json` (ignorado pelo `.gitignore`):
+```bash
+npm install
+```
+
+### 3. Configure a URL da API
+
+Em `src/services/client.js`, ajuste a variável `baseURL`:
+
+```js
+const local = "http://localhost:5080/api/";
+const deploy = "https://learnly-api-yrdu.onrender.com/api/";
+
+// Para rodar localmente, troque deploy por local no axios.create:
+export const HTTPClient = axios.create({
+  baseURL: local,
+  ...
+});
+```
+
+### 4. Inicie o servidor de desenvolvimento
+
+```bash
+npm start
+```
+
+Acesse em: `http://localhost:3000`
+
+---
+
+## Build para Produção
+
+```bash
+npm run build
+```
+
+O projeto está configurado com `CI=false` para ignorar warnings como erros durante o build.
+
+---
+
+## Deploy
+
+O frontend é hospedado no **Vercel**. O arquivo `vercel.json` redireciona todas as rotas para `/index.html`, necessário para SPAs com React Router:
 
 ```json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=...;Database=learnly;Username=...;Password=..."
-  },
-  "jwt": {
-    "secretKey": "sua-chave-secreta-aqui",
-    "issuer": "learnly-api",
-    "audience": "learnly-frontend"
-  },
-  "ApiKeys": {
-    "GroqIA": "gsk_..."
-  }
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }
 ```
 
-### 3. Restaure as dependências
-
-```bash
-dotnet restore
-```
-
-### 4. Aplique as migrations
-
-```bash
-dotnet ef database update --project Learnly.Repository --startup-project Learnly.Api
-```
-
-### 5. Execute a API
-
-```bash
-dotnet run --project Learnly.Api
-```
-
-Swagger disponível em: `http://localhost:5080/swagger`
+URL de produção: [learnly-edu.vercel.app](https://learnly-edu.vercel.app)
 
 ---
 
-## Seed de Questões
+## Páginas
 
-O projeto inclui um seeder que importa questões do ENEM (2009–2023) via [enem.dev](https://api.enem.dev):
+### Login (`/`)
+Tela split-panel com SVG decorativo à esquerda e formulário à direita. Alterna entre login e cadastro com animação de slide. Valida email e senha com regex antes de submeter.
 
-```bash
-dotnet run --project Seeder
-```
+### Início (`/home`)
+Dashboard com 4 cards de métricas (horas hoje, plano ativo, progresso geral, simulados concluídos), cronograma do dia e calendário semanal com tooltip ao hover. Permite criar eventos de estudo recorrentes por dia da semana ou resetar todos os eventos.
 
-> O seeder aplica as migrations automaticamente antes de importar os dados. Só executa se o banco estiver vazio.
+### Planos (`/planos`)
+Lista planos de estudo com destaque para o plano ativo. Criação manual (com configuração de matérias e horas) ou gerada por IA (LLaMA 70B via Groq). Exibe progresso por matéria, lançamento de horas e limite de 5 planos por usuário.
 
----
+### Simulados (`/simulados`)
+Seleciona disciplinas e quantidade de questões (máx. 25), exibe questões com suporte a contexto em markdown e imagens. Ao enviar, exibe nota, feedback da IA e explicação por questão errada. Histórico dos últimos 5 simulados com visualização completa.
 
-## Docker
-
-```bash
-docker build -t learnly-api .
-docker run -p 8080:8080 \
-  -e ConnectionStrings__DefaultConnection="..." \
-  -e jwt__secretKey="..." \
-  -e ApiKeys__GroqIA="..." \
-  learnly-api
-```
+### MentorIA (`/mentoria`)
+Chat com o mentor IA. Mantém histórico da conversa na sessão, simula efeito de digitação ao exibir respostas, bloqueia envio enquanto a IA responde e renderiza markdown nas respostas.
 
 ---
 
-## Endpoints Principais
+## Autenticação
 
-### Autenticação
-| Método | Rota | Descrição |
-|---|---|---|
-| `POST` | `/api/login` | Login — seta cookie JWT |
-| `POST` | `/api/login/refresh` | Renova o token |
-| `POST` | `/api/login/logout` | Invalida o cookie |
-| `GET` | `/api/login/AuthCheck` | Verifica autenticação |
-| `GET` | `/api/login/user` | Retorna dados do usuário logado |
+O fluxo de auth usa **HttpOnly Cookie JWT**:
 
-### Usuários
-| Método | Rota | Descrição |
-|---|---|---|
-| `POST` | `/api/usuarios/criar` | Cadastro (público) |
-| `PUT` | `/api/usuarios` | Atualiza nome/email |
-| `DELETE` | `/api/usuarios/desativar/{id}` | Desativa conta |
-
-### Planos de Estudo
-| Método | Rota | Descrição |
-|---|---|---|
-| `POST` | `/api/plano` | Cria plano (manual ou gerado por IA) |
-| `GET` | `/api/plano` | Lista últimos 5 planos |
-| `GET` | `/api/plano/{id}` | Busca plano por ID |
-| `PUT` | `/api/plano/{id}/ativar` | Ativa um plano |
-| `PUT` | `/api/plano/{id}/desativar` | Desativa um plano |
-| `DELETE` | `/api/plano/{id}` | Remove plano |
-| `POST` | `/api/plano/{id}/materia` | Adiciona matéria ao plano |
-| `PUT` | `/api/plano/lancar-horas` | Lança horas estudadas |
-| `GET` | `/api/plano/gerar-resumo` | Resumo de horas totais/concluídas |
-| `GET` | `/api/plano/horas/comparacao` | Compara horas hoje vs ontem |
-| `GET` | `/api/plano/plano-ativo` | Retorna plano ativo do usuário |
-
-### Simulados
-| Método | Rota | Descrição |
-|---|---|---|
-| `POST` | `/api/simulado` | Gera novo simulado |
-| `PUT` | `/api/simulado/responder/{id}` | Responde e corrige o simulado |
-| `GET` | `/api/simulado/{id}` | Busca simulado com questões e respostas |
-| `GET` | `/api/simulado/listar` | Lista últimos 5 simulados |
-| `GET` | `/api/simulado/contar` | Total de simulados realizados |
-
-### Eventos de Estudo
-| Método | Rota | Descrição |
-|---|---|---|
-| `GET` | `/api/eventos` | Lista eventos do usuário |
-| `POST` | `/api/eventos` | Cria evento |
-| `POST` | `/api/eventos/lote` | Cria múltiplos eventos de uma vez |
-| `DELETE` | `/api/eventos` | Remove todos os eventos do usuário |
-
-### IA
-| Método | Rota | Descrição |
-|---|---|---|
-| `POST` | `/api/ia/chat` | Chatbot educacional (mentor ENEM) |
+1. Login chama `POST /api/Login` → backend seta o cookie `jwt`
+2. Todas as requisições via Axios incluem `withCredentials: true`
+3. `ProtectedRoute` faz `GET /api/Login/AuthCheck` antes de renderizar rotas protegidas
+4. O interceptor de resposta do Axios detecta `401` e tenta `POST /api/Login/refresh` automaticamente
+5. Se o refresh falhar, redireciona para `/`
+6. `startTokenRefresh()` inicia um timer de 23h para renovar proativamente
 
 ---
 
-## Fluxo do Simulado com IA
+## Cache e Server State
 
-```
-POST /api/simulado
-  → Seleciona questões aleatórias por disciplina
+Todas as chamadas à API usam **TanStack Query** com as seguintes queryKeys:
 
-PUT /api/simulado/responder/{id}
-  → Corrige respostas
-  → Gera feedback geral (GerarFeedbackAsync)
-  → Gera explicações por questão errada (GerarExplicacoes)
-  → Persiste tudo no banco
-  → Retorna nota + desempenho
-```
+| queryKey | Dados |
+|---|---|
+| `["userData"]` | Nome e email do usuário logado |
+| `["planoAtivo"]` | Plano de estudo ativo |
+| `["planos"]` | Lista de planos |
+| `["resumo"]` | Horas totais e concluídas |
+| `["comparacaoHoras"]` | Horas hoje vs ontem |
+| `["eventos"]` | Eventos do calendário |
+| `["simulados"]` | Histórico de simulados |
+| `["totalSimulados"]` | Contador de simulados |
 
-As explicações são geradas em uma única chamada à Groq API com todas as questões erradas, evitando rate limiting.
-
----
-
-## Segurança
-
-- `userId` extraído sempre do JWT via `BaseController.GetUserId()` — nunca da rota
-- Verificação de ownership em todos os endpoints que acessam recursos por ID (`PlanoId`, `SimuladoId`)
-- Cookies JWT configurados como `HttpOnly`, `Secure` em produção, `SameSite=None` para cross-origin com o frontend no Vercel
-- Token expirado limpa o cookie automaticamente via evento `OnAuthenticationFailed`
-
----
-
-## CORS
-
-Configurado para aceitar requisições de:
-- `https://learnly-edu.vercel.app` (produção)
-- `http://localhost:3000` (desenvolvimento)
+Mutations invalidam as queryKeys afetadas via `queryClient.invalidateQueries`.
 
 ---
 
