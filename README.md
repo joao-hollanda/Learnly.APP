@@ -1,158 +1,198 @@
----
+# Learnly — Frontend
 
-# Learnly App
-
-Frontend da aplicação **Learnly**, uma plataforma educacional voltada à organização de estudos, eventos acadêmicos e planos personalizados para alunos.
+Interface web da plataforma **Learnly** — preparatório inteligente para o ENEM com planos de estudo, simulados e MentorIA.
 
 ---
 
 ## Visão Geral
 
-Esta aplicação web representa a interface principal do sistema **Learnly**, sendo responsável por fornecer uma experiência intuitiva para:
-
-* Criação e gerenciamento de planos de estudo
-* Visualização de eventos e horários
-* Organização por disciplinas
-* Acompanhamento de progresso acadêmico
-
-O frontend consome a **Learnly API** e apresenta os dados de forma interativa, responsiva e organizada.
+SPA construída em **React 19** com roteamento via React Router, gerenciamento de server state com **TanStack Query v5** e estilização por **CSS Modules**. A autenticação é feita via **HttpOnly Cookie JWT**, com refresh automático do token a cada 23 horas.
 
 ---
 
-## Tecnologias Utilizadas
+## Stack
 
-* React.js
-* JavaScript
-* CSS Modules
-* React Hooks
-* Axios (consumo de API)
-* React Icons
+| Categoria | Tecnologia |
+|---|---|
+| Framework | React 19 |
+| Roteamento | React Router v7 |
+| Server State | TanStack Query v5 |
+| HTTP Client | Axios |
+| UI Components | React Bootstrap 2 |
+| Calendário | React Big Calendar |
+| Markdown | React Markdown |
+| Gráficos | Recharts |
+| Ícones | React Icons, Lucide React |
+| Toasts | React Toastify |
+| Deploy | Vercel |
 
 ---
 
 ## Estrutura do Projeto
 
-```text
-Learnly.APP
+```
+src/
+├── Pages/
+│   ├── login/          # Tela de login e cadastro (split-panel + animação de slide)
+│   ├── inicio/         # Dashboard com cards de resumo e calendário semanal
+│   ├── planos/         # Gerenciamento de planos de estudo (manual ou IA)
+│   ├── simulados/      # Geração, resposta e histórico de simulados
+│   ├── MentorIA/       # Chat com o mentor IA (streaming de texto)
+│   └── desempenho/     # (Em desenvolvimento)
 │
-├── src
-│   ├── components     # Componentes reutilizáveis
-│   ├── pages          # Páginas da aplicação
-│   ├── services       # Comunicação com a API
+├── components/
+│   ├── Header/         # Navbar responsiva com menu hambúrguer
+│   ├── Card/           # Card genérico reutilizável
+│   ├── Plano/          # Card de plano de estudo com barra de progresso
+│   ├── Calendario/     # Wrapper do React Big Calendar com tooltip customizado
+│   ├── Bolinha/        # Indicador de status colorido
+│   ├── Evento/         # Card de evento de estudo
+│   ├── Logout/         # Botão de logout com limpeza de sessão
+│   ├── ProtectedRoute/ # Guard de rota com AuthCheck no backend
+│   └── Modais/
+│       ├── Inicio/     # ModalCriarEvento, ModalResetEventos
+│       ├── Planos/     # ModalCriarPlano, ModalCriarPlanoIA, ModalConfigurarPlano,
+│       │               # ModalVisualizarPlano, ModalLancarHoras, ModalExcluirPlano
+│       └── Simulados/  # ModalCriarSimulado, ModalResultado, ModalPreviewResultado
 │
-├── public
-├── package.json
-└── README.md
+├── services/
+│   ├── client.js       # Instância Axios + interceptor de refresh automático
+│   ├── LoginService.js
+│   ├── PlanoService.js
+│   ├── SimuladoService.js
+│   ├── EventoService.js
+│   └── MentorIAService.js
+│
+└── utils/
+    ├── cookieHelper.js  # Busca dados do usuário logado via JWT
+    └── tokenRefresh.js  # Gerencia o timer de renovação automática do token
 ```
 
 ---
 
 ## Pré-requisitos
 
-Antes de iniciar, certifique-se de possuir:
-
-* Node.js (versão LTS recomendada)
-* npm ou yarn
-* Git
+- Node.js 18+
+- npm ou yarn
+- Backend da Learnly rodando (local ou Render)
 
 ---
 
-## Configuração do Ambiente
+## Configuração
 
-### Clonar o repositório
+### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/joao-hollanda/Learnly.APP
-cd Learnly.APP
+git clone https://github.com/joao-hollanda/Learnly
+cd Learnly
 ```
 
----
-
-### Instalar dependências
-
-Com npm:
+### 2. Instale as dependências
 
 ```bash
 npm install
 ```
 
-Ou com yarn:
+### 3. Configure a URL da API
 
-```bash
-yarn
-```
-
----
-
-### Configurar a API
-
-Edite o arquivo de serviço (exemplo: `src/services/api.js`) e informe a URL da API:
+Em `src/services/client.js`, ajuste a variável `baseURL`:
 
 ```js
-import axios from "axios";
+const local = "http://localhost:5080/api/";
+const deploy = "https://learnly-api-yrdu.onrender.com/api/";
 
-export const api = axios.create({
-  baseURL: "https://localhost:5001",
+// Para rodar localmente, troque deploy por local no axios.create:
+export const HTTPClient = axios.create({
+  baseURL: local,
+  ...
 });
 ```
 
----
-
-## Executando a Aplicação
+### 4. Inicie o servidor de desenvolvimento
 
 ```bash
 npm start
 ```
 
-ou
+Acesse em: `http://localhost:3000`
+
+---
+
+## Build para Produção
 
 ```bash
-yarn dev
+npm run build
 ```
 
-A aplicação ficará disponível em:
+O projeto está configurado com `CI=false` para ignorar warnings como erros durante o build.
 
+---
+
+## Deploy
+
+O frontend é hospedado no **Vercel**. O arquivo `vercel.json` redireciona todas as rotas para `/index.html`, necessário para SPAs com React Router:
+
+```json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+}
 ```
-http://localhost:3000
-```
+
+URL de produção: [learnly-edu.vercel.app](https://learnly-edu.vercel.app)
 
 ---
 
-## Screenshots
+## Páginas
 
-<img width="1914" height="941" alt="image" src="https://github.com/user-attachments/assets/5912da9b-3965-452d-9a7e-e0ba9b905a4e" />
-<img width="1914" height="930" alt="image" src="https://github.com/user-attachments/assets/0479718a-38ba-4db4-be36-7131b1f18c47" />
-<img width="1912" height="935" alt="image" src="https://github.com/user-attachments/assets/4f2a7b8f-a807-4a2d-8b1b-a520d61a993a" />
-<img width="1913" height="841" alt="image" src="https://github.com/user-attachments/assets/e004a92e-ae47-440c-975f-dd2d4c7c8cf3" />
-<img width="1907" height="934" alt="image" src="https://github.com/user-attachments/assets/b85bf546-c63b-46d5-a08a-0c0c2173ed35" />
+### Login (`/`)
+Tela split-panel com SVG decorativo à esquerda e formulário à direita. Alterna entre login e cadastro com animação de slide. Valida email e senha com regex antes de submeter.
 
----
+### Início (`/home`)
+Dashboard com 4 cards de métricas (horas hoje, plano ativo, progresso geral, simulados concluídos), cronograma do dia e calendário semanal com tooltip ao hover. Permite criar eventos de estudo recorrentes por dia da semana ou resetar todos os eventos.
 
-## Funcionalidades Principais
+### Planos (`/planos`)
+Lista planos de estudo com destaque para o plano ativo. Criação manual (com configuração de matérias e horas) ou gerada por IA (LLaMA 70B via Groq). Exibe progresso por matéria, lançamento de horas e limite de 5 planos por usuário.
 
-* Criação e edição de planos de estudo
-* Visualização de eventos em calendário
-* Organização por disciplinas
-* Interface em formato de chat (aluno x IA)
-* Feedback visual de progresso
+### Simulados (`/simulados`)
+Seleciona disciplinas e quantidade de questões (máx. 25), exibe questões com suporte a contexto em markdown e imagens. Ao enviar, exibe nota, feedback da IA e explicação por questão errada. Histórico dos últimos 5 simulados com visualização completa.
 
----
-
-## Boas Práticas
-
-* Componentização
-* Separação de responsabilidades
-* Consumo centralizado da API
-* Estilos isolados com CSS Modules
+### MentorIA (`/mentoria`)
+Chat com o mentor IA. Mantém histórico da conversa na sessão, simula efeito de digitação ao exibir respostas, bloqueia envio enquanto a IA responde e renderiza markdown nas respostas.
 
 ---
 
-## Testes
+## Autenticação
 
-Projeto de testes ainda não incluído — seção reservada para evolução futura.
+O fluxo de auth usa **HttpOnly Cookie JWT**:
+
+1. Login chama `POST /api/Login` → backend seta o cookie `jwt`
+2. Todas as requisições via Axios incluem `withCredentials: true`
+3. `ProtectedRoute` faz `GET /api/Login/AuthCheck` antes de renderizar rotas protegidas
+4. O interceptor de resposta do Axios detecta `401` e tenta `POST /api/Login/refresh` automaticamente
+5. Se o refresh falhar, redireciona para `/`
+6. `startTokenRefresh()` inicia um timer de 23h para renovar proativamente
+
+---
+
+## Cache e Server State
+
+Todas as chamadas à API usam **TanStack Query** com as seguintes queryKeys:
+
+| queryKey | Dados |
+|---|---|
+| `["userData"]` | Nome e email do usuário logado |
+| `["planoAtivo"]` | Plano de estudo ativo |
+| `["planos"]` | Lista de planos |
+| `["resumo"]` | Horas totais e concluídas |
+| `["comparacaoHoras"]` | Horas hoje vs ontem |
+| `["eventos"]` | Eventos do calendário |
+| `["simulados"]` | Histórico de simulados |
+| `["totalSimulados"]` | Contador de simulados |
+
+Mutations invalidam as queryKeys afetadas via `queryClient.invalidateQueries`.
 
 ---
 
 ## Autor
 
-**João Victor Hollanda** - Desenvolvedor Frontend / Full Stack em formação
+**João Victor Hollanda** — [github.com/joao-hollanda](https://github.com/joao-hollanda)
