@@ -7,17 +7,19 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Inicio from "./Pages/inicio/Inicio";
 import Planos from "./Pages/planos/Planos";
 import Simulados from "./Pages/simulados/Simulados";
-import Desempenho from "./Pages/desempenho/Desempenho";
+// import Desempenho from "./Pages/desempenho/Desempenho";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MentorIA from "./Pages/MentorIA/MentorIA";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
+    <SpeedInsights />
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ToastContainer
