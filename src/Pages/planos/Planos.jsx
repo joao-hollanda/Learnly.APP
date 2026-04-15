@@ -75,18 +75,34 @@ function Planos() {
   });
 
   const invalidarPlanos = () =>
-    queryClient.invalidateQueries({ queryKey: ["planos"] });
+    queryClient.invalidateQueries({
+      queryKey: ["planos"],
+      refetchType: "active",
+    });
 
   const invalidarInicio = () => {
-    queryClient.invalidateQueries({ queryKey: ["planoAtivo"] });
-    queryClient.invalidateQueries({ queryKey: ["resumo"] });
-    queryClient.invalidateQueries({ queryKey: ["totalSimulados"] });
-    queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"] });
+    queryClient.invalidateQueries({
+      queryKey: ["planoAtivo"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["resumo"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["totalSimulados"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["comparacaoHoras"],
+      refetchType: "active",
+    });
   };
 
   const planoAtivoIndex = planosList.findIndex((p) => p.ativo);
   const planoAtivo = planosList[planoAtivoIndex >= 0 ? planoAtivoIndex : 0];
-  const planoVisualizado = viewingIndex !== null ? planosList[viewingIndex] : null;
+  const planoVisualizado =
+    viewingIndex !== null ? planosList[viewingIndex] : null;
 
   const abrirLancamentoHoras = (materia) => {
     setMateriaSelecionada(materia);
@@ -94,7 +110,7 @@ function Planos() {
     setMostrarHoras(true);
   };
 
-  const lancarHoras = async () => { 
+  const lancarHoras = async () => {
     if (!horasLancadas || horasLancadas <= 0)
       return toast.warn("Informe um valor válido");
 
@@ -110,7 +126,10 @@ function Planos() {
 
     try {
       setLoading(true);
-      await PlanoAPI.LancarHoras(materiaSelecionada.planoMateriaId, Number(horasLancadas));
+      await PlanoAPI.LancarHoras(
+        materiaSelecionada.planoMateriaId,
+        Number(horasLancadas),
+      );
 
       toast.success("Horas lançadas");
       setMostrarHoras(false);
@@ -207,11 +226,15 @@ function Planos() {
   };
 
   const adicionarMateria = async () => {
-    if (!materiaId || !horasTotais) return toast.warn("Preencha todos os campos");
+    if (!materiaId || !horasTotais)
+      return toast.warn("Preencha todos os campos");
 
     try {
       setLoading(true);
-      await PlanoAPI.AdicionarMateria(planoConfigId, { materiaId, horasTotais });
+      await PlanoAPI.AdicionarMateria(planoConfigId, {
+        materiaId,
+        horasTotais,
+      });
 
       const materia = materiasDisponiveis.find((m) => m.materiaId == materiaId);
       setMateriasDoPlano((prev) => [
@@ -253,7 +276,18 @@ function Planos() {
       setLoading(true);
       await PlanoAPI.Excluir(planoParaExcluir.planoId);
       toast.success("Plano excluído");
+
       setMostrarExcluir(false);
+      setMostrarPlano(false);
+      setViewingIndex(null);
+
+      queryClient.setQueryData(["planos"], (planosAntigos) => {
+        if (!planosAntigos) return [];
+        return planosAntigos.filter(
+          (p) => p.planoId !== planoParaExcluir.planoId,
+        );
+      });
+
       invalidarPlanos();
       invalidarInicio();
     } catch {
@@ -298,7 +332,9 @@ function Planos() {
                   <button
                     className={style.botao_exibir}
                     onClick={() =>
-                      handleClickPlano(planoAtivoIndex >= 0 ? planoAtivoIndex : 0)
+                      handleClickPlano(
+                        planoAtivoIndex >= 0 ? planoAtivoIndex : 0,
+                      )
                     }
                   >
                     <FaPlay /> Visualizar Plano
@@ -308,12 +344,13 @@ function Planos() {
             </div>
           )}
 
-          {planosList.filter((_, idx) => idx !== planoAtivoIndex).length > 0 && (
+          {planosList.filter((p) => !p.ativo).length > 0 && (
             <>
               <h4 className={style.atividade}>Planos Inativos</h4>
               <div className={style.planos_container}>
-                {planosList.map((plano, idx) =>
-                  idx === planoAtivoIndex ? null : (
+                {planosList
+                  .filter((p) => !p.ativo)
+                  .map((plano, idx) => (
                     <Plano
                       key={plano.planoId}
                       titulo={plano.titulo}
@@ -328,8 +365,7 @@ function Planos() {
                         </button>
                       }
                     />
-                  ),
-                )}
+                  ))}
               </div>
             </>
           )}
