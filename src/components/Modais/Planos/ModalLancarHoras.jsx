@@ -1,66 +1,108 @@
-import { Button, Modal } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Button } from "react-bootstrap";
 import { BsClock } from "react-icons/bs";
-import style from "../../../Pages/planos/_planos.module.css";
+import ModalBase from "../ModalBase";
+import style from "../_modal.module.css";
 
+function ModalLancarHoras({ show, onHide, loading, plano, onLancar, initialPlanoMateriaId }) {
+  const [planoMateriaId, setPlanoMateriaId] = useState("");
+  const [horas, setHoras] = useState("");
 
-function ModalLancarHoras({
-  show,
-  onHide,
-  materiaSelecionada,
-  horasLancadas,
-  setHorasLancadas,
-  onLancar,
-  loading,
-}) {
-  const max =
-    (materiaSelecionada?.horasTotais ?? 0) -
-    (materiaSelecionada?.horasConcluidas ?? 0);
+  const materias = plano?.materias ?? [];
+  const materiaSelecionada = materias.find((m) => m.planoMateriaId === planoMateriaId);
+  const maxHoras = materiaSelecionada
+    ? materiaSelecionada.horasTotais - materiaSelecionada.horasConcluidas
+    : 0;
+
+  useEffect(() => {
+    if (show) {
+      setPlanoMateriaId(initialPlanoMateriaId ?? "");
+      setHoras("");
+    }
+  }, [show]);
 
   return (
-    <Modal show={show} centered onHide={onHide}>
-      <Modal.Header closeButton>
-        <div className="modal-icon modal-icon-info">
-          <BsClock />
+    <ModalBase
+      show={show}
+      onHide={onHide}
+      title="Lançar horas"
+      iconType="info"
+      icon={<BsClock />}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onHide} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => onLancar({ planoMateriaId, horas: Number(horas) })}
+            disabled={loading || !planoMateriaId || !horas}
+          >
+            {loading ? <span className={style.spinner} /> : <><BsClock /> Lançar</>}
+          </Button>
+        </>
+      }
+    >
+      <div style={{ width: "100%", textAlign: "left", display: "flex", flexDirection: "column", gap: 12 }}>
+        <div>
+          <label style={labelStyle}>Matéria</label>
+          <select
+            className="form-select"
+            value={planoMateriaId}
+            onChange={(e) => {
+              setPlanoMateriaId(e.target.value);
+              setHoras("");
+            }}
+          >
+            <option value="">Selecione a matéria</option>
+            {materias.map((m) => (
+              <option
+                key={m.planoMateriaId}
+                value={m.planoMateriaId}
+                disabled={m.horasConcluidas >= m.horasTotais}
+              >
+                {m.nome} ({m.horasConcluidas}h / {m.horasTotais}h)
+              </option>
+            ))}
+          </select>
         </div>
-        <Modal.Title>Lançar horas</Modal.Title>
-      </Modal.Header>
 
-      <Modal.Body>
-        <span className="modal-badge modal-badge-info">
-          {materiaSelecionada?.nome}
-        </span>
-        <input
-          type="number"
-          min="1"
-          max={max}
-          className="form-control mt-3"
-          placeholder="Quantas horas você estudou?"
-          value={horasLancadas}
-          onChange={(e) => {
-            const v = e.target.value;
-            if (v === "") return setHorasLancadas("");
-            if (+v < 1 || +v > max) return;
-            setHorasLancadas(+v);
-          }}
-        />
-      </Modal.Body>
+        {materiaSelecionada && (
+          <span className="modal-badge modal-badge-info" style={{ alignSelf: "flex-start" }}>
+            Restam {maxHoras}h de {materiaSelecionada.horasTotais}h
+          </span>
+        )}
 
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Cancelar
-        </Button>
-        <Button variant="primary" onClick={onLancar} disabled={loading}>
-          {loading ? (
-            <span className={style.spinner} />
-          ) : (
-            <>
-              <BsClock /> Lançar horas
-            </>
-          )}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+        <div>
+          <label style={labelStyle}>Horas estudadas</label>
+          <input
+            type="number"
+            className="form-control"
+            placeholder={maxHoras > 0 ? `1 – ${maxHoras}h` : "Selecione uma matéria"}
+            value={horas}
+            disabled={!planoMateriaId}
+            min={1}
+            max={Math.min(maxHoras, 20)}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "") return setHoras("");
+              const num = parseInt(v, 10);
+              if (isNaN(num) || num < 1 || num > Math.min(maxHoras, 20)) return;
+              setHoras(num);
+            }}
+          />
+        </div>
+      </div>
+    </ModalBase>
   );
 }
+
+const labelStyle = {
+  fontSize: "0.8125rem",
+  fontWeight: 600,
+  color: "#475569",
+  marginBottom: 4,
+  display: "block",
+};
 
 export default ModalLancarHoras;

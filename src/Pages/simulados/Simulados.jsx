@@ -125,7 +125,7 @@ export default function Simulados() {
         <div className={style.listaSimulados}>
           {simulados.length === 0 ? (
             <div className={style.vazio}>
-              Nenhum simulado ainda, que tal criar um? <ImHappy />
+              Nenhum simulado ainda, que tal criar um?
             </div>
           ) : (
             <>

@@ -1,42 +1,33 @@
-import { Button, Modal } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { BsExclamationTriangle, BsTrash } from "react-icons/bs";
-import style from "../../../Pages/planos/_planos.module.css";
+import ModalBase from "../ModalBase";
+import style from "../_modal.module.css";
 
 function ModalExcluirPlano({ show, onHide, planoParaExcluir, onExcluir, loading }) {
   return (
-    <Modal show={show} centered onHide={onHide}>
-      <Modal.Header closeButton>
-        <div className="modal-icon modal-icon-danger">
-          <BsExclamationTriangle />
-        </div>
-        <Modal.Title>Excluir plano</Modal.Title>
-      </Modal.Header>
-
-      <Modal.Body>
-        Tem certeza que deseja excluir o plano?
-        <br />
-        <span className="modal-badge modal-badge-danger">
-          {planoParaExcluir?.titulo}
-        </span>
-        <br />
-        <small>Essa ação não poderá ser desfeita.</small>
-      </Modal.Body>
-
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Cancelar
-        </Button>
-        <Button variant="danger" disabled={loading} onClick={onExcluir}>
-          {loading ? (
-            <span className={style.spinner} />
-          ) : (
-            <>
-              <BsTrash /> Excluir
-            </>
-          )}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+    <ModalBase
+      show={show}
+      onHide={onHide}
+      title="Excluir plano"
+      iconType="danger"
+      icon={<BsExclamationTriangle />}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onHide} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={onExcluir} disabled={loading}>
+            {loading ? <span className={style.spinner} /> : <><BsTrash /> Excluir</>}
+          </Button>
+        </>
+      }
+    >
+      Tem certeza que deseja excluir o plano?
+      <br />
+      <span className="modal-badge modal-badge-danger">{planoParaExcluir?.titulo}</span>
+      <br />
+      <small>Essa ação não poderá ser desfeita.</small>
+    </ModalBase>
   );
 }
 

@@ -361,7 +361,6 @@ function Inicio() {
         setNovoEvento={setNovoEvento}
         onConfirmar={handleCriarEventos}
         loading={loading}
-        style={style}
       />
 
       <ModalResetEventos
@@ -369,7 +368,6 @@ function Inicio() {
         onHide={() => setMostrarModalReset(false)}
         onConfirmar={handleResetEventos}
         loading={loading}
-        style={style}
       />
     </div>
   );

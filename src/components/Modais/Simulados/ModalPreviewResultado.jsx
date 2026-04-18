@@ -1,6 +1,7 @@
-import { Form, Modal } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import { BsClipboardCheck } from "react-icons/bs";
 import ReactMarkdown from "react-markdown";
+import ModalBase from "../ModalBase";
 import style from "../../../Pages/simulados/_simulados.module.css";
 
 const getImagemAlternativa = (a) => a.arquivo || null;
@@ -11,21 +12,23 @@ export default function ModalPreviewSimulado({
   onHide,
 }) {
   return (
-    <Modal show={!!simuladoPreview} size="lg" scrollable onHide={onHide}>
-      <Modal.Header closeButton>
-        <div className="modal-icon modal-icon-info">
-          <BsClipboardCheck />
-        </div>
-        <Modal.Title>
-          Simulado de{" "}
-          {simuladoPreview &&
-            new Date(simuladoPreview.data).toLocaleString("pt-BR", {
+    <ModalBase
+      show={!!simuladoPreview}
+      onHide={onHide}
+      title={
+        simuladoPreview
+          ? `Simulado de ${new Date(simuladoPreview.data).toLocaleString("pt-BR", {
               dateStyle: "short",
               timeStyle: "short",
-            })}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body style={{ textAlign: "left" }}>
+            })}`
+          : ""
+      }
+      iconType="info"
+      icon={<BsClipboardCheck />}
+      size="lg"
+      scrollable
+    >
+      <div style={{ textAlign: "left" }}>
         {simuladoPreview?.questoes.map((q, i) => (
           <div key={q.questaoId} className={style.card}>
             <h4>
@@ -36,12 +39,7 @@ export default function ModalPreviewSimulado({
                 <ReactMarkdown
                   components={{
                     img: ({ node, ...props }) => (
-                      <img
-                        {...props}
-                        className={style.imagem}
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      <img {...props} className={style.imagem} loading="lazy" decoding="async" />
                     ),
                   }}
                 >
@@ -53,8 +51,7 @@ export default function ModalPreviewSimulado({
             <Form>
               {q.alternativas.map((a) => {
                 const imagem = getImagemAlternativa(a);
-                const marcada =
-                  previewRespostas[q.questaoId] === a.alternativaId;
+                const marcada = previewRespostas[q.questaoId] === a.alternativaId;
                 let classe = style.alternativa;
                 if (a.correta) classe += ` ${style.correta}`;
                 if (marcada && !a.correta) classe += ` ${style.errada}`;
@@ -91,33 +88,23 @@ export default function ModalPreviewSimulado({
                 );
               })}
             </Form>
-            {simuladoPreview.respostas?.find((r) => r.questaoId === q.questaoId)
-              ?.explicacao && (
+            {simuladoPreview.respostas?.find((r) => r.questaoId === q.questaoId)?.explicacao && (
               <div className={style.explicacaoBox}>
                 <h5>Explicação:</h5>
                 <ReactMarkdown
                   components={{
                     img: ({ node, ...props }) => (
-                      <img
-                        {...props}
-                        className={style.imagem}
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      <img {...props} className={style.imagem} loading="lazy" decoding="async" />
                     ),
                   }}
                 >
-                  {
-                    simuladoPreview.respostas.find(
-                      (r) => r.questaoId === q.questaoId,
-                    ).explicacao
-                  }
+                  {simuladoPreview.respostas.find((r) => r.questaoId === q.questaoId).explicacao}
                 </ReactMarkdown>
               </div>
             )}
           </div>
         ))}
-      </Modal.Body>
-    </Modal>
+      </div>
+    </ModalBase>
   );
 }
