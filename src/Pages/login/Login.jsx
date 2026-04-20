@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import estilo from "./_login.module.css";
 import service from "../../services/LoginService";
+import { getApiError } from "../../services/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -147,7 +148,7 @@ const Login = () => {
             : "Erro ao conectar ao servidor.",
         );
       } else {
-        toast.error(erro.response?.data || "Erro ao registrar.");
+        toast.error(getApiError(erro, "Erro ao registrar."));
       }
     } finally {
       setCarregando(false);

@@ -6,6 +6,7 @@ import { FaPlay, FaPlus } from "react-icons/fa6";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../services/PlanoService";
+import { getApiError } from "../../services/client";
 import { ImHappy } from "react-icons/im";
 import { BsRobot } from "react-icons/bs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -162,8 +163,8 @@ function Planos() {
       invalidarPlanos();
       invalidarInicio();
       toast.success("Plano criado e ativado!");
-    } catch {
-      toast.error("Erro ao criar plano");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao criar plano"));
     } finally {
       setLoading(false);
     }
@@ -198,8 +199,8 @@ function Planos() {
       setMostrarConfigurar(false);
       invalidarPlanos();
       invalidarInicio();
-    } catch {
-      toast.error("Erro ao salvar plano");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao salvar plano"));
     } finally {
       setLoading(false);
     }
@@ -212,8 +213,8 @@ function Planos() {
       invalidarPlanos();
       invalidarInicio();
       toast.success("Plano ativado");
-    } catch {
-      toast.error("Erro ao ativar plano");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao ativar plano"));
     }
   };
 
@@ -243,8 +244,8 @@ function Planos() {
       queryClient.invalidateQueries({ queryKey: ["resumo"] });
       queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"] });
       invalidarPlanos();
-    } catch {
-      toast.error("Erro ao lançar horas");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao lançar horas"));
     } finally {
       setLoading(false);
     }
@@ -266,8 +267,8 @@ function Planos() {
       // fix 3: sem setQueryData otimista — evita race condition com o refetch imediato
       invalidarPlanos();
       invalidarInicio();
-    } catch {
-      toast.error("Erro ao excluir plano");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao excluir plano"));
     } finally {
       setLoading(false);
     }

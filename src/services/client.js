@@ -1,5 +1,8 @@
 import axios from "axios";
 
+export const getApiError = (error, fallback = "Ocorreu um erro. Tente novamente.") =>
+  error?.response?.data?.errors?.[0] ?? fallback;
+
 const local = "http://localhost:5080/api/";
 const deploy = "https://learnly-api-yrdu.onrender.com/api/";
 
@@ -19,7 +22,7 @@ const processQueue = (error, token = null) => {
 };
 
 export const HTTPClient = axios.create({
-  baseURL: deploy,
+  baseURL: local,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json;charset=UTF-8",
@@ -27,7 +30,12 @@ export const HTTPClient = axios.create({
 });
 
 HTTPClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data && typeof response.data === "object" && "success" in response.data) {
+      return { ...response, data: response.data.data };
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 

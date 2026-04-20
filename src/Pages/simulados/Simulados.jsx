@@ -4,6 +4,7 @@ import style from "./_simulados.module.css";
 import { FaPlus } from "react-icons/fa6";
 import { useState } from "react";
 import SimuladoAPI from "../../services/SimuladoService";
+import { getApiError } from "../../services/client";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
 import { ImHappy } from "react-icons/im";
@@ -76,8 +77,8 @@ export default function Simulados() {
       salvarRespostas({});
       setMostrarCriar(false);
       toast.success("Simulado gerado com sucesso");
-    } catch {
-      toast.error("Erro ao gerar simulado");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao gerar simulado"));
     } finally {
       setLoading(false);
     }
@@ -97,9 +98,8 @@ export default function Simulados() {
       }));
       const r = await SimuladoAPI.Responder(simulado.simuladoId, payload);
       setResultado(r);
-    } catch (ex){
-      toast.error("Erro ao enviar respostas");
-      console.log(ex)
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao enviar respostas"));
     } finally {
       setLoading(false);
     }

@@ -12,6 +12,7 @@ import Bolinha from "../../components/Bolinha/Bolinha";
 import CalendarView from "../../components/Calendario/Calendario";
 import { IoSchool } from "react-icons/io5";
 import PlanoAPI from "../../services/PlanoService";
+import { getApiError } from "../../services/client";
 import { toast } from "react-toastify";
 import SimuladoAPI from "../../services/SimuladoService";
 import EventoEstudoAPI from "../../services/EventoService";
@@ -217,8 +218,7 @@ function Inicio() {
       setNovoEvento({ titulo: "", inicio: "", fim: "", diasSemana: [] });
       toast.success("Eventos criados com sucesso!");
     } catch (erro) {
-      console.error("Erro ao salvar eventos:", erro);
-      toast.error("Erro ao salvar eventos no servidor.");
+      toast.error(getApiError(erro, "Erro ao salvar eventos no servidor."));
     } finally {
       setLoading(false);
     }
@@ -235,8 +235,7 @@ function Inicio() {
       toast.success("Todos os eventos foram removidos com sucesso!");
       setMostrarModalReset(false);
     } catch (erro) {
-      console.error(erro);
-      toast.error("Erro ao resetar eventos");
+      toast.error(getApiError(erro, "Erro ao resetar eventos"));
     } finally {
       setLoading(false);
     }
