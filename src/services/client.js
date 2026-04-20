@@ -21,8 +21,10 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+const isDev = import.meta.env.DEV;
+
 export const HTTPClient = axios.create({
-  baseURL: deploy,
+  baseURL: isDev ? local : deploy,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json;charset=UTF-8",
