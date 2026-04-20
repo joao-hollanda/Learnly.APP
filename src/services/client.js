@@ -1,10 +1,9 @@
 import axios from "axios";
 
-export const getApiError = (error, fallback = "Ocorreu um erro. Tente novamente.") =>
-  error?.response?.data?.errors?.[0] ?? fallback;
-
-const local = "http://localhost:5080/api/";
-const deploy = "https://learnly-api-yrdu.onrender.com/api/";
+export const getApiError = (
+  error,
+  fallback = "Ocorreu um erro. Tente novamente.",
+) => error?.response?.data?.errors?.[0] ?? fallback;
 
 let isRefreshing = false;
 let failedQueue = [];
@@ -21,10 +20,13 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-const isDev = import.meta.env.DEV;
+const baseURL =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:5080/api/"
+    : "https://learnly-api-yrdu.onrender.com/api/";
 
 export const HTTPClient = axios.create({
-  baseURL: isDev ? local : deploy,
+  baseURL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json;charset=UTF-8",
@@ -33,7 +35,11 @@ export const HTTPClient = axios.create({
 
 HTTPClient.interceptors.response.use(
   (response) => {
-    if (response.data && typeof response.data === "object" && "success" in response.data) {
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "success" in response.data
+    ) {
       return { ...response, data: response.data.data };
     }
     return response;
