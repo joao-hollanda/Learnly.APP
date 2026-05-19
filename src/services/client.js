@@ -26,7 +26,7 @@ const baseURL =
     : "https://learnly-api-yrdu.onrender.com/api/";
 
 export const HTTPClient = axios.create({
-  baseURL: "http://localhost:5080/api/",
+  baseURL: baseURL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json;charset=UTF-8",
