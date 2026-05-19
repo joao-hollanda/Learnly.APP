@@ -44,29 +44,6 @@ function ModalLancarHoras({ show, onHide, loading, plano, onLancar, initialPlano
       }
     >
       <div style={{ width: "100%", textAlign: "left", display: "flex", flexDirection: "column", gap: 12 }}>
-        <div>
-          <label style={labelStyle}>Matéria</label>
-          <select
-            className="form-select"
-            value={planoMateriaId}
-            onChange={(e) => {
-              setPlanoMateriaId(e.target.value);
-              setHoras("");
-            }}
-          >
-            <option value="">Selecione a matéria</option>
-            {materias.map((m) => (
-              <option
-                key={m.planoMateriaId}
-                value={m.planoMateriaId}
-                disabled={m.horasConcluidas >= m.horasTotais}
-              >
-                {m.nome} ({m.horasConcluidas}h / {m.horasTotais}h)
-              </option>
-            ))}
-          </select>
-        </div>
-
         {materiaSelecionada && (
           <span className="modal-badge modal-badge-info" style={{ alignSelf: "flex-start" }}>
             Restam {maxHoras}h de {materiaSelecionada.horasTotais}h
