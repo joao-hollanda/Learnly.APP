@@ -34,7 +34,8 @@ function MentorIA() {
   const [conversa, setConversa] = useState([
     {
       autor: "ia",
-      texto: "Olá! \nSou o MentorIA, sua Inteligência Artificial preparada pra atender suas necessidades.\nPode mandar sua dúvida 😊",
+      texto:
+        "Olá! \nSou o MentorIA, sua Inteligência Artificial preparada pra atender suas necessidades.\nPode mandar sua dúvida 😊",
     },
   ]);
 
@@ -64,12 +65,14 @@ function MentorIA() {
     el.style.height = `${Math.min(el.scrollHeight, 150)}px`;
   };
 
-  const escreverTextoAosPoucos = (texto, callback, velocidade = 1) => {
+  const escreverTextoAosPoucos = (texto, callback, velocidade = 16) => {
     let i = 0;
     setDigitandoIA(true);
+
     const interval = setInterval(() => {
-      callback(texto.slice(0, i + 1));
-      i++;
+      i = Math.min(i + 2, texto.length); // 8 caracteres por tick
+      callback(texto.slice(0, i));
+
       if (i >= texto.length) {
         clearInterval(interval);
         setDigitandoIA(false);
@@ -81,15 +84,34 @@ function MentorIA() {
     const respostaIA = resposta.resposta;
 
     // Invalida planos se a IA criou/modificou algo
-    const keywords = ["criado", "ativado", "removida", "adicionada", "substituída", "reajustada", "estendido"];
+    const keywords = [
+      "criado",
+      "ativado",
+      "removida",
+      "adicionada",
+      "substituída",
+      "reajustada",
+      "estendido",
+    ];
     if (keywords.some((k) => respostaIA?.toLowerCase().includes(k))) {
-      queryClient.invalidateQueries({ queryKey: ["planos"], refetchType: "active" });
-      queryClient.invalidateQueries({ queryKey: ["planoAtivo"], refetchType: "active" });
-      queryClient.invalidateQueries({ queryKey: ["resumo"], refetchType: "active" });
+      queryClient.invalidateQueries({
+        queryKey: ["planos"],
+        refetchType: "active",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["planoAtivo"],
+        refetchType: "active",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["resumo"],
+        refetchType: "active",
+      });
     }
 
     setConversa((prev) =>
-      prev.filter((m) => m.tipo !== "loading").concat({ autor: "ia", texto: "" })
+      prev
+        .filter((m) => m.tipo !== "loading")
+        .concat({ autor: "ia", texto: "" }),
     );
     escreverTextoAosPoucos(respostaIA, (textoParcial) => {
       setConversa((prev) => {
@@ -125,14 +147,18 @@ function MentorIA() {
         { role: "user", content: pergunta },
       ];
 
-      const resposta = await MentorIAAPI.EnviarMensagem({ Mensagens: mensagensParaIA });
+      const resposta = await MentorIAAPI.EnviarMensagem({
+        Mensagens: mensagensParaIA,
+      });
       processarResposta(resposta);
     } catch {
       setConversa((prev) =>
-        prev.filter((m) => m.tipo !== "loading").concat({
-          autor: "ia",
-          texto: "Ocorreu um erro ao falar com a IA. Tente novamente.",
-        })
+        prev
+          .filter((m) => m.tipo !== "loading")
+          .concat({
+            autor: "ia",
+            texto: "Ocorreu um erro ao falar com a IA. Tente novamente.",
+          }),
       );
     } finally {
       setCarregandoIA(false);
@@ -140,7 +166,10 @@ function MentorIA() {
   };
 
   useEffect(() => {
-    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+    chatRef.current?.scrollTo({
+      top: chatRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [conversa]);
 
   const dica = DICAS[dicaAtual];
@@ -155,7 +184,9 @@ function MentorIA() {
             return (
               <div key={index} className={style.balaoIA}>
                 <div className={style.loading}>
-                  <span /><span /><span />
+                  <span />
+                  <span />
+                  <span />
                 </div>
               </div>
             );
@@ -164,7 +195,9 @@ function MentorIA() {
           return (
             <div
               key={index}
-              className={msg.autor === "aluno" ? style.balaoAluno : style.balaoIA}
+              className={
+                msg.autor === "aluno" ? style.balaoAluno : style.balaoIA
+              }
             >
               <ReactMarkdown>{msg.texto}</ReactMarkdown>
             </div>
@@ -190,7 +223,10 @@ function MentorIA() {
                 className={`${style.dot} ${i === dicaAtual ? style.dotAtivo : ""}`}
                 onClick={() => {
                   setDicaVisivel(false);
-                  setTimeout(() => { setDicaAtual(i); setDicaVisivel(true); }, 300);
+                  setTimeout(() => {
+                    setDicaAtual(i);
+                    setDicaVisivel(true);
+                  }, 300);
                 }}
               />
             ))}
@@ -205,7 +241,10 @@ function MentorIA() {
             value={mensagem}
             disabled={carregandoIA || digitandoIA}
             rows={1}
-            onChange={(e) => { setMensagem(e.target.value); autoResize(e); }}
+            onChange={(e) => {
+              setMensagem(e.target.value);
+              autoResize(e);
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
