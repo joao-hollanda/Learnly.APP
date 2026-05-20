@@ -16,6 +16,7 @@ import ModalConfigurarPlano from "../../components/Modais/Planos/ModalConfigurar
 import ModalCriarPlano from "../../components/Modais/Planos/ModalCriarPlano";
 import ModalVisualizarPlano from "../../components/Modais/Planos/ModalVisualizarPlano";
 import ModalCriarPlanoIA from "../../components/Modais/Planos/ModalCriarPlanoIA";
+import IAAPI from "../../services/IAService";
 
 const mapPlanoBackend = (plano) => ({
   planoId: plano.planoId,
@@ -79,20 +80,37 @@ function Planos() {
   });
 
   const invalidarPlanos = () =>
-    queryClient.invalidateQueries({ queryKey: ["planos"], refetchType: "active" });
+    queryClient.invalidateQueries({
+      queryKey: ["planos"],
+      refetchType: "active",
+    });
 
   const invalidarInicio = () => {
-    queryClient.invalidateQueries({ queryKey: ["planoAtivo"], refetchType: "active" });
-    queryClient.invalidateQueries({ queryKey: ["resumo"], refetchType: "active" });
-    queryClient.invalidateQueries({ queryKey: ["totalSimulados"], refetchType: "active" });
-    queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"], refetchType: "active" });
+    queryClient.invalidateQueries({
+      queryKey: ["planoAtivo"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["resumo"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["totalSimulados"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["comparacaoHoras"],
+      refetchType: "active",
+    });
   };
 
   // fix 2: sem fallback para planosList[0] — inativo não aparece como "Plano Atual"
   const planoAtivo = planosList.find((p) => p.ativo) ?? null;
   // fix 1: lookup por ID, não por índice
-  const planoVisualizado = planosList.find((p) => p.planoId === viewingPlanoId) ?? null;
-  const planoParaConfigurar = planosList.find((p) => p.planoId === configurandoPlanoId) ?? null;
+  const planoVisualizado =
+    planosList.find((p) => p.planoId === viewingPlanoId) ?? null;
+  const planoParaConfigurar =
+    planosList.find((p) => p.planoId === configurandoPlanoId) ?? null;
 
   // ── Criação ──────────────────────────────────────────────────────────────
 
@@ -129,13 +147,46 @@ function Planos() {
   };
 
   const criarPlano = async (planoIA) => {
-    if (!titulo || !objetivo || !dataInicio || !dataFim)
-      return toast.warn("Preencha todos os campos!");
+    if (!titulo || !objetivo) return toast.warn("Preencha todos os campos!");
+
+    if (planoIA) {
+      if (!horasSemana || horasSemana <= 0)
+        return toast.warn("Informe a carga horária semanal.");
+
+      try {
+        setLoading(true);
+        const planoCriado = await IAAPI.CriarPlano({
+          titulo,
+          objetivo,
+          horasPorSemana: Number(horasSemana),
+        });
+
+        const novoPlano = mapPlanoBackend({
+          ...planoCriado,
+          planoMaterias: planoCriado.planoMaterias ?? [],
+        });
+        queryClient.setQueryData(["planos"], (old = []) => [...old, novoPlano]);
+
+        setMostrarIa(false);
+        invalidarPlanos();
+        invalidarInicio();
+        toast.success("Plano criado e ativado!");
+      } catch (erro) {
+        toast.error(getApiError(erro, "Erro ao criar plano com IA"));
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    if (!dataInicio || !dataFim) return toast.warn("Preencha todos os campos!");
     if (dataFim < dataInicio)
       return toast.warn("Data final não pode ser anterior à data de início");
     const duracao = diferencaEmDias(dataInicio, dataFim);
-    if (duracao < 14) return toast.warn("O plano deve ter duração mínima de 2 semanas.");
-    if (duracao > 365 * 5) return toast.warn("O plano não pode ter duração maior que 5 anos.");
+    if (duracao < 14)
+      return toast.warn("O plano deve ter duração mínima de 2 semanas.");
+    if (duracao > 365 * 5)
+      return toast.warn("O plano não pode ter duração maior que 5 anos.");
 
     try {
       setLoading(true);
@@ -146,19 +197,16 @@ function Planos() {
         dataFim: new Date(dataFim + "T00:00:00").toISOString(),
         horasPorSemana: Number(horasSemana) || 0,
         ativo: true,
-        planoIa: planoIA,
       });
 
       await PlanoAPI.AtivarPlano(planoCriado.planoId);
 
-      // Insere otimisticamente no cache para o modal de configurar poder abrir já
       const novoPlano = mapPlanoBackend({ ...planoCriado, planoMaterias: [] });
       queryClient.setQueryData(["planos"], (old = []) => [...old, novoPlano]);
 
       setConfigurandoPlanoId(planoCriado.planoId);
       setMostrarCriarPlano(false);
-      setMostrarIa(false);
-      if (!planoIA) setMostrarConfigurar(true);
+      setMostrarConfigurar(true);
 
       invalidarPlanos();
       invalidarInicio();
@@ -234,7 +282,7 @@ function Planos() {
       const horasHoje = comparacao.horasHoje;
       if (horasHoje + Number(horas) > LIMITE_DIARIO) {
         toast.warn(
-          `Limite diário de ${LIMITE_DIARIO}h atingido. Você já lançou ${horasHoje}h hoje.`
+          `Limite diário de ${LIMITE_DIARIO}h atingido. Você já lançou ${horasHoje}h hoje.`,
         );
         return;
       }

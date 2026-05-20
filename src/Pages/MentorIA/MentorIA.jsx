@@ -12,7 +12,7 @@ import {
   FaBookOpen,
 } from "react-icons/fa";
 import style from "./_mentorIA.module.css";
-import MentorIAAPI from "../../services/MentorIAService";
+import IAAPI from "../../services/IAService";
 import ReactMarkdown from "react-markdown";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -147,7 +147,7 @@ function MentorIA() {
         { role: "user", content: pergunta },
       ];
 
-      const resposta = await MentorIAAPI.EnviarMensagem({
+      const resposta = await IAAPI.EnviarMensagem({
         Mensagens: mensagensParaIA,
       });
       processarResposta(resposta);
