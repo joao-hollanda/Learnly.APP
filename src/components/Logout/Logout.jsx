@@ -30,14 +30,10 @@ const Logout = () => {
     }
 
     return (
-        <>
-            <button
-                onClick={handleLogout}
-                className={style.logout}
-            >
-                <RiLogoutBoxLine />
-            </button>
-        </>
+        <button onClick={handleLogout} className={style.logout}>
+            <RiLogoutBoxLine />
+            <span>Sair</span>
+        </button>
     );
 };
 

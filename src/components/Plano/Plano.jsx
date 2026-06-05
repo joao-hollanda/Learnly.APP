@@ -1,107 +1,126 @@
-import { LuClock2 } from "react-icons/lu";
 import style from "./_plano.module.css";
-import { FaArrowTrendUp } from "react-icons/fa6";
-import Bolinha from "../Bolinha/Bolinha";
 import { useEffect, useState } from "react";
 
 const SIZE = {
-    grande: style.grande,
-    medio: style.medio,
-    pequeno: style.pequeno,
+  grande: style.grande,
+  medio: style.medio,
+  pequeno: style.pequeno,
 };
 
-const Plano = ({ tamanho, titulo, icon, botao, materias, ativo = false }) => {
-    const cardSizeClass = SIZE[tamanho] || style.medio;
-    const [materiasPlano, setMaterias] = useState([]);
+const Plano = ({ tamanho, titulo, objetivo, botao, materias, ativo = false }) => {
+  const cardSizeClass = SIZE[tamanho] || style.medio;
+  const [materiasPlano, setMaterias] = useState([]);
 
-    useEffect(() => {
-        setMaterias(Array.isArray(materias) ? materias : []);
-    }, [materias]);
+  useEffect(() => {
+    setMaterias(Array.isArray(materias) ? materias : []);
+  }, [materias]);
 
-    const horasTotaisPlano = (materiasPlano || []).reduce(
-        (acc, m) => acc + (m.horasTotais || 0),
-        0
-    );
-    const horasConcluidasPlano = (materiasPlano || []).reduce(
-        (acc, m) => acc + (m.horasConcluidas || 0),
-        0
-    );
-    const progressoGeral =
-        horasTotaisPlano > 0
-            ? (horasConcluidasPlano / horasTotaisPlano) * 100
-            : 0;
+  const horasTotaisPlano = (materiasPlano || []).reduce(
+    (acc, m) => acc + (m.horasTotais || 0),
+    0,
+  );
+  const horasConcluidasPlano = (materiasPlano || []).reduce(
+    (acc, m) => acc + (m.horasConcluidas || 0),
+    0,
+  );
+  const progressoGeral =
+    horasTotaisPlano > 0 ? (horasConcluidasPlano / horasTotaisPlano) * 100 : 0;
 
-    return (
-        <div className={`${style.plano_example} ${cardSizeClass}`}>
-            <div className={style.titulo}>
-                <div>
-                    <h4>{titulo}</h4>
-                    {icon && <div className={style.icon}>{icon}</div>}
-                </div>
-            </div>
-
-            <span>Progresso Geral</span>
-            <div className={style.progress}>
-                <div
-                    className={style.progress_bar}
-                    style={{
-                        width: `${progressoGeral}%`,
-                        backgroundColor: "black",
-                        transition: "width 0.6s ease-in-out",
-                    }}
-                ></div>
-            </div>
-            <p className={style.percentual}>
-                {progressoGeral.toFixed(1)}%
-            </p>
-
-            {ativo && (
-                <>
-                    <div className={style.info_container}>
-                        <div className={style.info}>
-                            <div className={style.horas}>
-                                <LuClock2 size="1.5rem" />
-                            </div>
-                            <div className={style.info_texto}>
-                                <h4>{horasConcluidasPlano}h</h4>
-                                <h5>de {horasTotaisPlano}h totais</h5>
-                            </div>
-                        </div>
-
-                        {/* <div className={style.info}>
-                            <div className={style.progresso}>
-                                <FaArrowTrendUp
-                                    size="1.5rem"
-                                    color="rgb(9, 228, 9)"
-                                />
-                            </div>
-                            <div className={style.info_texto}>
-                                <h4>+12%</h4>
-                                <h5>esta semana</h5>
-                            </div>
-                        </div> */}
-                    </div>
-
-                    <div className={style.materias_container}>
-                        <p>{materiasPlano.length} matérias</p>
-                        <div className={style.materias}>
-                            {materiasPlano.map((materia, index) => (
-                                <div key={index} className={style.materia}>
-                                    <Bolinha
-                                        cor={materia.cor}
-                                        tamanho="pequena"
-                                    />
-                                    <span>{materia.nome}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </>
-            )}
-
-            {botao}
+  return (
+    <div
+      className={`${style.plano} ${cardSizeClass} ${ativo ? style.ativoCard : ""}`}
+    >
+      <div className={style.topo}>
+        <div className={style.tituloBloco}>
+          <h4 className={style.titulo}>{titulo}</h4>
+          {ativo && objetivo && <p className={style.objetivo}>{objetivo}</p>}
         </div>
-    );
+        {ativo && <span className={style.badgeAtivo}>Ativo</span>}
+      </div>
+
+      {ativo ? (
+        <>
+          <div className={style.stats}>
+            <div className={style.stat}>
+              <span className={style.statNum}>{progressoGeral.toFixed(0)}%</span>
+              <span className={style.statLabel}>Concluído</span>
+            </div>
+            <div className={style.stat}>
+              <span className={style.statNum}>{horasConcluidasPlano}h</span>
+              <span className={style.statLabel}>Estudadas</span>
+            </div>
+            <div className={style.stat}>
+              <span className={style.statNum}>{horasTotaisPlano}h</span>
+              <span className={style.statLabel}>Total</span>
+            </div>
+            <div className={style.stat}>
+              <span className={style.statNum}>{materiasPlano.length}</span>
+              <span className={style.statLabel}>Matérias</span>
+            </div>
+          </div>
+
+          <div className={style.progress}>
+            <div
+              className={style.progress_bar}
+              style={{ width: `${progressoGeral}%` }}
+            />
+          </div>
+
+          <div className={style.materias_container}>
+            <p className={style.materiasLabel}>Matérias do plano</p>
+            <div className={style.materiasGrid}>
+              {materiasPlano.map((materia, index) => {
+                const pct =
+                  materia.horasTotais > 0
+                    ? (materia.horasConcluidas / materia.horasTotais) * 100
+                    : 0;
+                return (
+                  <div key={index} className={style.materiaRow}>
+                    <span
+                      className={style.materiaDot}
+                      style={{ background: materia.cor || "var(--brand)" }}
+                    />
+                    <span className={style.materiaNome}>{materia.nome}</span>
+                    <span className={style.materiaHoras}>
+                      {materia.horasConcluidas}/{materia.horasTotais}h
+                    </span>
+                    <span className={style.materiaTrack}>
+                      <span
+                        className={style.materiaFill}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className={style.progressoTopo}>
+            <span className={style.progressoLabel}>Progresso</span>
+            <span className={style.percentual}>
+              {progressoGeral.toFixed(0)}%
+            </span>
+          </div>
+          <div className={style.progress}>
+            <div
+              className={style.progress_bar}
+              style={{ width: `${progressoGeral}%` }}
+            />
+          </div>
+          <p className={style.metaInativo}>
+            {horasConcluidasPlano}h de {horasTotaisPlano}h •{" "}
+            {materiasPlano.length}{" "}
+            {materiasPlano.length === 1 ? "matéria" : "matérias"}
+          </p>
+        </>
+      )}
+
+      {botao}
+    </div>
+  );
 };
 
 export default Plano;

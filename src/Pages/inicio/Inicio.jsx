@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { LuClock3 } from "react-icons/lu";
 import Card from "../../components/Card/Card";
+import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 import Header from "../../components/Header/Header";
 import style from "./_inicio.module.css";
 import { GiProgression } from "react-icons/gi";
@@ -17,7 +18,6 @@ import { toast } from "react-toastify";
 import SimuladoAPI from "../../services/SimuladoService";
 import EventoEstudoAPI from "../../services/EventoService";
 import { MdOutlineRestartAlt } from "react-icons/md";
-import Logout from "../../components/Logout/Logout";
 import { getUserData } from "../../utils/cookieHelper";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ModalCriarEvento from "../../components/Modais/Inicio/ModalCriarEvento";
@@ -44,32 +44,32 @@ function Inicio() {
     gcTime: Infinity,
   });
 
-  const { data: planoAtivo } = useQuery({
+  const { data: planoAtivo, isPending: loadPlano } = useQuery({
     queryKey: ["planoAtivo"],
     queryFn: () => PlanoAPI.ObterPlanoAtivo(),
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
-  const { data: totalSimulados = 0 } = useQuery({
+  const { data: totalSimulados = 0, isPending: loadTotal } = useQuery({
     queryKey: ["totalSimulados"],
     queryFn: () => SimuladoAPI.Contar(),
     staleTime: Infinity,
   });
 
-  const { data: resumo } = useQuery({
+  const { data: resumo, isPending: loadResumo } = useQuery({
     queryKey: ["resumo"],
     queryFn: () => PlanoAPI.ObterResumo(),
     onError: () => toast.error("Erro ao carregar resumo"),
   });
 
-  const { data: comparacaoHoras = { horasHoje: 0, diferenca: 0 } } = useQuery({
+  const { data: comparacaoHoras = { horasHoje: 0, diferenca: 0 }, isPending: loadHoras } = useQuery({
     queryKey: ["comparacaoHoras"],
     queryFn: () => PlanoAPI.CompararHoras(),
     onError: () => toast.error("Erro ao carregar horas de estudo"),
   });
 
-  const { data: eventosRaw = [] } = useQuery({
+  const { data: eventosRaw = [], isPending: loadEventos } = useQuery({
     queryKey: ["eventos"],
     queryFn: async () => {
       const eventosApi = await EventoEstudoAPI.Listar();
@@ -111,13 +111,13 @@ function Inicio() {
   const getColor = (status) => {
     switch (status) {
       case "concluido":
-        return "#22c55e";
+        return "#16a34a";
       case "atual":
-        return "#2263c5";
+        return "#2563eb";
       case "proximo":
-        return "#c52222";
+        return "#dc2626";
       default:
-        return "#999";
+        return "#94a3b8";
     }
   };
 
@@ -241,17 +241,39 @@ function Inicio() {
     }
   };
 
+  const dataFormatada = horaAtual.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
+  const carregandoStats = loadPlano || loadTotal || loadResumo || loadHoras;
+  const carregandoConteudo = loadEventos;
+
   return (
     //#region JSX
     <div className="page">
-      <Header children={<Logout />} />
+      <Header />
       <div className={style.container}>
-        <div>
-          <h2>Olá, {userData?.nome || "Usuário"}!</h2>
-          <h3>Aqui está seu resumo</h3>
+        <header className={style.hero}>
+          <span className="eyebrow">{dataFormatada}</span>
+          <h2 className={style.saudacao}>
+            Olá, {userData?.nome || "Estudante"}
+          </h2>
+          <p className={style.sub}>
+            Aqui está o resumo do seu progresso. Vamos continuar de onde você
+            parou.
+          </p>
+        </header>
 
-          <div className={style.info_container}>
-            <div className={style.info}>
+        {carregandoStats ? (
+          <section className={style.statsGrid}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonCard key={i} lines={1} />
+            ))}
+          </section>
+        ) : (
+        <section className={style.statsGrid}>
               <Card
                 titulo={"Horas de estudo hoje"}
                 children={<span>{comparacaoHoras.horasHoje}h</span>}
@@ -290,37 +312,50 @@ function Inicio() {
                 tamanho="medio"
                 icon={<FaBrain />}
               />
-            </div>
-          </div>
+        </section>
+        )}
 
-          <div className={style.grid}>
+        {carregandoConteudo ? (
+          <section className={style.contentGrid}>
+            <SkeletonCard chart={220} grande />
+            <SkeletonCard chart={260} grande />
+          </section>
+        ) : (
+        <section className={style.contentGrid}>
             <Card
               titulo={"Cronograma de hoje"}
               tamanho="grande"
               icon={<IoSchool />}
               subtitulo="Suas sessões de estudo para hoje"
               children={
-                <>
-                  {eventosHoje.map((e, i) => {
-                    const inicio = e.start.getHours();
-                    const fim = e.end.getHours();
+                <div className={style.cronograma}>
+                  {eventosHoje.length === 0 ? (
+                    <div className={style.cronogramaVazio}>
+                      <FaRegCalendarAlt />
+                      <p>Nenhuma sessão de estudo programada para hoje.</p>
+                    </div>
+                  ) : (
+                    eventosHoje.map((e, i) => {
+                      const inicio = e.start.getHours();
+                      const fim = e.end.getHours();
 
-                    return (
-                      <Card
-                        key={i}
-                        tamanho="pequeno"
-                        titulo={e.title}
-                        subtitulo={`${inicio}h - ${fim}h`}
-                        detalhe={<Bolinha cor={getColor(e.status)} />}
-                      />
-                    );
-                  })}
-                </>
+                      return (
+                        <Card
+                          key={i}
+                          tamanho="pequeno"
+                          titulo={e.title}
+                          subtitulo={`${inicio}h - ${fim}h`}
+                          detalhe={<Bolinha cor={getColor(e.status)} />}
+                        />
+                      );
+                    })
+                  )}
+                </div>
               }
             />
 
             <Card
-              titulo={"Calendário Semanal"}
+              titulo={"Calendário"}
               children={
                 <div className={style.calendario_container}>
                   <CalendarView eventos={eventosComStatus} />
@@ -349,8 +384,8 @@ function Inicio() {
                 </div>
               }
             />
-          </div>
-        </div>
+        </section>
+        )}
       </div>
 
       <ModalCriarEvento

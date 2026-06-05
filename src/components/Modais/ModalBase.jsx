@@ -1,9 +1,11 @@
 import { Modal } from "react-bootstrap";
+import { IoClose } from "react-icons/io5";
 
 export default function ModalBase({
   show,
   onHide,
   title,
+  subtitle,
   icon,
   iconType = "info",
   children,
@@ -24,25 +26,31 @@ export default function ModalBase({
       keyboard={keyboard}
       scrollable={scrollable}
     >
-      <Modal.Header closeButton={false} style={{ position: "relative", flexDirection: "column", alignItems: "center" }}>
-        {headerAction && (
-          <div style={{ position: "absolute", top: "0.75rem", left: "0.75rem", display: "flex", alignItems: "center" }}>
-            {headerAction}
-          </div>
+      <div className="ly-modal-header">
+        {icon && (
+          <span className={`ly-modal-icon ly-modal-icon-${iconType}`}>
+            {icon}
+          </span>
         )}
+        <div className="ly-modal-heading">
+          <h2 className="ly-modal-title">{title}</h2>
+          {subtitle && <p className="ly-modal-subtitle">{subtitle}</p>}
+        </div>
+        {headerAction}
         {onHide && (
           <button
             type="button"
-            className="btn-close"
+            className="ly-modal-close"
             onClick={onHide}
-            aria-label="Close"
-            style={{ position: "absolute", top: "0.75rem", right: "0.75rem" }}
-          />
+            aria-label="Fechar"
+          >
+            <IoClose />
+          </button>
         )}
-        {icon && <div className={`modal-icon modal-icon-${iconType}`}>{icon}</div>}
-        <Modal.Title>{title}</Modal.Title>
-      </Modal.Header>
+      </div>
+
       <Modal.Body>{children}</Modal.Body>
+
       {footer && <Modal.Footer>{footer}</Modal.Footer>}
     </Modal>
   );

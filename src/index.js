@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 import Login from "./Pages/login/Login";
 import reportWebVitals from "./reportWebVitals";
@@ -7,7 +8,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Inicio from "./Pages/inicio/Inicio";
 import Planos from "./Pages/planos/Planos";
 import Simulados from "./Pages/simulados/Simulados";
-// import Desempenho from "./Pages/desempenho/Desempenho";
+import Desempenho from "./Pages/desempenho/Desempenho";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MentorIA from "./Pages/MentorIA/MentorIA";
@@ -64,14 +65,14 @@ root.render(
               </ProtectedRoute>
             }
           />
-          {/* <Route
-          path="/desempenho"
-          element={
-            <ProtectedRoute>
-              <Desempenho />
-          Q</ProtectedRoute>
-          }
-        /> */}
+          <Route
+            path="/desempenho"
+            element={
+              <ProtectedRoute>
+                <Desempenho />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

@@ -37,32 +37,37 @@ function ModalVisualizarPlano({ show, onHide, plano, onConfigurar, onLancarHoras
         {plano?.materias?.map((pm, i) => {
           const progresso = (pm.horasConcluidas / pm.horasTotais) * 100 || 0;
           return (
-            <Card key={i} titulo={pm.nome} centralizado={true}>
-              {pm.topicos?.length > 0 && (
-                <div className={style.topicos} style={{ textAlign: "center" }}>
-                  <strong>Tópicos:</strong>
-                  <ul style={{ textAlign: "left" }}>
-                    {pm.topicos.map((topico, index) => (
-                      <li key={index}>{topico}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <p className={style.horas}>
-                <BsClock size={12} /> {pm.horasConcluidas}h / {pm.horasTotais}h
-              </p>
-              <div className={style.progress}>
-                <div
-                  className={style.progress_bar}
-                  style={{ width: `${progresso}%` }}
-                />
+            <Card key={i} titulo={pm.nome}>
+              <div className={style.materiaBody}>
+                {pm.topicos?.length > 0 && (
+                  <div className={style.topicos}>
+                    <strong>Tópicos</strong>
+                    <ul>
+                      {pm.topicos.map((topico, index) => (
+                        <li key={index}>{topico}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-              <button
-                className={`${style.botao} ${style.full}`}
-                onClick={() => onLancarHoras(pm)}
-              >
-                Lançar horas
-              </button>
+
+              <div className={style.materiaFooter}>
+                <p className={style.horas}>
+                  <BsClock size={12} /> {pm.horasConcluidas}h / {pm.horasTotais}h
+                </p>
+                <div className={style.progress}>
+                  <div
+                    className={style.progress_bar}
+                    style={{ width: `${progresso}%` }}
+                  />
+                </div>
+                <button
+                  className={`${style.botao} ${style.full}`}
+                  onClick={() => onLancarHoras(pm)}
+                >
+                  Lançar horas
+                </button>
+              </div>
             </Card>
           );
         })}

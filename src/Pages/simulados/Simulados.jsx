@@ -1,14 +1,14 @@
-import { Form } from "react-bootstrap";
 import Header from "../../components/Header/Header";
 import style from "./_simulados.module.css";
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus, FaCheck } from "react-icons/fa6";
 import { useState } from "react";
 import SimuladoAPI from "../../services/SimuladoService";
 import { getApiError } from "../../services/client";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
-import { ImHappy } from "react-icons/im";
+import { LuClipboardList } from "react-icons/lu";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 import ModalCriarSimulado from "../../components/Modais/Simulados/ModalCriarSimulado";
 import ModalResultado from "../../components/Modais/Simulados/ModalResultado";
 import ModalPreviewSimulado from "../../components/Modais/Simulados/ModalPreviewResultado";
@@ -26,6 +26,7 @@ export default function Simulados() {
   const [loading, setLoading] = useState(false);
   const [simuladoPreview, setSimuladoPreview] = useState(null);
   const [previewRespostas, setPreviewRespostas] = useState({});
+  const [abrindoId, setAbrindoId] = useState(null);
 
   const [simulado, setSimulado] = useState(() => {
     const salvo = sessionStorage.getItem("simulado");
@@ -47,7 +48,7 @@ export default function Simulados() {
     else sessionStorage.removeItem("respostas");
   };
 
-  const { data: simulados = [] } = useQuery({
+  const { data: simulados = [], isPending: carregandoLista } = useQuery({
     queryKey: ["simulados"],
     queryFn: async () => {
       const response = await SimuladoAPI.Listar();
@@ -113,69 +114,142 @@ export default function Simulados() {
     queryClient.invalidateQueries({ queryKey: ["totalSimulados"] });
   };
 
+  const totalQuestoes = simulado?.questoes?.length ?? 0;
+  const respondidas = simulado
+    ? simulado.questoes.filter((q) => respostas[q.questaoId] !== undefined)
+        .length
+    : 0;
+
   return (
     <div className="page">
-      <Header>
-        <button className={style.botao} onClick={() => setMostrarCriar(true)}>
-          <FaPlus />
-        </button>
-      </Header>
+      <Header />
 
       {!simulado && (
         <div className={style.listaSimulados}>
-          {simulados.length === 0 ? (
+          <header className={style.pageHead}>
+            <div className={style.pageHeadText}>
+              <span className="eyebrow">Pratique</span>
+              <h1 className={style.pageTitle}>Simulados</h1>
+              <p className={style.pageSub}>
+                Teste seus conhecimentos com questões de vestibulares reais e
+                acompanhe sua evolução.
+              </p>
+            </div>
+            {simulados.length > 0 && (
+              <button
+                className={style.botaoNovo}
+                onClick={() => setMostrarCriar(true)}
+              >
+                <FaPlus />
+                <span className={style.botaoNovoTexto}>Novo simulado</span>
+              </button>
+            )}
+          </header>
+
+          {carregandoLista ? (
+            <div className={style.listaGrid}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard key={i} lines={2} />
+              ))}
+            </div>
+          ) : simulados.length === 0 ? (
             <div className={style.vazio}>
-              Nenhum simulado ainda, que tal criar um?
+              <div className={style.vazioIcon}>
+                <LuClipboardList />
+              </div>
+              <h3>Nenhum simulado ainda</h3>
+              <p>Crie seu primeiro simulado para começar a praticar.</p>
+              <button
+                className={style.botaoCriarVazio}
+                onClick={() => setMostrarCriar(true)}
+              >
+                <FaPlus /> Criar simulado
+              </button>
             </div>
           ) : (
-            <>
-              <h3>Simulados recentes</h3>
-              {simulados.map((s) => (
-                <div key={s.simuladoId} className={style.cardSimulado}>
-                  <div className={style.cardSimuladoHeader}>
-                    <span className={style.cardSimuladoData}>
-                      {new Date(s.data).toLocaleString("pt-BR", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      })}
-                    </span>
-                    <div className={style.cardSimuladoBadges}>
-                      <span className="modal-badge modal-badge-info">
-                        {s.questoes.length} questões
-                      </span>
-                      <span
-                        className={`modal-badge ${s.notaFinal >= 6 ? "modal-badge-success" : "modal-badge-danger"}`}
-                      >
-                        Nota {s.notaFinal.toFixed(1)}
-                      </span>
-                    </div>
-                  </div>
+            <div className={style.listaGrid}>
+              {simulados.map((s) => {
+                const aprovado = s.notaFinal >= 6;
+                return (
                   <button
-                    className={`${style.botao} ${style.full}`}
-                    onClick={() => {
-                      const respostasMap = {};
-                      (s.respostas || []).forEach((r) => {
-                        respostasMap[r.questaoId] = r.alternativaId;
-                      });
-                      setPreviewRespostas(respostasMap);
-                      setSimuladoPreview(s);
+                    type="button"
+                    key={s.simuladoId}
+                    className={style.cardSimulado}
+                    disabled={abrindoId === s.simuladoId}
+                    onClick={async () => {
+                      try {
+                        setAbrindoId(s.simuladoId);
+                        const completo = await SimuladoAPI.Obter(s.simuladoId);
+                        const respostasMap = {};
+                        (completo.respostas || []).forEach((r) => {
+                          respostasMap[r.questaoId] = r.alternativaId;
+                        });
+                        setPreviewRespostas(respostasMap);
+                        setSimuladoPreview(completo);
+                      } catch (erro) {
+                        toast.error(
+                          getApiError(erro, "Erro ao carregar o simulado."),
+                        );
+                      } finally {
+                        setAbrindoId(null);
+                      }
                     }}
                   >
-                    Visualizar
+                    <div className={style.cardTopo}>
+                      <span className={style.cardData}>
+                        {new Date(s.data).toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <span
+                        className={`${style.cardStatus} ${aprovado ? style.aprovado : style.revisar}`}
+                      >
+                        {aprovado ? "Aprovado" : "Revisar"}
+                      </span>
+                    </div>
+                    <div className={style.cardNotaBloco}>
+                      <span className={style.cardNota}>
+                        {s.notaFinal.toFixed(1)}
+                      </span>
+                      <span className={style.cardNotaMax}>/ 10</span>
+                    </div>
+                    <div className={style.cardRodape}>
+                      <span className={style.cardMeta}>
+                        {s.quantidadeQuestoes} questões
+                      </span>
+                      <span className={style.cardLink}>
+                        {abrindoId === s.simuladoId
+                          ? "Carregando..."
+                          : "Ver correção →"}
+                      </span>
+                    </div>
                   </button>
-                </div>
-              ))}
-            </>
+                );
+              })}
+            </div>
           )}
         </div>
       )}
 
       {simulado && (
         <div className={style.container}>
+          <header className={style.quizHead}>
+            <div>
+              <span className="eyebrow">Em andamento</span>
+              <h1 className={style.quizTitle}>Simulado</h1>
+            </div>
+            <div className={style.quizContador}>
+              <strong>{respondidas}</strong> / {totalQuestoes} respondidas
+            </div>
+          </header>
+
           {simulado.questoes.map((q, i) => (
             <div key={q.questaoId} className={style.card}>
               <h4>
-                {i + 1}. {q.titulo}
+                <span className={style.questaoNum}>{i + 1}</span>
+                {q.titulo}
               </h4>
               {q.contexto && (
                 <div className={style.markdown}>
@@ -196,56 +270,62 @@ export default function Simulados() {
                 </div>
               )}
               {q.introducaoAlternativa}
-              <Form>
+              <div className={style.alternativas}>
                 {q.alternativas.map((a) => {
                   const imagem = getImagemAlternativa(a);
+                  const marcada = respostas[q.questaoId] === a.alternativaId;
                   return (
-                    <Form.Check
+                    <button
+                      type="button"
                       key={a.alternativaId}
-                      type="radio"
-                      checked={respostas[q.questaoId] === a.alternativaId}
-                      onChange={() =>
+                      className={`${style.alternativa} ${marcada ? style.selecionada : ""}`}
+                      onClick={() =>
                         salvarRespostas({
                           ...respostas,
                           [q.questaoId]: a.alternativaId,
                         })
                       }
-                      className={style.alternativa}
-                      label={
-                        <div className={style.conteudoAlternativa}>
-                          <span className={style.letra}>{a.letra})</span>
-                          {a.texto ? (
-                            <span>{a.texto}</span>
-                          ) : imagem ? (
-                            <ReactMarkdown
-                              components={{
-                                img: ({ node, ...props }) => (
-                                  <img {...props} className={style.imagem} />
-                                ),
-                              }}
-                            >
-                              {`![](${imagem})`}
-                            </ReactMarkdown>
-                          ) : (
-                            <span className={style.semConteudo}>
-                              (alternativa sem conteúdo)
-                            </span>
-                          )}
-                        </div>
-                      }
-                    />
+                    >
+                      <span className={style.letra}>{a.letra}</span>
+                      <div className={style.conteudoAlternativa}>
+                        {a.texto ? (
+                          <span>{a.texto}</span>
+                        ) : imagem ? (
+                          <ReactMarkdown
+                            components={{
+                              img: ({ node, ...props }) => (
+                                <img {...props} className={style.imagem} />
+                              ),
+                            }}
+                          >
+                            {`![](${imagem})`}
+                          </ReactMarkdown>
+                        ) : (
+                          <span className={style.semConteudo}>
+                            (alternativa sem conteúdo)
+                          </span>
+                        )}
+                      </div>
+                      {marcada && (
+                        <span className={style.check}>
+                          <FaCheck />
+                        </span>
+                      )}
+                    </button>
                   );
                 })}
-              </Form>
+              </div>
             </div>
           ))}
           <button
             type="button"
-            className={`${style.botao} ${style.full}`}
+            className={`${style.enviar} ${style.full}`}
             onClick={handleResponder}
             disabled={loading}
           >
-            <span className={loading ? style.hiddenText : ""}>Enviar</span>
+            <span className={loading ? style.hiddenText : ""}>
+              Enviar respostas
+            </span>
             {loading && <span className={style.spinner} />}
           </button>
         </div>

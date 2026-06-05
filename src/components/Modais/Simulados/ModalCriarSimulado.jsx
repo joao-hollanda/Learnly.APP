@@ -1,4 +1,4 @@
-import { Button, Form } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { BsClipboardPlus } from "react-icons/bs";
 import ModalBase from "../ModalBase";
 import style from "../_modal.module.css";
@@ -41,15 +41,18 @@ export default function ModalCriarSimulado({
       <label className="form-label fw-semibold" style={{ fontSize: "0.8125rem", color: "#475569" }}>
         Matérias
       </label>
-      {materias.map((m) => (
-        <Form.Check
-          key={m.value}
-          label={m.label}
-          checked={materiasSelecionadas.includes(m.value)}
-          onChange={() => toggleMateria(m.value)}
-          style={{ textAlign: "left" }}
-        />
-      ))}
+      <div className={style.materias}>
+        {materias.map((m) => (
+          <button
+            key={m.value}
+            type="button"
+            className={`${style.materia} ${materiasSelecionadas.includes(m.value) ? style.materiaSelecionada : ""}`}
+            onClick={() => toggleMateria(m.value)}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
       <label className="form-label fw-semibold mt-3" style={{ fontSize: "0.8125rem", color: "#475569" }}>
         Quantidade de questões
       </label>

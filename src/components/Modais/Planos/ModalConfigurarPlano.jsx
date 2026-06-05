@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../../services/PlanoService";
 import ModalBase from "../ModalBase";
+import DatePicker from "../../DatePicker/DatePicker";
 import style from "../_modal.module.css";
 
 const labelStyle = {
@@ -195,12 +196,7 @@ function ModalConfigurarPlano({
           </div>
           <div>
             <label style={labelStyle}>Data final</label>
-            <input
-              type="date"
-              className="form-control"
-              value={dataFim}
-              onChange={(e) => setDataFim(e.target.value)}
-            />
+            <DatePicker value={dataFim} onChange={setDataFim} />
           </div>
         </div>
       ) : (

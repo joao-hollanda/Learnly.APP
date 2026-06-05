@@ -1,6 +1,7 @@
 import { Button } from "react-bootstrap";
 import { BsStars } from "react-icons/bs";
 import ModalBase from "../ModalBase";
+import DatePicker from "../../DatePicker/DatePicker";
 import style from "../_modal.module.css";
 
 function ModalCriarPlanoIA({
@@ -72,25 +73,13 @@ function ModalCriarPlanoIA({
           <label className="form-label fw-semibold" style={{ fontSize: "0.8125rem", color: "#475569" }}>
             Data de início
           </label>
-          <input
-            type="date"
-            className="form-control"
-            value={dataInicio}
-            min={hoje}
-            onChange={(e) => setDataInicio(e.target.value)}
-          />
+          <DatePicker value={dataInicio} onChange={setDataInicio} min={hoje} />
         </div>
         <div className="col-6">
           <label className="form-label fw-semibold" style={{ fontSize: "0.8125rem", color: "#475569" }}>
             Data final
           </label>
-          <input
-            type="date"
-            className="form-control"
-            value={dataFim}
-            min={dataInicio || hoje}
-            onChange={(e) => setDataFim(e.target.value)}
-          />
+          <DatePicker value={dataFim} onChange={setDataFim} min={dataInicio || hoje} />
         </div>
       </div>
     </ModalBase>

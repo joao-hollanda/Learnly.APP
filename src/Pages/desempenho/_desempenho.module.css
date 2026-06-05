@@ -1,0 +1,225 @@
+.container {
+  padding: 0 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── Hero ── */
+.hero {
+  margin-bottom: 1.75rem;
+  animation: lyRevealUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.titulo {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: clamp(1.9rem, 3.5vw, 2.9rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--ink-strong);
+  margin: 0.6rem 0 0;
+}
+
+.sub {
+  font-size: 1.02rem;
+  color: var(--muted);
+  margin: 0.55rem 0 0;
+  max-width: 52ch;
+  line-height: 1.55;
+}
+
+/* ── KPIs ── */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.delta,
+.deltaNeutro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.35rem;
+}
+
+.deltaUp {
+  color: var(--success);
+}
+
+.deltaDown {
+  color: var(--danger);
+}
+
+.deltaNeutro {
+  color: var(--faint);
+  font-weight: 500;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.vazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 1rem;
+  color: var(--faint);
+  font-size: 0.88rem;
+}
+
+/* ── Linhas de gráficos ── */
+.chartsRow {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.cols21 {
+  grid-template-columns: 2fr 1fr;
+}
+
+.cols11 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.cols1 {
+  grid-template-columns: 1fr;
+}
+
+.chartBox {
+  width: 100%;
+  height: 260px;
+  margin-top: 0.4rem;
+}
+
+.chartBoxAlto {
+  width: 100%;
+  height: 320px;
+  margin-top: 0.4rem;
+}
+
+/* ── Revelações escalonadas ── */
+.kpiGrid > *,
+.chartsRow > * {
+  animation: lyRevealUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.kpiGrid > *:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.kpiGrid > *:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.kpiGrid > *:nth-child(3) {
+  animation-delay: 0.19s;
+}
+.kpiGrid > *:nth-child(4) {
+  animation-delay: 0.26s;
+}
+
+/* ── Metas (barras de progresso) ── */
+.metasList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-top: 0.6rem;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metaTopo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.metaNome {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.metaValor {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.barraTrilha {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.barraPreenchida {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--grad-brand);
+  transition: width 0.4s ease;
+}
+
+/* ── Gauge radial (progresso do plano) ── */
+.gaugeWrap {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  margin-top: 0.4rem;
+}
+
+.gaugeCentro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.gaugeCentro strong {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink-strong);
+  line-height: 1;
+}
+
+.gaugeCentro span {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+/* ── Responsivo ── */
+@media (max-width: 900px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .cols21,
+  .cols11 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    padding: 0 1rem;
+  }
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -21,3 +21,35 @@
   animation: spin 0.6s linear infinite;
   display: inline-block;
 }
+
+.materias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.materia {
+  flex: 1 1 calc(50% - 0.5rem);
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink-strong);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.materia:hover {
+  border-color: var(--brand-200);
+}
+
+.materiaSelecionada {
+  border-color: var(--brand);
+  background: var(--brand-100);
+  color: var(--brand);
+  font-weight: 600;
+}

@@ -1,5 +1,6 @@
 import Header from "../../components/Header/Header";
 import Plano from "../../components/Plano/Plano";
+import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 import style from "./_planos.module.css";
 import { useState } from "react";
 import { FaPlay, FaPlus } from "react-icons/fa6";
@@ -7,7 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../services/PlanoService";
 import { getApiError } from "../../services/client";
-import { ImHappy } from "react-icons/im";
+import { LuGraduationCap } from "react-icons/lu";
 import { BsRobot } from "react-icons/bs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ModalExcluirPlano from "../../components/Modais/Planos/ModalExcluirPlano";
@@ -69,7 +70,7 @@ function Planos() {
 
   const LIMITE_DIARIO = 20;
 
-  const { data: planosList = [] } = useQuery({
+  const { data: planosList = [], isPending: carregandoPlanos } = useQuery({
     queryKey: ["planos"],
     queryFn: async () => {
       const resposta = await PlanoAPI.Listar5();
@@ -149,16 +150,28 @@ function Planos() {
   const criarPlano = async (planoIA) => {
     if (!titulo || !objetivo) return toast.warn("Preencha todos os campos!");
 
-    if (planoIA) {
-      if (!horasSemana || horasSemana <= 0)
-        return toast.warn("Informe a carga horária semanal.");
+    if (planoIA && (!horasSemana || horasSemana <= 0))
+      return toast.warn("Informe a carga horária semanal.");
 
+    if (!dataInicio || !dataFim)
+      return toast.warn("Preencha as datas de início e fim.");
+    if (dataFim < dataInicio)
+      return toast.warn("Data final não pode ser anterior à data de início");
+    const duracao = diferencaEmDias(dataInicio, dataFim);
+    if (duracao < 14)
+      return toast.warn("O plano deve ter duração mínima de 2 semanas.");
+    if (duracao > 365 * 5)
+      return toast.warn("O plano não pode ter duração maior que 5 anos.");
+
+    if (planoIA) {
       try {
         setLoading(true);
         const planoCriado = await IAAPI.CriarPlano({
           titulo,
           objetivo,
           horasPorSemana: Number(horasSemana),
+          dataInicio: new Date(dataInicio + "T00:00:00").toISOString(),
+          dataFim: new Date(dataFim + "T00:00:00").toISOString(),
         });
 
         const novoPlano = mapPlanoBackend({
@@ -178,15 +191,6 @@ function Planos() {
       }
       return;
     }
-
-    if (!dataInicio || !dataFim) return toast.warn("Preencha todos os campos!");
-    if (dataFim < dataInicio)
-      return toast.warn("Data final não pode ser anterior à data de início");
-    const duracao = diferencaEmDias(dataInicio, dataFim);
-    if (duracao < 14)
-      return toast.warn("O plano deve ter duração mínima de 2 semanas.");
-    if (duracao > 365 * 5)
-      return toast.warn("O plano não pode ter duração maior que 5 anos.");
 
     try {
       setLoading(true);
@@ -324,56 +328,93 @@ function Planos() {
 
   // ── Render ────────────────────────────────────────────────────────────────
 
+  const planosInativos = planosList.filter((p) => !p.ativo);
+
   return (
     <div className="page">
-      <Header
-        children={
-          <button className={style.botao} onClick={abrirCriarPlano}>
-            <FaPlus />
-          </button>
-        }
-      />
+      <Header />
 
       <div className={style.fab_container}>
-        <button className={style.fab} onClick={abrirPlanoIa}>
+        <button
+          className={style.fab}
+          onClick={abrirPlanoIa}
+          title="Gerar plano com IA"
+        >
           <BsRobot className={style.icon} />
+          <span className={style.fabTexto}>Gerar com IA</span>
         </button>
       </div>
 
-      {planosList.length === 0 ? (
-        <div className={style.container}>
-          <div className={style.vazio}>
-            Nenhum plano ainda, que tal criar um?
+      <div className={style.container}>
+        <header className={style.pageHead}>
+          <div className={style.pageHeadText}>
+            <span className="eyebrow">Sua jornada</span>
+            <h1 className={style.pageTitle}>Planos de estudo</h1>
+            <p className={style.pageSub}>
+              Organize suas matérias, defina metas e acompanhe seu progresso
+              rumo ao seu objetivo.
+            </p>
           </div>
-        </div>
-      ) : (
-        <>
-          {planoAtivo && (
-            <div className={style.container}>
-              <h4 className={style.atividade}>Plano Atual</h4>
-              <Plano
-                titulo={planoAtivo.titulo}
-                ativo
-                materias={planoAtivo.materias}
-                botao={
-                  <button
-                    className={style.botao_exibir}
-                    onClick={() => handleClickPlano(planoAtivo.planoId)}
-                  >
-                    <FaPlay /> Visualizar Plano
-                  </button>
-                }
-              />
-            </div>
+          {planosList.length > 0 && (
+            <button className={style.botaoNovo} onClick={abrirCriarPlano}>
+              <FaPlus />
+              <span className={style.botaoNovoTexto}>Novo plano</span>
+            </button>
           )}
+        </header>
 
-          {planosList.filter((p) => !p.ativo).length > 0 && (
-            <>
-              <h4 className={style.atividade}>Planos Inativos</h4>
-              <div className={style.planos_container}>
-                {planosList
-                  .filter((p) => !p.ativo)
-                  .map((plano) => (
+        {carregandoPlanos ? (
+          <section className={style.secao}>
+            <div className={style.secaoHead}>
+              <span className="eyebrow">Em andamento</span>
+              <h2 className={style.secaoTitulo}>Plano atual</h2>
+            </div>
+            <SkeletonCard lines={3} grande />
+          </section>
+        ) : planosList.length === 0 ? (
+          <div className={style.vazio}>
+            <div className={style.vazioIcon}>
+              <LuGraduationCap />
+            </div>
+            <h3>Nenhum plano ainda</h3>
+            <p>Comece criando seu primeiro plano de estudos.</p>
+            <button className={style.botaoCriarVazio} onClick={abrirCriarPlano}>
+              <FaPlus /> Criar plano
+            </button>
+          </div>
+        ) : (
+          <>
+            {planoAtivo && (
+              <section className={style.secao}>
+                <div className={style.secaoHead}>
+                  <span className="eyebrow">Em andamento</span>
+                  <h2 className={style.secaoTitulo}>Plano atual</h2>
+                </div>
+                <Plano
+                  titulo={planoAtivo.titulo}
+                  objetivo={planoAtivo.objetivo}
+                  ativo
+                  materias={planoAtivo.materias}
+                  botao={
+                    <button
+                      className={style.botao_exibir}
+                      onClick={() => handleClickPlano(planoAtivo.planoId)}
+                    >
+                      <FaPlay /> Visualizar plano
+                    </button>
+                  }
+                />
+              </section>
+            )}
+
+            {planosInativos.length > 0 && (
+              <section className={style.secao}>
+                <div className={style.secaoHead}>
+                  <span className="eyebrow">Arquivo</span>
+                  <h2 className={style.secaoTitulo}>Outros planos</h2>
+                </div>
+                <div className={style.planos_container}>
+                  {planosInativos.map((plano) => (
                     <Plano
                       key={plano.planoId}
                       titulo={plano.titulo}
@@ -384,16 +425,17 @@ function Planos() {
                           className={style.botao_exibir}
                           onClick={() => handleClickPlano(plano.planoId)}
                         >
-                          <FaPlay /> Visualizar Plano
+                          <FaPlay /> Visualizar plano
                         </button>
                       }
                     />
                   ))}
-              </div>
-            </>
-          )}
-        </>
-      )}
+                </div>
+              </section>
+            )}
+          </>
+        )}
+      </div>
 
       <ModalVisualizarPlano
         show={mostrarPlano}

@@ -2,6 +2,7 @@ import { Button } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa6";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import ModalBase from "../ModalBase";
+import TimePicker from "../../TimePicker/TimePicker";
 import style from "../../../Pages/inicio/_inicio.module.css";
 import modalStyle from "../_modal.module.css";
 
@@ -47,20 +48,16 @@ function ModalCriarEvento({ show, onHide, novoEvento, setNovoEvento, onConfirmar
       <div className={style.horas}>
         <div className={style.form_group}>
           <label>Hora início</label>
-          <input
-            type="time"
-            className={style.input}
+          <TimePicker
             value={novoEvento.inicio}
-            onChange={(e) => setNovoEvento({ ...novoEvento, inicio: e.target.value })}
+            onChange={(v) => setNovoEvento({ ...novoEvento, inicio: v })}
           />
         </div>
         <div className={style.form_group}>
           <label>Hora fim</label>
-          <input
-            type="time"
-            className={style.input}
+          <TimePicker
             value={novoEvento.fim}
-            onChange={(e) => setNovoEvento({ ...novoEvento, fim: e.target.value })}
+            onChange={(v) => setNovoEvento({ ...novoEvento, fim: v })}
           />
         </div>
       </div>

@@ -4,7 +4,6 @@ import service from "../../services/LoginService";
 import { getApiError } from "../../services/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { startTokenRefresh } from "../../utils/tokenRefresh";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import logo from "../../img/LearnlyLogoBranca.svg";

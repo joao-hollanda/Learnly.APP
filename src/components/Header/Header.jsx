@@ -1,71 +1,84 @@
 import logo from "../../img/LearnlyLogo.svg";
-import style from "../Header/_header.module.css";
-import { NavLink, useNavigate } from "react-router-dom";
+import style from "./_header.module.css";
+import { NavLink } from "react-router-dom";
 import { MdMenu, MdClose } from "react-icons/md";
+import {
+  LuLayoutDashboard,
+  LuClipboardList,
+  LuFileText,
+  LuSparkles,
+  LuChartLine,
+} from "react-icons/lu";
 import { useState } from "react";
+import Logout from "../Logout/Logout";
 
-const Header = ({ children }) => {
-  const [menuAberto, setMenuAberto] = useState(false);
-  const nav = useNavigate();
+const NAV = [
+  { to: "/home", label: "Início", icon: <LuLayoutDashboard /> },
+  { to: "/desempenho", label: "Desempenho", icon: <LuChartLine /> },
+  { to: "/planos", label: "Planos", icon: <LuClipboardList /> },
+  { to: "/simulados", label: "Simulados", icon: <LuFileText /> },
+  { to: "/mentoria", label: "MentorIA", icon: <LuSparkles /> },
+];
+
+const Header = () => {
+  const [aberto, setAberto] = useState(false);
+
+  const linkClass = ({ isActive }) =>
+    `${style.link} ${isActive ? style.active : ""}`;
+
+  const fechar = () => setAberto(false);
 
   return (
-    <div className={style.headerWrapper}>
-      <header className={style.header}>
-        <div className={style.menu} onClick={() => setMenuAberto(!menuAberto)}>
-          {menuAberto ? <MdClose size={32} /> : <MdMenu size={32} />}
+    <>
+      <header className={style.topbar}>
+        <button
+          className={style.hamburger}
+          onClick={() => setAberto(true)}
+          aria-label="Abrir menu"
+        >
+          <MdMenu size={24} />
+        </button>
+        <NavLink to="/home" className={style.topbarLogo}>
+          <img src={logo} alt="Learnly" />
+        </NavLink>
+        <span className={style.topbarSpacer} />
+      </header>
+
+      {aberto && <div className={style.overlay} onClick={fechar} />}
+
+      <aside className={`${style.sidebar} ${aberto ? style.sidebarAberta : ""}`}>
+        <div className={style.brand}>
+          <NavLink to="/home" onClick={fechar} className={style.brandLink}>
+            <img src={logo} alt="Learnly" className={style.brandLogo} />
+          </NavLink>
+          <button
+            className={style.fechar}
+            onClick={fechar}
+            aria-label="Fechar menu"
+          >
+            <MdClose size={22} />
+          </button>
         </div>
 
-        <div className={style.logoArea}>
-          <NavLink to="/home" className={style.nav}>
-            <img src={logo} alt="Logo" className={style.logoIcon} />
-          </NavLink>
-        </div>
-
-        <nav className={`${style.nav} ${menuAberto ? style.showMenu : ""}`}>
-          <NavLink
-            to="/home"
-            className={({ isActive }) =>
-              `${style.link} ${isActive ? style.active : style.inactive}`
-            }
-            onClick={() => setMenuAberto(false)}
-          >
-            Início
-          </NavLink>
-
-          <NavLink
-            to="/planos"
-            className={({ isActive }) =>
-              `${style.link} ${isActive ? style.active : style.inactive}`
-            }
-            onClick={() => setMenuAberto(false)}
-          >
-            Planos
-          </NavLink>
-
-          <NavLink
-            to="/simulados"
-            className={({ isActive }) =>
-              `${style.link} ${isActive ? style.active : style.inactive}`
-            }
-            onClick={() => setMenuAberto(false)}
-          >
-            Simulados
-          </NavLink>
-
-          <NavLink
-            to="/mentoria"
-            className={({ isActive }) =>
-              `${style.link} ${isActive ? style.active : style.inactive}`
-            }
-            onClick={() => setMenuAberto(false)}
-          >
-            MentorIA
-          </NavLink>
+        <nav className={style.nav}>
+          {NAV.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={linkClass}
+              onClick={fechar}
+            >
+              <span className={style.linkIcon}>{item.icon}</span>
+              <span className={style.linkLabel}>{item.label}</span>
+            </NavLink>
+          ))}
         </nav>
 
-        <div className={style.botao}>{children}</div>
-      </header>
-    </div>
+        <div className={style.sidebarFooter}>
+          <Logout />
+        </div>
+      </aside>
+    </>
   );
 };
 
