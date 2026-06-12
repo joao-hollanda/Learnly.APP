@@ -12,7 +12,6 @@ export function startTokenRefresh() {
   refreshTimer = setInterval(async () => {
     try {
       await LoginAPI.RefreshToken();
-      console.log("Token renovado automaticamente");
     } catch (error) {
       console.error("Erro ao renovar token automaticamente:", error);
       stopTokenRefresh();

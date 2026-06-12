@@ -17,7 +17,6 @@ const EventoEstudoAPI = {
   },
 
   async CriarEmLote({ eventos }) {
-    console.log(eventos);
     const resposta = await HTTPClient.post("eventos/lote", {
       eventos,
     });
