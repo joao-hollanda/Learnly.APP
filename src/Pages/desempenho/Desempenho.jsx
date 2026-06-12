@@ -40,6 +40,7 @@ const BRAND = "#2563eb";
 const ACCENT = "#1d4ed8";
 const SUCCESS = "#16a34a";
 const WARNING = "#f59e0b";
+const DANGER = "#dc2626";
 
 const tooltipStyle = {
   borderRadius: 10,
@@ -675,7 +676,7 @@ function Desempenho() {
         <section className={`${style.chartsRow} ${style.cols1}`}>
           <Card
             titulo="Evolução nos simulados"
-            subtitulo="Área = nota de cada simulado · linha tracejada = média móvel (3) · cinza = média geral"
+            subtitulo="Área = nota de cada simulado · linha tracejada = média móvel (3) · vermelho = média geral"
             icon={<LuTrendingUp />}
           >
             <div className={style.chartBoxAlto}>
@@ -712,13 +713,13 @@ function Desempenho() {
                     />
                     <ReferenceLine
                       y={mediaNotas}
-                      stroke="#94a3b8"
+                      stroke={DANGER}
                       strokeDasharray="6 4"
                       label={{
                         value: `média ${mediaNotas.toFixed(1)}`,
                         position: "insideTopRight",
                         fontSize: 10,
-                        fill: "#94a3b8",
+                        fill: DANGER,
                         fontFamily: "var(--font-mono)",
                       }}
                     />

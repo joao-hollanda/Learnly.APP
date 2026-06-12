@@ -985,6 +985,16 @@
 }
 
 @media (max-width: 900px) {
+  .insightGrid {
+    perspective: none;
+  }
+  .insight {
+    transform: none;
+    transform-style: flat;
+  }
+  .insight * {
+    transform: none;
+  }
   .kpiGrid {
     grid-template-columns: repeat(2, 1fr);
   }
