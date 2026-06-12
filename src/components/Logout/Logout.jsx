@@ -4,6 +4,7 @@ import style from "./_logout.module.css";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import LoginAPI from "../../services/LoginService";
 import { stopTokenRefresh } from "../../utils/tokenRefresh";
+import { limparIdentidade, registrarEvento } from "../../utils/analytics";
 
 const Logout = () => {
     const navigate = useNavigate();
@@ -16,15 +17,15 @@ const Logout = () => {
         } catch (error) {
             console.error("Erro ao fazer logout:", error);
         } finally {
-            queryClient.invalidateQueries({ queryKey: ["planos"] });
-            queryClient.invalidateQueries({ queryKey: ["resumo"] });
-            queryClient.invalidateQueries({ queryKey: ["planoAtivo"] });
-            queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"] });
-            queryClient.invalidateQueries({ queryKey: ["totalSimulados"] });
+            registrarEvento("logout");
+            limparIdentidade();
             queryClient.clear();
 
             sessionStorage.removeItem("id");
             sessionStorage.removeItem("nome");
+            sessionStorage.removeItem("simulado");
+            sessionStorage.removeItem("respostas");
+            localStorage.removeItem("mentorSessao");
             navigate("/");
         }
     }

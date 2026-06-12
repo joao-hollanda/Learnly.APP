@@ -21,9 +21,10 @@ const processQueue = (error, token = null) => {
 };
 
 const baseURL =
-  process.env.NODE_ENV === "development"
+  process.env.REACT_APP_API_URL ??
+  (process.env.NODE_ENV === "development"
     ? "http://localhost:5080/api/"
-    : "https://learnly-api-yrdu.onrender.com/api/";
+    : "https://learnly-api-yrdu.onrender.com/api/");
 
 export const HTTPClient = axios.create({
   baseURL: baseURL,
