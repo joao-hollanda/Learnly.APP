@@ -11,53 +11,69 @@ import {
   FaClock,
   FaBookOpen,
 } from "react-icons/fa";
+import { LuSparkles, LuRotateCcw } from "react-icons/lu";
 import style from "./_mentorIA.module.css";
 import IAAPI from "../../services/IAService";
+import ModalAcaoMentor from "../../components/Modais/MentorIA/ModalAcaoMentor";
+import { registrarEvento } from "../../utils/analytics";
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import { useQueryClient } from "@tanstack/react-query";
 
-const DICAS = [
+const PROTOCOLOS = [
   { icone: <FaChartBar />, texto: "Como estou indo nos simulados?" },
   { icone: <FaCalendarAlt />, texto: "Qual é meu plano de estudo atual?" },
   { icone: <FaCrosshairs />, texto: "Quais são meus pontos fracos?" },
   { icone: <FaBookOpen />, texto: "Quero revisar questões que errei" },
-  { icone: <FaPlus />, texto: "Adiciona Física no meu plano" },
-  { icone: <FaTrash />, texto: "Remove Química do meu plano" },
-  { icone: <FaExchangeAlt />, texto: "Substitui História por Geografia" },
-  { icone: <FaClock />, texto: "Aumenta minha carga horária para 15h" },
+  { icone: <FaPlus />, texto: "Adicionar matéria ao plano", acao: "adicionar" },
+  { icone: <FaTrash />, texto: "Remover matéria do plano", acao: "remover" },
+  { icone: <FaExchangeAlt />, texto: "Substituir uma matéria", acao: "substituir" },
+  { icone: <FaClock />, texto: "Ajustar carga horária", acao: "carga" },
 ];
+
+const SESSAO_KEY = "mentorSessao";
+
+const horaAgora = () =>
+  new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+// Groq costuma emitir LaTeX com \( \) e \[ \] — remark-math só entende $ e $$
+const normalizarMatematica = (texto = "") =>
+  texto
+    .replace(/\\\[([\s\S]*?)\\\]/g, (_, m) => `$$${m}$$`)
+    .replace(/\\\(([\s\S]*?)\\\)/g, (_, m) => `$${m}$`);
 
 function MentorIA() {
   const queryClient = useQueryClient();
 
   const [mensagem, setMensagem] = useState("");
-  const [conversa, setConversa] = useState([
-    {
-      autor: "ia",
-      texto:
-        "Olá! \nSou o MentorIA, sua Inteligência Artificial preparada pra atender suas necessidades.\nPode mandar sua dúvida 😊",
-    },
-  ]);
-
+  const [conversa, setConversa] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(SESSAO_KEY)) ?? [];
+    } catch {
+      return [];
+    }
+  });
   const [carregandoIA, setCarregandoIA] = useState(false);
   const [digitandoIA, setDigitandoIA] = useState(false);
-  const [dicaAtual, setDicaAtual] = useState(0);
-  const [dicaVisivel, setDicaVisivel] = useState(true);
+  const [acaoModal, setAcaoModal] = useState(null);
 
   const chatRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Alterna dicas a cada 3s com fade
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDicaVisivel(false);
-      setTimeout(() => {
-        setDicaAtual((prev) => (prev + 1) % DICAS.length);
-        setDicaVisivel(true);
-      }, 300);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  const ocupado = carregandoIA || digitandoIA;
+  const totalPerguntas = conversa.filter((m) => m.autor === "aluno").length;
+
+  const dataLonga = new Date().toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+  });
+  const dataCurta = new Date().toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  });
 
   const autoResize = (e) => {
     const el = e.target;
@@ -70,7 +86,7 @@ function MentorIA() {
     setDigitandoIA(true);
 
     const interval = setInterval(() => {
-      i = Math.min(i + 2, texto.length); // 8 caracteres por tick
+      i = Math.min(i + 2, texto.length);
       callback(texto.slice(0, i));
 
       if (i >= texto.length) {
@@ -106,17 +122,21 @@ function MentorIA() {
         queryKey: ["resumo"],
         refetchType: "active",
       });
+      queryClient.invalidateQueries({
+        queryKey: ["dashboardDesempenho"],
+        refetchType: "active",
+      });
     }
 
     setConversa((prev) =>
       prev
         .filter((m) => m.tipo !== "loading")
-        .concat({ autor: "ia", texto: "" }),
+        .concat({ autor: "ia", texto: "", hora: horaAgora() }),
     );
     escreverTextoAosPoucos(respostaIA, (textoParcial) => {
       setConversa((prev) => {
         const nova = [...prev];
-        nova[nova.length - 1] = { autor: "ia", texto: textoParcial };
+        nova[nova.length - 1] = { ...nova[nova.length - 1], texto: textoParcial };
         return nova;
       });
     });
@@ -124,16 +144,17 @@ function MentorIA() {
 
   const enviarMensagem = async (textoPergunta) => {
     const pergunta = textoPergunta ?? mensagem;
-    if (!pergunta.trim() || carregandoIA || digitandoIA) return;
+    if (!pergunta.trim() || ocupado) return;
 
     setMensagem("");
     if (inputRef.current) inputRef.current.style.height = "auto";
     setCarregandoIA(true);
+    registrarEvento("mentor_mensagem", { viaAtalho: textoPergunta != null });
 
     setConversa((prev) => [
       ...prev,
-      { autor: "aluno", texto: pergunta },
-      { autor: "ia", tipo: "loading" },
+      { autor: "aluno", texto: pergunta, hora: horaAgora() },
+      { autor: "ia", tipo: "loading", hora: horaAgora() },
     ]);
 
     try {
@@ -158,11 +179,25 @@ function MentorIA() {
           .concat({
             autor: "ia",
             texto: "Ocorreu um erro ao falar com a IA. Tente novamente.",
+            hora: horaAgora(),
           }),
       );
     } finally {
       setCarregandoIA(false);
     }
+  };
+
+  const usarProtocolo = (p) => {
+    if (ocupado) return;
+    if (p.acao) setAcaoModal(p.acao);
+    else enviarMensagem(p.texto);
+  };
+
+  const novaSessao = () => {
+    if (ocupado) return;
+    setConversa([]);
+    setMensagem("");
+    inputRef.current?.focus();
   };
 
   useEffect(() => {
@@ -172,95 +207,216 @@ function MentorIA() {
     });
   }, [conversa]);
 
-  const dica = DICAS[dicaAtual];
+  useEffect(() => {
+    const finalizadas = conversa.filter((m) => m.tipo !== "loading");
+    if (finalizadas.length > 0)
+      localStorage.setItem(SESSAO_KEY, JSON.stringify(finalizadas));
+    else localStorage.removeItem(SESSAO_KEY);
+  }, [conversa]);
 
   return (
     <div className={style.page}>
       <Header />
 
-      <div className={style.chat} ref={chatRef}>
-        {conversa.map((msg, index) => {
-          if (msg.tipo === "loading") {
-            return (
-              <div key={index} className={style.balaoIA}>
-                <div className={style.loading}>
-                  <span />
-                  <span />
-                  <span />
-                </div>
-              </div>
-            );
-          }
+      <div className={style.layout}>
+        <aside className={style.rail}>
+          <div className={style.railMast}>
+            <span className={style.railKicker}>Mentoria · IA</span>
+            <h1 className={style.railTitulo}>Sessão de estudo</h1>
+            <p className={style.railData}>{dataLonga}</p>
+          </div>
 
-          return (
-            <div
-              key={index}
-              className={
-                msg.autor === "aluno" ? style.balaoAluno : style.balaoIA
-              }
-            >
-              <ReactMarkdown>{msg.texto}</ReactMarkdown>
+          <div className={style.railStats}>
+            <div className={style.railStat}>
+              <span className={style.railStatLabel}>Perguntas</span>
+              <span className={style.railStatValor}>
+                {String(totalPerguntas).padStart(2, "0")}
+              </span>
             </div>
-          );
-        })}
-      </div>
+            <div className={style.railStat}>
+              <span className={style.railStatLabel}>Mentor</span>
+              <span className={style.railStatValor}>
+                <span
+                  className={`${style.statusDot} ${ocupado ? style.statusDotOcupado : ""}`}
+                />
+                {carregandoIA
+                  ? "Consultando"
+                  : digitandoIA
+                    ? "Escrevendo"
+                    : "Em linha"}
+              </span>
+            </div>
+          </div>
 
-      <div className={style.inputWrapper}>
-        <div className={style.dicaWrapper}>
-          <button
-            className={`${style.dica} ${dicaVisivel ? style.dicaVisivel : style.dicaOculta}`}
-            onClick={() => enviarMensagem(dica.texto)}
-            disabled={carregandoIA || digitandoIA}
-          >
-            <span className={style.dicaIcone}>{dica.icone}</span>
-            <span>{dica.texto}</span>
-          </button>
-
-          <div className={style.dicaDots}>
-            {DICAS.map((_, i) => (
-              <span
+          <div className={style.protocolos}>
+            <span className={style.protLabel}>Atalhos da sessão</span>
+            {PROTOCOLOS.map((p, i) => (
+              <button
                 key={i}
-                className={`${style.dot} ${i === dicaAtual ? style.dotAtivo : ""}`}
-                onClick={() => {
-                  setDicaVisivel(false);
-                  setTimeout(() => {
-                    setDicaAtual(i);
-                    setDicaVisivel(true);
-                  }, 300);
-                }}
-              />
+                type="button"
+                className={style.protocolo}
+                onClick={() => usarProtocolo(p)}
+                disabled={ocupado}
+              >
+                <span className={style.protNum}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className={style.protTexto}>{p.texto}</span>
+              </button>
             ))}
           </div>
-        </div>
 
-        <div className={style.inputArea}>
-          <textarea
-            ref={inputRef}
-            className={style.input}
-            placeholder="Digite sua dúvida..."
-            value={mensagem}
-            disabled={carregandoIA || digitandoIA}
-            rows={1}
-            onChange={(e) => {
-              setMensagem(e.target.value);
-              autoResize(e);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                enviarMensagem();
-              }
-            }}
-          />
           <button
-            className={style.botao}
-            onClick={() => enviarMensagem()}
-            disabled={carregandoIA || digitandoIA}
+            type="button"
+            className={style.novaSessao}
+            onClick={novaSessao}
+            disabled={ocupado || conversa.length === 0}
           >
-            <FaPaperPlane />
+            <LuRotateCcw /> Nova sessão
           </button>
-        </div>
+        </aside>
+
+        <main className={style.transcript}>
+          <div className={style.transcriptHead}>
+            <span className="eyebrow">Transcrição da sessão</span>
+            <span className={style.transcriptIndice}>
+              {dataCurta} · {String(conversa.length).padStart(2, "0")} registros
+            </span>
+          </div>
+
+          <div className={style.corpoChat} ref={chatRef}>
+            {conversa.length === 0 && (
+              <div className={style.vazio}>
+                <span className={style.vazioIcone}>
+                  <LuSparkles />
+                </span>
+                <h2 className={style.vazioTitulo}>
+                  O que vamos estudar hoje?
+                </h2>
+                <p className={style.vazioTexto}>
+                  O Mentor conhece seus planos, simulados e desempenho. Faça
+                  uma pergunta abaixo ou use um atalho da sessão — cada
+                  resposta entra na transcrição.
+                </p>
+              </div>
+            )}
+
+            {conversa.map((msg, index) => {
+              const mentor = msg.autor === "ia";
+              const ultima = index === conversa.length - 1;
+              return (
+                <article key={index} className={style.turno}>
+                  <div className={style.turnoMeta}>
+                    <span className={style.turnoNum}>
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      className={`${style.turnoAutor} ${mentor ? style.turnoAutorMentor : ""}`}
+                    >
+                      {mentor ? (
+                        <>
+                          <LuSparkles /> Mentor
+                        </>
+                      ) : (
+                        "Você"
+                      )}
+                    </span>
+                    <span className={style.turnoLinha} />
+                    <span className={style.turnoHora}>{msg.hora}</span>
+                  </div>
+
+                  {msg.tipo === "loading" ? (
+                    <div className={style.consultando}>
+                      Consultando seus dados
+                      <span className={style.pontos}>
+                        <span />
+                        <span />
+                        <span />
+                      </span>
+                    </div>
+                  ) : (
+                    <div
+                      className={`${style.corpo} ${!mentor ? style.corpoPergunta : ""} ${
+                        mentor && ultima && digitandoIA ? style.digitando : ""
+                      }`}
+                    >
+                      <ReactMarkdown
+                        remarkPlugins={[remarkMath]}
+                        rehypePlugins={[[rehypeKatex, { errorColor: "#64748b" }]]}
+                      >
+                        {normalizarMatematica(msg.texto)}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+
+          <div className={style.chipsMobile}>
+            {PROTOCOLOS.map((p, i) => (
+              <button
+                key={i}
+                type="button"
+                className={style.chipMobile}
+                onClick={() => usarProtocolo(p)}
+                disabled={ocupado}
+              >
+                {p.icone} {p.texto}
+              </button>
+            ))}
+          </div>
+
+          <div className={style.prompt}>
+            <div className={style.promptMeta}>
+              <span className={style.promptLabel}>Pergunta ao mentor</span>
+              <span className={style.promptHint}>
+                Enter envia · Shift+Enter quebra linha
+              </span>
+            </div>
+            <div className={style.promptLinha}>
+              <span className={style.caret}>›</span>
+              <textarea
+                ref={inputRef}
+                className={style.input}
+                placeholder="Escreva sua pergunta..."
+                value={mensagem}
+                disabled={ocupado}
+                rows={1}
+                onChange={(e) => {
+                  setMensagem(e.target.value);
+                  autoResize(e);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    enviarMensagem();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className={style.enviar}
+                onClick={() => enviarMensagem()}
+                disabled={ocupado}
+                aria-label="Enviar pergunta"
+              >
+                <FaPaperPlane />
+              </button>
+            </div>
+          </div>
+        </main>
       </div>
+
+      <ModalAcaoMentor
+        show={!!acaoModal}
+        acao={acaoModal}
+        onHide={() => setAcaoModal(null)}
+        onEnviar={(texto) => {
+          setAcaoModal(null);
+          enviarMensagem(texto);
+        }}
+      />
     </div>
   );
 }
