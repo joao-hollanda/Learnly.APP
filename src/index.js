@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
+import "react-toastify/dist/ReactToastify.css";
 import "./index.css";
 import Login from "./Pages/login/Login";
 import reportWebVitals from "./reportWebVitals";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { iniciarAnalytics, registrarPageview } from "./utils/analytics";
 import Inicio from "./Pages/inicio/Inicio";
 import Planos from "./Pages/planos/Planos";
 import Simulados from "./Pages/simulados/Simulados";
@@ -12,14 +14,27 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MentorIA from "./Pages/MentorIA/MentorIA";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const queryClient = new QueryClient();
+
+iniciarAnalytics();
+
+function RastreadorRotas() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    registrarPageview(pathname);
+  }, [pathname]);
+  return null;
+}
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
+    <SpeedInsights />
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <RastreadorRotas />
         <ToastContainer
           position="bottom-right"
           autoClose={4500}
@@ -62,21 +77,18 @@ root.render(
               </ProtectedRoute>
             }
           />
-          {/* <Route
-          path="/desempenho"
-          element={
-            <ProtectedRoute>
-              <Desempenho />
-          Q</ProtectedRoute>
-          }
-        /> */}
+          <Route
+            path="/desempenho"
+            element={
+              <ProtectedRoute>
+                <Desempenho />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

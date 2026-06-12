@@ -1,163 +1,701 @@
 .container {
-  padding: 0 1.5rem;
+  padding: 0 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.info,
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+/* ══════════════════════════════════════════
+   AJUSTE DE VIEWPORT — Início sem overflow
+   (desktop: tudo cabe na tela; painéis com
+   scroll interno quando necessário)
+   ══════════════════════════════════════════ */
+@media (min-width: 1025px) {
+  .pageInicio {
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .pageInicio .container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .pageInicio .masthead {
+    flex-shrink: 0;
+    margin-bottom: 1.25rem;
+  }
+
+  /* masthead um pouco mais compacto para caber na viewport */
+  .pageInicio .mastTopo {
+    padding: 1.55rem 2rem 1.3rem;
+  }
+
+  .pageInicio .mastCell {
+    padding: 1rem 1.5rem 0.9rem;
+  }
+
+  .pageInicio .mastValor {
+    font-size: 1.9rem;
+  }
+
+  .pageInicio .saudacao {
+    font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  }
+
+  .pageInicio .contentGrid {
+    flex: 1;
+    min-height: 380px;
+  }
+
+  .pageInicio .panel {
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* timeline rola por dentro, sem estourar o painel */
+  .pageInicio .timeline {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .pageInicio .cronogramaVazio {
+    flex: 1;
+  }
+
+  /* calendário acompanha a altura do painel */
+  .pageInicio .calendario_container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pageInicio .calendario_container > div {
+    height: 100%;
+    flex: 1;
+    min-height: 0;
+  }
 }
 
-.info {
+/* ══════════════════════════════════════════
+   MASTHEAD — capa cobalto com métricas embutidas
+   ══════════════════════════════════════════ */
+.masthead {
+  position: relative;
+  background:
+    radial-gradient(
+      820px 380px at 100% 0%,
+      rgba(96, 165, 250, 0.22),
+      transparent 60%
+    ),
+    var(--grad-navy);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--navy-800);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  animation: lyRevealUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* dot-grid técnico */
+.masthead::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(147, 197, 253, 0.16) 1px,
+    transparent 1.4px
+  );
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+
+.mastTopo {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.9rem 2rem 1.6rem;
+}
+
+.mastTexto {
+  min-width: 0;
+}
+
+.mastKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: capitalize;
+  color: #93c5fd;
+}
+
+.mastKicker::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  background: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.22);
+}
+
+.mastIndice {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(147, 197, 253, 0.6);
+}
+
+.saudacao {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  color: #fff;
+  margin: 0.7rem 0 0;
+}
+
+.sub {
+  font-size: 0.98rem;
+  color: rgba(255, 255, 255, 0.66);
+  margin: 0.55rem 0 0;
+  max-width: 48ch;
+  line-height: 1.55;
+}
+
+/* ── Faixa de métricas embutida ── */
+.mastStats {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(7, 16, 56, 0.25);
+}
+
+.mastCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.2rem 1.5rem 1.1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 0;
+}
+
+.mastCell:last-child {
+  border-right: none;
+}
+
+.mastLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(147, 197, 253, 0.85);
+}
+
+.mastLabel svg {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.mastValor {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: 2.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #fff;
+}
+
+.mastValor em {
+  font-style: normal;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #93c5fd;
+  margin-left: 0.1rem;
+}
+
+.mastTexto2 {
+  font-size: 1.25rem;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.mastExtra {
+  margin-top: auto;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.mastBarra {
+  display: block;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+.mastBarraFill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #60a5fa, #93c5fd);
+  transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Skeleton (carregamento) ── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
   margin-bottom: 1.5rem;
 }
 
-.container h2 {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+/* ══════════════════════════════════════════
+   PAINÉIS DE CONTEÚDO
+   ══════════════════════════════════════════ */
+.contentGrid {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 1.25rem;
+  align-items: stretch;
 }
 
-.container h3 {
-  font-size: 1.1rem;
-  font-weight: normal;
-  color: #6c757d;
-  margin: 0 0 1.5rem 0;
+.contentGrid > * {
+  animation: lyRevealUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.calendario_card {
-  height: 400px;
+.contentGrid > *:nth-child(1) {
+  animation-delay: 0.14s;
+}
+.contentGrid > *:nth-child(2) {
+  animation-delay: 0.22s;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  position: relative;
-  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.calendario_card .rbc-calendar {
-  height: 100% !important;
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+  flex-shrink: 0;
 }
 
-.botao,
-.botao_reset,
-.botao_modal,
-.botao_cancelar {
-  border: none;
-  border-radius: 4px;
-  display: inline-flex;
+.panelTitulo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.panelIcone {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: 0.2s;
-  font-family: inherit;
-  box-sizing: border-box;
-  min-width: 100px;
-  min-height: 30px;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 1.05rem;
+  color: var(--brand);
+  background: var(--brand-100);
+  box-shadow: inset 0 0 0 1px var(--brand-200);
+  flex-shrink: 0;
+}
+
+.panelTitulo h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink-strong);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.panelTitulo > div > span {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--faint);
+  margin-top: 0.1rem;
+}
+
+.panelBadge {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand);
+  background: var(--brand-100);
+  border: 1px solid var(--brand-200);
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-sm);
+}
+
+.panelAcoes {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   TIMELINE DO DIA
+   ══════════════════════════════════════════ */
+/* a timeline rola por dentro e não dita a altura do painel —
+   o painel do cronograma acompanha a altura do calendário */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  padding: 1.1rem 1.4rem 1.2rem;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.tlItem {
+  display: grid;
+  grid-template-columns: 3.2rem 1.1rem 1fr;
+  gap: 0 0.85rem;
+  align-items: stretch;
+}
+
+.tlHora {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: right;
+  padding-top: 0.95rem;
+  white-space: nowrap;
+}
+
+/* trilho vertical contínuo */
+.tlRail {
   position: relative;
+  display: flex;
+  justify-content: center;
 }
 
-.botao {
-  padding: 0.5rem 2rem;
-  background: black;
-  color: white;
-  align-self: flex-end;
+.tlRail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--line-2);
 }
 
-.botao:hover {
-  opacity: 0.7;
+.tlItem:first-child .tlRail::before {
+  top: 1.1rem;
 }
 
+.tlItem:last-child .tlRail::before {
+  bottom: calc(100% - 1.4rem);
+}
+
+.tlDot {
+  position: relative;
+  z-index: 1;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--faint);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 2px var(--line-2);
+  margin-top: 1.05rem;
+  flex-shrink: 0;
+}
+
+.tlBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 0.9rem;
+  margin: 0.35rem 0;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  min-width: 0;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.tlLinha1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.tlTitulo {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tlIntervalo {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--faint);
+}
+
+.tlStatus {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* ── Estado: concluído ── */
+.tl_concluido .tlDot {
+  background: var(--success);
+  box-shadow: 0 0 0 2px var(--success-line);
+}
+
+.tl_concluido .tlTitulo {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--line-2);
+}
+
+.tl_concluido .tlStatus {
+  color: var(--success);
+  background: var(--success-bg);
+  border: 1px solid var(--success-line);
+}
+
+/* ── Estado: agora ── */
+.tl_atual .tlBody {
+  background: var(--brand-50);
+  border-color: var(--brand-200);
+}
+
+.tl_atual .tlDot {
+  background: var(--brand);
+  box-shadow: 0 0 0 2px var(--brand-200);
+  animation: tlPulse 2s ease-in-out infinite;
+}
+
+.tl_atual .tlTitulo {
+  color: var(--ink-strong);
+}
+
+.tl_atual .tlStatus {
+  color: #fff;
+  background: var(--brand);
+}
+
+@keyframes tlPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--brand-200);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18);
+  }
+}
+
+/* ── Estado: próximo ── */
+.tl_proximo .tlDot {
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--brand-light);
+}
+
+.tl_proximo .tlStatus {
+  color: var(--brand);
+  background: var(--brand-100);
+  border: 1px solid var(--brand-200);
+}
+
+/* ── Vazio ── */
+.cronogramaVazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.65rem;
+  padding: 2.5rem 1rem;
+  color: var(--faint);
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.cronogramaVazio svg {
+  font-size: 1.5rem;
+  color: var(--brand);
+  background: var(--brand-100);
+  padding: 0.7rem;
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px var(--brand-200);
+}
+
+.cronogramaVazio p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.calendario_container {
+  padding: 1.1rem 1.4rem 1.3rem;
+}
+
+/* ── Botões do painel de calendário ── */
 .botao_criar,
 .botao_reset {
-  background: none;
-  color: rgb(34, 99, 197);
-  border: none;
-  border-radius: 999px;
-  padding: 0.5rem 1rem;
+  background: var(--surface);
+  color: var(--brand);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  width: 2.15rem;
+  height: 2.15rem;
   font-weight: 600;
-  min-width: unset;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
 }
 
 .botao_criar:hover {
-  background-color: rgb(34, 99, 197);
+  background-color: var(--brand);
+  border-color: var(--brand);
   color: #fff;
 }
 
 .botao_reset {
-  color: rgb(218, 11, 11);
+  color: var(--danger);
 }
 
 .botao_reset:hover {
-  background-color: rgb(218, 11, 11);
+  background-color: var(--danger);
+  border-color: var(--danger);
   color: #fff;
 }
+
+/* ── Formulário (usado por ModalCriarEvento) ── */
+.botao,
+.botao_modal,
+.botao_cancelar {
+  border: none;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  box-sizing: border-box;
+  min-width: 100px;
+  min-height: 38px;
+  position: relative;
+}
+
 .botao_modal {
-  background: #2263c5;
+  background: var(--brand);
   color: #fff;
-  border-radius: 10px;
-  padding: 0.45rem 1.2rem;
-  font-size: 0.85rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.875rem;
 }
 
 .botao_modal:hover {
-  background: #1b4fa0;
-  transform: translateY(-1px);
+  background: var(--brand-strong);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35);
 }
 
 .botao_cancelar {
-  background: rgb(218, 11, 11);
-  padding: 0.5rem 1.5rem;
-  color: #fff;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-2);
+  padding: 0.5rem 1.2rem;
 }
 
-.modal_body {
-  padding: 1.6rem;
-}
-
-.modal_footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.6rem;
-  padding: 1rem 1.5rem;
+.botao_cancelar:hover {
+  border-color: var(--faint);
+  color: var(--ink);
 }
 
 .form_group {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-bottom: 1.2rem;
+  gap: 0.4rem;
+  margin-bottom: 1.1rem;
 }
 
 .form_group label {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: #3a3a3a;
+  color: var(--ink);
 }
 
 .input {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.8rem;
   font-size: 0.9rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: var(--ink);
+  background: var(--surface);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: #2263c5;
-  box-shadow: 0 0 0 2px rgba(34, 99, 197, 0.15);
+  border-color: var(--brand);
+  box-shadow: var(--ring-brand);
 }
 
 .input::placeholder {
-  color: #aaa;
+  color: var(--faint);
 }
 
 .horas {
@@ -170,32 +708,35 @@
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  align-self: center;
 }
 
 .dia,
 .dia_ativo {
-  border-radius: 999px;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .dia {
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #444;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--text);
 }
 
 .dia:hover {
-  border-color: #2263c5;
-  color: #2263c5;
+  border-color: var(--brand);
+  color: var(--brand);
 }
 
 .dia_ativo {
-  background: #2263c5;
-  border: 1px solid #2263c5;
+  background: var(--brand);
+  border: 1px solid var(--brand);
   color: #fff;
 }
 
@@ -208,59 +749,87 @@
 .spinner {
   width: 20px;
   height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top: 3px solid white;
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-top: 3px solid #fff;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   position: absolute;
-}
-
-.botao {
-  position: relative;
 }
 
 .hiddenText {
   visibility: hidden;
 }
 
-@media (max-width: 800px) {
-  .botao,
-  .botao_reset,
-  .botao_modal,
-  .botao_cancelar {
-    width: 100%;
-    min-width: unset;
-    padding: 0.6rem 1rem;
+/* ── Responsivo ── */
+@media (max-width: 1024px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .mastStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .mastCell {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .mastCell:nth-child(2n) {
+    border-right: none;
+  }
+  .mastCell:nth-child(n + 3) {
+    border-bottom: none;
+  }
+  .mastIndice {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .botao_modal,
+  .botao_cancelar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
   .container {
     padding: 0 1rem;
   }
-
-  .info,
-  .grid {
+  .statsGrid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-
-  .calendario_card {
-    height: 65vh;
-    min-height: 20rem;
-    margin-bottom: 1rem;
+  .mastTopo {
+    padding: 1.5rem 1.25rem 1.25rem;
   }
-
-  .calendario_card .rbc-calendar {
-    height: 100% !important;
+  .mastStats {
+    grid-template-columns: 1fr;
   }
-
-  .rbc-toolbar {
-    flex-direction: column;
-    gap: 0.5rem;
+  .mastCell {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 1rem 1.25rem;
   }
-
-  .rbc-toolbar-label {
-    font-size: 1rem;
+  .mastCell:nth-child(n + 3) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .mastCell:last-child {
+    border-bottom: none;
+  }
+  .timeline {
+    padding: 1rem;
+  }
+  .tlHora {
+    display: none;
+  }
+  .tlItem {
+    grid-template-columns: 1.1rem 1fr;
+  }
+  .calendario_container {
+    padding: 1rem;
   }
 }

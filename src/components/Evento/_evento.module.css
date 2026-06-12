@@ -21,19 +21,19 @@
 }
 
 .concluido {
-  background: #f0fdf4;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success-line);
 }
 
 .atual {
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
+  background: var(--brand-100);
+  color: var(--brand-strong);
+  border: 1px solid var(--brand-200);
 }
 
 .proximo {
-  background: #fff0f1;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: var(--danger-bg);
+  color: var(--danger-strong);
+  border: 1px solid var(--danger-line);
 }

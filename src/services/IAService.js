@@ -1,10 +1,15 @@
 import { HTTPClient } from "./client";
 
-const MentorIAAPI = {
+const IAAPI = {
   async EnviarMensagem(corpo, signal) {
     const resposta = await HTTPClient.post("ia/chat", corpo, { signal });
     return resposta.data;
   },
+
+  async CriarPlano(request) {
+    const resposta = await HTTPClient.post("ia/criar-plano", request);
+    return resposta.data;
+  }
 };
 
-export default MentorIAAPI;
+export default IAAPI;

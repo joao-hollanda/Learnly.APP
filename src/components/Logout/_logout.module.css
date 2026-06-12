@@ -1,11 +1,28 @@
 .logout {
-  border: 0;
-  background-color: transparent;
-  color: #2563eb;
-  font-size: 1.7rem;
-  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.66rem 0.85rem;
+  border: none;
+  background: none;
+  border-radius: var(--radius);
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.logout svg {
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 .logout:hover {
-  color: #1d4cb1;
+  color: #fecaca;
+  background-color: rgba(239, 68, 68, 0.18);
 }

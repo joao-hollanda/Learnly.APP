@@ -1,65 +1,96 @@
-import { Button, Modal } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Button } from "react-bootstrap";
 import { BsClock } from "react-icons/bs";
-import style from "../../../Pages/planos/_planos.module.css";
+import ModalBase from "../ModalBase";
+import style from "../_modal.module.css";
 
+const PRESETS = [1, 2, 3, 4, 6];
 
-function ModalLancarHoras({
-  show,
-  onHide,
-  materiaSelecionada,
-  horasLancadas,
-  setHorasLancadas,
-  onLancar,
-  loading,
-}) {
-  const max =
-    (materiaSelecionada?.horasTotais ?? 0) -
-    (materiaSelecionada?.horasConcluidas ?? 0);
+function ModalLancarHoras({ show, onHide, loading, plano, onLancar, initialPlanoMateriaId }) {
+  const [planoMateriaId, setPlanoMateriaId] = useState("");
+  const [horas, setHoras] = useState("");
+
+  const materias = plano?.materias ?? [];
+  const materiaSelecionada = materias.find((m) => m.planoMateriaId === planoMateriaId);
+  const maxHoras = materiaSelecionada
+    ? materiaSelecionada.horasTotais - materiaSelecionada.horasConcluidas
+    : 0;
+  const limite = Math.min(maxHoras, 20);
+
+  useEffect(() => {
+    if (show) {
+      setPlanoMateriaId(initialPlanoMateriaId ?? "");
+      setHoras("");
+    }
+  }, [show]);
 
   return (
-    <Modal show={show} centered onHide={onHide}>
-      <Modal.Header closeButton>
-        <div className="modal-icon modal-icon-info">
-          <BsClock />
-        </div>
-        <Modal.Title>Lançar horas</Modal.Title>
-      </Modal.Header>
-
-      <Modal.Body>
-        <span className="modal-badge modal-badge-info">
-          {materiaSelecionada?.nome}
+    <ModalBase
+      show={show}
+      onHide={onHide}
+      title="Lançar horas"
+      subtitle={materiaSelecionada?.nome}
+      kicker="Planos"
+      iconType="info"
+      icon={<BsClock />}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onHide} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => onLancar({ planoMateriaId, horas: Number(horas) })}
+            disabled={loading || !planoMateriaId || !horas}
+          >
+            {loading ? <span className={style.spinner} /> : <><BsClock /> Lançar</>}
+          </Button>
+        </>
+      }
+    >
+      {materiaSelecionada && (
+        <span
+          className="modal-badge modal-badge-info"
+          style={{ marginBottom: "0.9rem" }}
+        >
+          Restam {maxHoras}h de {materiaSelecionada.horasTotais}h
         </span>
+      )}
+
+      <div className={style.campo}>
+        <span className={style.label}>Horas estudadas</span>
+        <div className={style.chips}>
+          {PRESETS.filter((h) => h <= limite).map((h) => (
+            <button
+              key={h}
+              type="button"
+              className={`${style.chip} ${horas === h ? style.chipAtivo : ""}`}
+              onClick={() => setHoras(h)}
+              disabled={!planoMateriaId}
+            >
+              {h}h
+            </button>
+          ))}
+        </div>
         <input
           type="number"
-          min="1"
-          max={max}
-          className="form-control mt-3"
-          placeholder="Quantas horas você estudou?"
-          value={horasLancadas}
+          className="form-control"
+          placeholder={limite > 0 ? `Ou digite um valor (1 – ${limite}h)` : "Selecione uma matéria"}
+          value={horas}
+          disabled={!planoMateriaId}
+          min={1}
+          max={limite}
           onChange={(e) => {
             const v = e.target.value;
-            if (v === "") return setHorasLancadas("");
-            if (+v < 1 || +v > max) return;
-            setHorasLancadas(+v);
+            if (v === "") return setHoras("");
+            const num = parseInt(v, 10);
+            if (isNaN(num) || num < 1 || num > limite) return;
+            setHoras(num);
           }}
         />
-      </Modal.Body>
-
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
-          Cancelar
-        </Button>
-        <Button variant="primary" onClick={onLancar} disabled={loading}>
-          {loading ? (
-            <span className={style.spinner} />
-          ) : (
-            <>
-              <BsClock /> Lançar horas
-            </>
-          )}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+        <span className={style.hint}>Limite diário de 20h por dia.</span>
+      </div>
+    </ModalBase>
   );
 }
 

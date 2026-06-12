@@ -1,0 +1,60 @@
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 1rem;
+  border-radius: 8px;
+  background: var(--line);
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.65),
+    transparent
+  );
+  animation: lySkeleton 1.4s ease-in-out infinite;
+}
+
+@keyframes lySkeleton {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ── Card placeholder (espelha o componente Card) ── */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.35rem 1.5rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  min-height: 8rem;
+}
+
+.cardGrande {
+  grid-column: span 2;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}

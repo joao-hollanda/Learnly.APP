@@ -1,12 +1,15 @@
 import Header from "../../components/Header/Header";
 import Plano from "../../components/Plano/Plano";
+import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 import style from "./_planos.module.css";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaPlay, FaPlus } from "react-icons/fa6";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../services/PlanoService";
-import { ImHappy } from "react-icons/im";
+import { getApiError } from "../../services/client";
+import { registrarEvento } from "../../utils/analytics";
+import { LuGraduationCap, LuArchive } from "react-icons/lu";
 import { BsRobot } from "react-icons/bs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ModalExcluirPlano from "../../components/Modais/Planos/ModalExcluirPlano";
@@ -15,6 +18,7 @@ import ModalConfigurarPlano from "../../components/Modais/Planos/ModalConfigurar
 import ModalCriarPlano from "../../components/Modais/Planos/ModalCriarPlano";
 import ModalVisualizarPlano from "../../components/Modais/Planos/ModalVisualizarPlano";
 import ModalCriarPlanoIA from "../../components/Modais/Planos/ModalCriarPlanoIA";
+import IAAPI from "../../services/IAService";
 
 const mapPlanoBackend = (plano) => ({
   planoId: plano.planoId,
@@ -40,31 +44,34 @@ function Planos() {
 
   const hoje = new Date().toISOString().split("T")[0];
 
+  // Modais
   const [mostrarPlano, setMostrarPlano] = useState(false);
   const [mostrarCriarPlano, setMostrarCriarPlano] = useState(false);
   const [mostrarConfigurar, setMostrarConfigurar] = useState(false);
-  const [viewingIndex, setViewingIndex] = useState(null);
+  const [mostrarHoras, setMostrarHoras] = useState(false);
+  const [mostrarExcluir, setMostrarExcluir] = useState(false);
+  const [mostrarIa, setMostrarIa] = useState(false);
+
+  // ID do plano sendo visualizado / configurado
+  const [viewingPlanoId, setViewingPlanoId] = useState(null);
+  const [configurandoPlanoId, setConfigurandoPlanoId] = useState(null);
+
+  // Plano para excluir
+  const [planoParaExcluir, setPlanoParaExcluir] = useState(null);
+
+  // Campos de criação de plano
   const [titulo, setTitulo] = useState("");
   const [objetivo, setObjetivo] = useState("");
-  const [planoConfigId, setPlanoConfigId] = useState(null);
-  const [materiasDisponiveis, setMateriasDisponiveis] = useState([]);
-  const [materiaId, setMateriaId] = useState("");
-  const [horasTotais, setHorasTotais] = useState("");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
-  const [materiasDoPlano, setMateriasDoPlano] = useState([]);
-  const [horasSemana, setHorasSemana] = useState();
-  const [mostrarHoras, setMostrarHoras] = useState(false);
-  const [materiaSelecionada, setMateriaSelecionada] = useState(null);
-  const [horasLancadas, setHorasLancadas] = useState("");
-  const [mostrarExcluir, setMostrarExcluir] = useState(false);
-  const [planoParaExcluir, setPlanoParaExcluir] = useState(null);
-  const [mostrarIa, setMostrarIa] = useState(false);
+  const [horasSemana, setHorasSemana] = useState("");
+
+  const [materialParaLancar, setMaterialParaLancar] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const LIMITE_DIARIO = 20;
 
-  const { data: planosList = [] } = useQuery({
+  const { data: planosList = [], isPending: carregandoPlanos } = useQuery({
     queryKey: ["planos"],
     queryFn: async () => {
       const resposta = await PlanoAPI.Listar5();
@@ -75,62 +82,43 @@ function Planos() {
   });
 
   const invalidarPlanos = () =>
-    queryClient.invalidateQueries({ queryKey: ["planos"] });
+    queryClient.invalidateQueries({
+      queryKey: ["planos"],
+      refetchType: "active",
+    });
 
   const invalidarInicio = () => {
-    queryClient.invalidateQueries({ queryKey: ["planoAtivo"] });
-    queryClient.invalidateQueries({ queryKey: ["resumo"] });
-    queryClient.invalidateQueries({ queryKey: ["totalSimulados"] });
-    queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"] });
+    queryClient.invalidateQueries({
+      queryKey: ["planoAtivo"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["resumo"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["totalSimulados"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["comparacaoHoras"],
+      refetchType: "active",
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["dashboardDesempenho"],
+      refetchType: "active",
+    });
   };
 
-  const planoAtivoIndex = planosList.findIndex((p) => p.ativo);
-  const planoAtivo = planosList[planoAtivoIndex >= 0 ? planoAtivoIndex : 0];
-  const planoVisualizado = viewingIndex !== null ? planosList[viewingIndex] : null;
+  // fix 2: sem fallback para planosList[0] — inativo não aparece como "Plano Atual"
+  const planoAtivo = planosList.find((p) => p.ativo) ?? null;
+  // fix 1: lookup por ID, não por índice
+  const planoVisualizado =
+    planosList.find((p) => p.planoId === viewingPlanoId) ?? null;
+  const planoParaConfigurar =
+    planosList.find((p) => p.planoId === configurandoPlanoId) ?? null;
 
-  const abrirLancamentoHoras = (materia) => {
-    setMateriaSelecionada(materia);
-    setHorasLancadas("");
-    setMostrarHoras(true);
-  };
-
-  const lancarHoras = async () => { 
-    if (!horasLancadas || horasLancadas <= 0)
-      return toast.warn("Informe um valor válido");
-
-    const comparacao = await PlanoAPI.CompararHoras();
-    const horasHoje = comparacao.horasHoje;
-    const totalComNovoLancamento = horasHoje + Number(horasLancadas);
-
-    if (totalComNovoLancamento > LIMITE_DIARIO) {
-      return toast.warn(
-        `Limite diário de ${LIMITE_DIARIO}h atingido. Você já lançou ${horasHoje}h hoje.`,
-      );
-    }
-
-    try {
-      setLoading(true);
-      await PlanoAPI.LancarHoras(materiaSelecionada.planoMateriaId, Number(horasLancadas));
-
-      toast.success("Horas lançadas");
-      setMostrarHoras(false);
-
-      queryClient.invalidateQueries({ queryKey: ["resumo"] });
-      queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"] });
-      invalidarPlanos();
-    } catch {
-      toast.error("Erro ao lançar horas");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!mostrarConfigurar) return;
-    PlanoAPI.ListarMaterias()
-      .then(setMateriasDisponiveis)
-      .catch(() => toast.error("Erro ao carregar matérias"));
-  }, [mostrarConfigurar]);
+  // ── Criação ──────────────────────────────────────────────────────────────
 
   const abrirCriarPlano = () => {
     if (planosList.length >= 5) {
@@ -139,6 +127,9 @@ function Planos() {
     }
     setTitulo("");
     setObjetivo("");
+    setDataInicio("");
+    setDataFim("");
+    setHorasSemana("");
     setMostrarCriarPlano(true);
   };
 
@@ -149,223 +140,384 @@ function Planos() {
     }
     setTitulo("");
     setObjetivo("");
+    setDataInicio("");
+    setDataFim("");
+    setHorasSemana("");
     setMostrarIa(true);
   };
 
   const diferencaEmDias = (inicio, fim) => {
-    const dataInicio = new Date(inicio);
-    const dataFim = new Date(fim);
-    return Math.ceil(
-      (dataFim.getTime() - dataInicio.getTime()) / (1000 * 60 * 60 * 24),
-    );
+    const a = new Date(inicio);
+    const b = new Date(fim);
+    return Math.ceil((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
   };
 
   const criarPlano = async (planoIA) => {
-    if (!titulo || !objetivo || !dataInicio || !dataFim)
-      return toast.warn("Preencha todos os campos!");
+    if (!titulo || !objetivo) return toast.warn("Preencha todos os campos!");
 
+    if (planoIA && (!horasSemana || horasSemana <= 0))
+      return toast.warn("Informe a carga horária semanal.");
+
+    if (!dataInicio || !dataFim)
+      return toast.warn("Preencha as datas de início e fim.");
     if (dataFim < dataInicio)
       return toast.warn("Data final não pode ser anterior à data de início");
-
-    const duracaoDias = diferencaEmDias(dataInicio, dataFim);
-    if (duracaoDias < 14)
+    const duracao = diferencaEmDias(dataInicio, dataFim);
+    if (duracao < 14)
       return toast.warn("O plano deve ter duração mínima de 2 semanas.");
-    if (duracaoDias > 365 * 5)
-      return toast.warn("O plano não pode ter duração maior que 2 anos.");
+    if (duracao > 365 * 5)
+      return toast.warn("O plano não pode ter duração maior que 5 anos.");
+
+    if (planoIA) {
+      try {
+        setLoading(true);
+        const planoCriado = await IAAPI.CriarPlano({
+          titulo,
+          objetivo,
+          horasPorSemana: Number(horasSemana),
+          dataInicio: new Date(dataInicio + "T00:00:00").toISOString(),
+          dataFim: new Date(dataFim + "T00:00:00").toISOString(),
+        });
+
+        const novoPlano = mapPlanoBackend({
+          ...planoCriado,
+          planoMaterias: planoCriado.planoMaterias ?? [],
+        });
+        queryClient.setQueryData(["planos"], (old = []) => [...old, novoPlano]);
+
+        setMostrarIa(false);
+        invalidarPlanos();
+        invalidarInicio();
+        registrarEvento("plano_criado", { viaIa: true });
+        toast.success("Plano criado e ativado!");
+      } catch (erro) {
+        toast.error(getApiError(erro, "Erro ao criar plano com IA"));
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     try {
       setLoading(true);
-
       const planoCriado = await PlanoAPI.Criar({
         titulo,
         objetivo,
         dataInicio: new Date(dataInicio + "T00:00:00").toISOString(),
         dataFim: new Date(dataFim + "T00:00:00").toISOString(),
-        horasPorSemana: horasSemana,
+        horasPorSemana: Number(horasSemana) || 0,
         ativo: true,
-        planoIa: planoIA,
       });
 
       await PlanoAPI.AtivarPlano(planoCriado.planoId);
 
-      setPlanoConfigId(planoCriado.planoId);
+      const novoPlano = mapPlanoBackend({ ...planoCriado, planoMaterias: [] });
+      queryClient.setQueryData(["planos"], (old = []) => [...old, novoPlano]);
+
+      setConfigurandoPlanoId(planoCriado.planoId);
       setMostrarCriarPlano(false);
-      if (!planoIA) setMostrarConfigurar(true);
-      else setMostrarConfigurar(false);
+      setMostrarConfigurar(true);
 
       invalidarPlanos();
       invalidarInicio();
-
-      setMateriasDoPlano([]);
+      registrarEvento("plano_criado", { viaIa: false });
       toast.success("Plano criado e ativado!");
-      setMostrarIa(false);
-    } catch {
-      toast.error("Erro ao criar plano");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao criar plano"));
     } finally {
       setLoading(false);
     }
   };
 
-  const adicionarMateria = async () => {
-    if (!materiaId || !horasTotais) return toast.warn("Preencha todos os campos");
+  // ── Visualização ─────────────────────────────────────────────────────────
 
-    try {
-      setLoading(true);
-      await PlanoAPI.AdicionarMateria(planoConfigId, { materiaId, horasTotais });
-
-      const materia = materiasDisponiveis.find((m) => m.materiaId == materiaId);
-      setMateriasDoPlano((prev) => [
-        ...prev,
-        { nome: materia.nome, horasTotais, horasConcluidas: 0 },
-      ]);
-      setMateriaId("");
-      setHorasTotais("");
-      toast.success("Matéria adicionada");
-    } catch {
-      toast.error("Erro ao adicionar matéria");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClickPlano = (index) => {
-    setViewingIndex(index);
+  const handleClickPlano = (planoId) => {
+    setViewingPlanoId(planoId);
     setMostrarPlano(true);
   };
 
-  const handleAtivarPlano = async () => {
-    try {
-      const plano = planosList[viewingIndex];
-      await PlanoAPI.AtivarPlano(plano.planoId);
+  // ── Configuração ──────────────────────────────────────────────────────────
 
-      setMostrarPlano(false);
+  const abrirConfigurar = () => {
+    setConfigurandoPlanoId(planoVisualizado.planoId);
+    setMostrarPlano(false);
+    setMostrarConfigurar(true);
+  };
+
+  const salvarPlano = async ({ titulo, objetivo, dataFim, horasPorSemana }) => {
+    try {
+      setLoading(true);
+      await PlanoAPI.Atualizar({
+        planoId: planoParaConfigurar.planoId,
+        titulo,
+        objetivo,
+        dataFim: dataFim ? new Date(dataFim + "T00:00:00").toISOString() : null,
+        horasPorSemana,
+      });
+      toast.success("Plano salvo!");
+      setMostrarConfigurar(false);
       invalidarPlanos();
       invalidarInicio();
-
-      toast.success("Plano ativado");
-    } catch {
-      toast.error("Erro ao ativar plano");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao salvar plano"));
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleAtivarPlanoFromConfigurar = async () => {
+    try {
+      await PlanoAPI.AtivarPlano(planoParaConfigurar.planoId);
+      setMostrarConfigurar(false);
+      invalidarPlanos();
+      invalidarInicio();
+      toast.success("Plano ativado");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao ativar plano"));
+    }
+  };
+
+  // ── Lançar horas ──────────────────────────────────────────────────────────
+
+  const abrirLancamentoHoras = (pm) => {
+    setMaterialParaLancar(pm ?? null);
+    setMostrarHoras(true);
+  };
+
+  const lancarHoras = async ({ planoMateriaId, horas }) => {
+    if (!horas || horas <= 0) return toast.warn("Informe um valor válido");
+
+    try {
+      setLoading(true);
+      const comparacao = await PlanoAPI.CompararHoras();
+      const horasHoje = comparacao.horasHoje;
+      if (horasHoje + Number(horas) > LIMITE_DIARIO) {
+        toast.warn(
+          `Limite diário de ${LIMITE_DIARIO}h atingido. Você já lançou ${horasHoje}h hoje.`,
+        );
+        return;
+      }
+      await PlanoAPI.LancarHoras(planoMateriaId, Number(horas));
+      registrarEvento("horas_lancadas", { horas: Number(horas) });
+      toast.success("Horas lançadas");
+      setMostrarHoras(false);
+      queryClient.invalidateQueries({ queryKey: ["resumo"] });
+      queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"] });
+      queryClient.invalidateQueries({ queryKey: ["planoAtivo"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardDesempenho"] });
+      invalidarPlanos();
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao lançar horas"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Exclusão ──────────────────────────────────────────────────────────────
 
   const handleExcluirPlano = async () => {
     try {
       setLoading(true);
       await PlanoAPI.Excluir(planoParaExcluir.planoId);
       toast.success("Plano excluído");
+
       setMostrarExcluir(false);
+      setMostrarPlano(false);
+      // fix 1: reset por ID
+      setViewingPlanoId(null);
+
+      // fix 3: sem setQueryData otimista — evita race condition com o refetch imediato
       invalidarPlanos();
       invalidarInicio();
-    } catch {
-      toast.error("Erro ao excluir plano");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao excluir plano"));
     } finally {
       setLoading(false);
     }
   };
 
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  const planosInativos = planosList.filter((p) => !p.ativo);
+
   return (
-    <div className="page">
-      <Header
-        children={
-          <button className={style.botao} onClick={abrirCriarPlano}>
-            <FaPlus />
-          </button>
-        }
-      />
+    <div className={`page ${style.pagePlanos}`}>
+      <Header />
 
       <div className={style.fab_container}>
-        <button className={style.fab} onClick={abrirPlanoIa}>
+        <button
+          className={style.fab}
+          onClick={abrirPlanoIa}
+          title="Gerar plano com IA"
+        >
           <BsRobot className={style.icon} />
+          <span className={style.fabTexto}>Gerar com IA</span>
         </button>
       </div>
 
-      {planosList.length === 0 ? (
-        <div className={style.container}>
-          <div className={style.vazio}>
-            Nenhum plano ainda, que tal criar um? <ImHappy />
+      <div className={style.container}>
+        <header className={style.pageHead}>
+          <div className={style.pageHeadText}>
+            <span className="eyebrow">Sua jornada</span>
+            <h1 className={style.pageTitle}>Planos de estudo</h1>
+            <p className={style.pageSub}>
+              Organize suas matérias, defina metas e acompanhe seu progresso
+              rumo ao seu objetivo.
+            </p>
           </div>
-        </div>
-      ) : (
-        <>
-          {planoAtivo && (
-            <div className={style.container}>
-              <h4 className={style.atividade}>Plano Atual</h4>
-              <Plano
-                titulo={planoAtivo.titulo}
-                ativo
-                materias={planoAtivo.materias}
-                botao={
-                  <button
-                    className={style.botao_exibir}
-                    onClick={() =>
-                      handleClickPlano(planoAtivoIndex >= 0 ? planoAtivoIndex : 0)
-                    }
-                  >
-                    <FaPlay /> Visualizar Plano
-                  </button>
-                }
-              />
-            </div>
-          )}
+          <div className={style.pageHeadAcoes}>
+            <span className={style.heroIndice}>03 / Planos</span>
+            {planosList.length > 0 && (
+              <button className={style.botaoNovo} onClick={abrirCriarPlano}>
+                <FaPlus />
+                <span className={style.botaoNovoTexto}>Novo plano</span>
+              </button>
+            )}
+          </div>
+        </header>
 
-          {planosList.filter((_, idx) => idx !== planoAtivoIndex).length > 0 && (
-            <>
-              <h4 className={style.atividade}>Planos Inativos</h4>
-              <div className={style.planos_container}>
-                {planosList.map((plano, idx) =>
-                  idx === planoAtivoIndex ? null : (
-                    <Plano
-                      key={plano.planoId}
-                      titulo={plano.titulo}
-                      ativo={false}
-                      materias={plano.materias}
-                      botao={
-                        <button
-                          className={style.botao_exibir}
-                          onClick={() => handleClickPlano(idx)}
-                        >
-                          <FaPlay /> Visualizar Plano
-                        </button>
-                      }
-                    />
-                  ),
-                )}
-              </div>
-            </>
-          )}
-        </>
-      )}
+        {carregandoPlanos ? (
+          <section className={style.secao}>
+            <SkeletonCard lines={3} grande />
+          </section>
+        ) : planosList.length === 0 ? (
+          <div className={style.vazio}>
+            <div className={style.vazioIcon}>
+              <LuGraduationCap />
+            </div>
+            <h3>Nenhum plano ainda</h3>
+            <p>Comece criando seu primeiro plano de estudos.</p>
+            <button className={style.botaoCriarVazio} onClick={abrirCriarPlano}>
+              <FaPlus /> Criar plano
+            </button>
+          </div>
+        ) : (
+          <>
+            {planoAtivo && (
+              <section className={style.secao}>
+                <Plano
+                  titulo={planoAtivo.titulo}
+                  objetivo={planoAtivo.objetivo}
+                  ativo
+                  materias={planoAtivo.materias}
+                  botao={
+                    <button
+                      className={`${style.botao_exibir} ${style.botao_exibirAtivo}`}
+                      onClick={() => handleClickPlano(planoAtivo.planoId)}
+                    >
+                      <FaPlay /> Visualizar plano
+                    </button>
+                  }
+                />
+              </section>
+            )}
+
+            {planosInativos.length > 0 && (
+              <section className={style.secao}>
+                <div className={style.ledger}>
+                  <div className={style.panelHead}>
+                    <div className={style.panelTitulo}>
+                      <span className={style.panelIcone}>
+                        <LuArchive />
+                      </span>
+                      <div>
+                        <h3>Outros planos</h3>
+                        <span>Arquivados — ative quando quiser retomar</span>
+                      </div>
+                    </div>
+                    <span className={style.panelBadge}>
+                      {planosInativos.length}{" "}
+                      {planosInativos.length === 1 ? "plano" : "planos"}
+                    </span>
+                  </div>
+                  <div className={style.ledgerHead}>
+                    <span>Plano</span>
+                    <span>Matérias</span>
+                    <span>Horas</span>
+                    <span>Progresso</span>
+                    <span aria-hidden="true" />
+                  </div>
+                  {planosInativos.map((plano) => {
+                    const horasTotais = plano.materias.reduce(
+                      (acc, m) => acc + (m.horasTotais || 0),
+                      0,
+                    );
+                    const horasConcluidas = plano.materias.reduce(
+                      (acc, m) => acc + (m.horasConcluidas || 0),
+                      0,
+                    );
+                    const pct =
+                      horasTotais > 0
+                        ? Math.round((horasConcluidas / horasTotais) * 100)
+                        : 0;
+                    return (
+                      <button
+                        type="button"
+                        key={plano.planoId}
+                        className={style.ledgerRow}
+                        onClick={() => handleClickPlano(plano.planoId)}
+                      >
+                        <span className={style.ledgerTitulo}>
+                          {plano.titulo}
+                        </span>
+                        <span className={style.ledgerMeta}>
+                          {plano.materias.length}
+                        </span>
+                        <span className={style.ledgerMeta}>
+                          {horasConcluidas}/{horasTotais}h
+                        </span>
+                        <span className={style.ledgerProg}>
+                          <span className={style.ledgerTrack}>
+                            <span
+                              className={style.ledgerFill}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </span>
+                          <em>{pct}%</em>
+                        </span>
+                        <span className={style.ledgerLink}>
+                          <FaPlay /> Abrir
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+          </>
+        )}
+      </div>
 
       <ModalVisualizarPlano
         show={mostrarPlano}
         onHide={() => setMostrarPlano(false)}
-        planoVisualizado={planoVisualizado}
-        viewingIndex={viewingIndex}
-        planoAtivoIndex={planoAtivoIndex}
-        onAtivarPlano={handleAtivarPlano}
-        onExcluir={(plano) => {
-          setPlanoParaExcluir(plano);
-          setMostrarExcluir(true);
-        }}
+        plano={planoVisualizado}
+        onConfigurar={abrirConfigurar}
         onLancarHoras={abrirLancamentoHoras}
       />
 
-      <ModalCriarPlanoIA
-        show={mostrarIa}
-        onHide={() => setMostrarIa(false)}
-        titulo={titulo}
-        setTitulo={setTitulo}
-        objetivo={objetivo}
-        setObjetivo={setObjetivo}
-        horasSemana={horasSemana}
-        setHorasSemana={setHorasSemana}
-        dataInicio={dataInicio}
-        setDataInicio={setDataInicio}
-        dataFim={dataFim}
-        setDataFim={setDataFim}
-        hoje={hoje}
-        onCriar={() => criarPlano(true)}
+      <ModalConfigurarPlano
+        show={mostrarConfigurar}
+        onHide={() => setMostrarConfigurar(false)}
         loading={loading}
+        plano={planoParaConfigurar}
+        onSalvar={salvarPlano}
+        onExcluir={() => {
+          setMostrarConfigurar(false);
+          setPlanoParaExcluir(planoParaConfigurar);
+          setMostrarExcluir(true);
+        }}
+        onAtivarPlano={handleAtivarPlanoFromConfigurar}
+        isAtivo={planoParaConfigurar?.ativo ?? false}
+      />
+
+      <ModalLancarHoras
+        show={mostrarHoras}
+        onHide={() => setMostrarHoras(false)}
+        loading={loading}
+        plano={planoVisualizado}
+        onLancar={lancarHoras}
+        initialPlanoMateriaId={materialParaLancar?.planoMateriaId ?? ""}
       />
 
       <ModalCriarPlano
@@ -384,30 +536,21 @@ function Planos() {
         loading={loading}
       />
 
-      <ModalConfigurarPlano
-        show={mostrarConfigurar}
-        onHide={() => setMostrarConfigurar(false)}
-        materiasDisponiveis={materiasDisponiveis}
-        materiasDoPlano={materiasDoPlano}
-        materiaId={materiaId}
-        setMateriaId={setMateriaId}
-        horasTotais={horasTotais}
-        setHorasTotais={setHorasTotais}
-        onAdicionarMateria={adicionarMateria}
-        onConcluir={() => {
-          setMostrarConfigurar(false);
-          invalidarPlanos();
-        }}
-        loading={loading}
-      />
-
-      <ModalLancarHoras
-        show={mostrarHoras}
-        onHide={() => setMostrarHoras(false)}
-        materiaSelecionada={materiaSelecionada}
-        horasLancadas={horasLancadas}
-        setHorasLancadas={setHorasLancadas}
-        onLancar={lancarHoras}
+      <ModalCriarPlanoIA
+        show={mostrarIa}
+        onHide={() => setMostrarIa(false)}
+        titulo={titulo}
+        setTitulo={setTitulo}
+        objetivo={objetivo}
+        setObjetivo={setObjetivo}
+        horasSemana={horasSemana}
+        setHorasSemana={setHorasSemana}
+        dataInicio={dataInicio}
+        setDataInicio={setDataInicio}
+        dataFim={dataFim}
+        setDataFim={setDataFim}
+        hoje={hoje}
+        onCriar={() => criarPlano(true)}
         loading={loading}
       />
 
