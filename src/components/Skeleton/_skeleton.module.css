@@ -33,8 +33,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
-  padding: 1.4rem 1.5rem;
-  border: 1px solid var(--line);
+  padding: 1.35rem 1.5rem;
+  border: 1px solid var(--line-2);
   border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: var(--shadow-sm);

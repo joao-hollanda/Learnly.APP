@@ -9,6 +9,7 @@ function ModalResetEventos({ show, onHide, onConfirmar, loading }) {
       show={show}
       onHide={onHide}
       title="Resetar eventos"
+      kicker="Agenda"
       iconType="danger"
       icon={<MdOutlineRestartAlt />}
       footer={

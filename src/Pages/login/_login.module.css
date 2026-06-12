@@ -4,7 +4,7 @@
   min-height: 100vh;
 }
 
-/* ── Painel esquerdo (vitrine) ── */
+/* ── Painel esquerdo (vitrine cobalto) ── */
 .painelEsquerdo {
   display: flex;
   flex-direction: column;
@@ -18,19 +18,20 @@
       rgba(96, 165, 250, 0.18),
       transparent 55%
     ),
-    linear-gradient(150deg, #0f1f5c 0%, #1a3a8f 52%, #0d2d6e 100%);
+    var(--grad-navy);
   gap: 2rem;
 }
 
-/* textura sutil de grade (caderno) sobre o painel */
+/* dot-grid técnico sobre o painel */
 .painelEsquerdo::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(rgba(147, 197, 253, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(147, 197, 253, 0.06) 1px, transparent 1px);
-  background-size: 36px 36px;
+  background-image: radial-gradient(
+    rgba(147, 197, 253, 0.16) 1px,
+    transparent 1.4px
+  );
+  background-size: 24px 24px;
   pointer-events: none;
 }
 
@@ -67,16 +68,17 @@
 .etiqueta {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  gap: 0.55rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(147, 197, 253, 0.3);
   color: rgba(255, 255, 255, 0.92);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  padding: 0.4rem 0.85rem;
-  border-radius: var(--radius-pill);
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-sm);
   margin-bottom: 1.5rem;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
@@ -84,9 +86,8 @@
 
 .etiqueta::before {
   content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+  width: 7px;
+  height: 7px;
   background: #93c5fd;
   box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.25);
   flex-shrink: 0;
@@ -95,17 +96,30 @@
 .titulo {
   font-family: var(--font-display);
   font-optical-sizing: auto;
-  font-size: clamp(2.2rem, 3.2vw, 3.2rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.08;
+  font-size: clamp(2.3rem, 3.4vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.04;
   color: #fff;
   margin-bottom: 1.25rem;
 }
 
 .titulo em {
-  font-style: italic;
+  font-style: normal;
   color: #93c5fd;
+  position: relative;
+}
+
+/* sublinhado de marcador no destaque */
+.titulo em::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.08em;
+  height: 0.14em;
+  background: rgba(96, 165, 250, 0.35);
+  z-index: -1;
 }
 
 .subtitulo {
@@ -133,9 +147,9 @@
 .pontoRecurso {
   width: 22px;
   height: 22px;
-  border-radius: 7px;
+  border-radius: 6px;
   background: rgba(147, 197, 253, 0.16);
-  border: 1px solid rgba(147, 197, 253, 0.22);
+  border: 1px solid rgba(147, 197, 253, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,7 +158,9 @@
 }
 
 .rodape {
-  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
   color: rgba(255, 255, 255, 0.34);
   position: relative;
   z-index: 1;
@@ -158,6 +174,18 @@
   flex-direction: column;
   justify-content: center;
   padding: 3rem;
+  position: relative;
+}
+
+/* régua de marca no topo do painel */
+.painelDireito::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--brand);
 }
 
 .formularioCartao {
@@ -185,12 +213,12 @@
 .cabecalho h2 {
   font-family: var(--font-display);
   font-optical-sizing: auto;
-  font-size: 1.9rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 1.95rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: var(--ink-strong);
   margin-bottom: 0.4rem;
-  line-height: 1.15;
+  line-height: 1.12;
 }
 
 .cabecalho p {
@@ -202,7 +230,7 @@
   display: flex;
   background: var(--surface-2);
   border: 1px solid var(--line-2);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: 4px;
   margin-bottom: 1.75rem;
   gap: 4px;
@@ -212,7 +240,7 @@
   flex: 1;
   padding: 0.55rem;
   border: none;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-sans);
   font-size: 0.85rem;
   font-weight: 600;
@@ -226,11 +254,9 @@
 }
 
 .abaAtiva {
-  background: var(--surface);
-  color: var(--brand);
-  box-shadow:
-    0 1px 3px rgba(15, 23, 42, 0.08),
-    0 1px 2px rgba(15, 23, 42, 0.04);
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.3);
 }
 
 .trilha {
@@ -331,13 +357,14 @@
 .campoWrapper input {
   width: 100%;
   background: var(--surface);
-  border: 1.5px solid var(--line-2);
-  border-radius: 10px;
-  padding: 0.72rem 0.95rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  padding: 0.74rem 0.95rem;
   font-family: var(--font-sans);
   font-size: 0.9rem;
   color: var(--ink);
   outline: none;
+  box-sizing: border-box;
   transition:
     border-color 0.15s,
     box-shadow 0.15s,
@@ -386,8 +413,8 @@
   padding: 0.8rem;
   margin-top: 1.25rem;
   border: none;
-  border-radius: 10px;
-  background: var(--grad-brand);
+  border-radius: var(--radius-sm);
+  background: var(--brand);
   color: #fff;
   font-family: var(--font-sans);
   font-size: 0.92rem;
@@ -397,26 +424,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.28);
   transition:
-    box-shadow 0.18s,
-    transform 0.12s;
+    background 0.18s,
+    box-shadow 0.18s;
 }
 
 .botaoEnviar:hover {
-  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.4);
-  transform: translateY(-1px);
+  background: var(--brand-strong);
+  box-shadow: 0 6px 18px rgba(29, 78, 216, 0.35);
 }
 
 .botaoEnviar:active {
-  transform: translateY(0);
   box-shadow: none;
 }
 
 .botaoEnviar:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
   box-shadow: none;
 }
 
@@ -439,25 +463,169 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   margin-top: 1.75rem;
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
   color: var(--faint);
+}
+
+/* ── Hero mobile (escondido no desktop) ── */
+.heroMobile {
+  display: none;
+}
+
+.rodapeMobile {
+  display: none;
 }
 
 @media (max-width: 860px) {
   .principal {
     grid-template-columns: 1fr;
+    background-color: var(--bg);
+    background-image: radial-gradient(
+      rgba(37, 99, 235, 0.12) 1px,
+      transparent 1.4px
+    );
+    background-size: 24px 24px;
   }
 
   .painelEsquerdo {
     display: none;
   }
 
+  /* faixa cobalto com a identidade da marca */
+  .heroMobile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+    position: relative;
+    overflow: hidden;
+    padding: 1.4rem 1.5rem 3.6rem;
+    background:
+      radial-gradient(
+        480px 260px at 85% 0%,
+        rgba(96, 165, 250, 0.25),
+        transparent 60%
+      ),
+      var(--grad-navy);
+    border-bottom: 3px solid var(--brand-light);
+  }
+
+  .heroMobile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+      rgba(147, 197, 253, 0.16) 1px,
+      transparent 1.4px
+    );
+    background-size: 22px 22px;
+    pointer-events: none;
+  }
+
+  .heroMobile > * {
+    position: relative;
+  }
+
+  .heroMobileLogo {
+    height: 3.4rem;
+    width: auto;
+    margin-left: -0.7rem;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .heroMobileEtiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(147, 197, 253, 0.3);
+    color: rgba(255, 255, 255, 0.92);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .heroMobileEtiqueta::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.25);
+    flex-shrink: 0;
+  }
+
+  .heroMobileTitulo {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+    color: #fff;
+    margin: 0.2rem 0 0;
+  }
+
+  .heroMobileTitulo em {
+    font-style: normal;
+    color: #93c5fd;
+  }
+
+  /* cartão do formulário flutua sobre o hero */
   .painelDireito {
     border-left: none;
-    padding: 2.5rem 1.5rem;
+    background: transparent;
     justify-content: flex-start;
-    padding-top: 4rem;
+    padding: 0 1.25rem 2rem;
+    margin-top: -2.4rem;
+  }
+
+  .painelDireito::before {
+    display: none;
+  }
+
+  .formularioCartao {
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 44px -18px rgba(15, 31, 92, 0.38);
+    padding: 1.6rem 1.4rem 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cabecalho {
+    margin-bottom: 1.4rem;
+  }
+
+  .cabecalho h2 {
+    font-size: 1.5rem;
+  }
+
+  .seguranca {
+    margin-top: 1.4rem;
+  }
+
+  /* 16px evita o zoom automático do iOS ao focar o input */
+  .campoWrapper input {
+    font-size: 1rem;
+  }
+
+  .rodapeMobile {
+    display: block;
+    text-align: center;
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--faint);
   }
 }

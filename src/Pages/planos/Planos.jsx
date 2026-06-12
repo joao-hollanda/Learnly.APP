@@ -8,7 +8,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../services/PlanoService";
 import { getApiError } from "../../services/client";
-import { LuGraduationCap } from "react-icons/lu";
+import { registrarEvento } from "../../utils/analytics";
+import { LuGraduationCap, LuArchive } from "react-icons/lu";
 import { BsRobot } from "react-icons/bs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ModalExcluirPlano from "../../components/Modais/Planos/ModalExcluirPlano";
@@ -103,6 +104,10 @@ function Planos() {
       queryKey: ["comparacaoHoras"],
       refetchType: "active",
     });
+    queryClient.invalidateQueries({
+      queryKey: ["dashboardDesempenho"],
+      refetchType: "active",
+    });
   };
 
   // fix 2: sem fallback para planosList[0] — inativo não aparece como "Plano Atual"
@@ -183,6 +188,7 @@ function Planos() {
         setMostrarIa(false);
         invalidarPlanos();
         invalidarInicio();
+        registrarEvento("plano_criado", { viaIa: true });
         toast.success("Plano criado e ativado!");
       } catch (erro) {
         toast.error(getApiError(erro, "Erro ao criar plano com IA"));
@@ -214,6 +220,7 @@ function Planos() {
 
       invalidarPlanos();
       invalidarInicio();
+      registrarEvento("plano_criado", { viaIa: false });
       toast.success("Plano criado e ativado!");
     } catch (erro) {
       toast.error(getApiError(erro, "Erro ao criar plano"));
@@ -291,10 +298,13 @@ function Planos() {
         return;
       }
       await PlanoAPI.LancarHoras(planoMateriaId, Number(horas));
+      registrarEvento("horas_lancadas", { horas: Number(horas) });
       toast.success("Horas lançadas");
       setMostrarHoras(false);
       queryClient.invalidateQueries({ queryKey: ["resumo"] });
       queryClient.invalidateQueries({ queryKey: ["comparacaoHoras"] });
+      queryClient.invalidateQueries({ queryKey: ["planoAtivo"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardDesempenho"] });
       invalidarPlanos();
     } catch (erro) {
       toast.error(getApiError(erro, "Erro ao lançar horas"));
@@ -331,7 +341,7 @@ function Planos() {
   const planosInativos = planosList.filter((p) => !p.ativo);
 
   return (
-    <div className="page">
+    <div className={`page ${style.pagePlanos}`}>
       <Header />
 
       <div className={style.fab_container}>
@@ -355,20 +365,19 @@ function Planos() {
               rumo ao seu objetivo.
             </p>
           </div>
-          {planosList.length > 0 && (
-            <button className={style.botaoNovo} onClick={abrirCriarPlano}>
-              <FaPlus />
-              <span className={style.botaoNovoTexto}>Novo plano</span>
-            </button>
-          )}
+          <div className={style.pageHeadAcoes}>
+            <span className={style.heroIndice}>03 / Planos</span>
+            {planosList.length > 0 && (
+              <button className={style.botaoNovo} onClick={abrirCriarPlano}>
+                <FaPlus />
+                <span className={style.botaoNovoTexto}>Novo plano</span>
+              </button>
+            )}
+          </div>
         </header>
 
         {carregandoPlanos ? (
           <section className={style.secao}>
-            <div className={style.secaoHead}>
-              <span className="eyebrow">Em andamento</span>
-              <h2 className={style.secaoTitulo}>Plano atual</h2>
-            </div>
             <SkeletonCard lines={3} grande />
           </section>
         ) : planosList.length === 0 ? (
@@ -386,10 +395,6 @@ function Planos() {
           <>
             {planoAtivo && (
               <section className={style.secao}>
-                <div className={style.secaoHead}>
-                  <span className="eyebrow">Em andamento</span>
-                  <h2 className={style.secaoTitulo}>Plano atual</h2>
-                </div>
                 <Plano
                   titulo={planoAtivo.titulo}
                   objetivo={planoAtivo.objetivo}
@@ -397,7 +402,7 @@ function Planos() {
                   materias={planoAtivo.materias}
                   botao={
                     <button
-                      className={style.botao_exibir}
+                      className={`${style.botao_exibir} ${style.botao_exibirAtivo}`}
                       onClick={() => handleClickPlano(planoAtivo.planoId)}
                     >
                       <FaPlay /> Visualizar plano
@@ -409,27 +414,73 @@ function Planos() {
 
             {planosInativos.length > 0 && (
               <section className={style.secao}>
-                <div className={style.secaoHead}>
-                  <span className="eyebrow">Arquivo</span>
-                  <h2 className={style.secaoTitulo}>Outros planos</h2>
-                </div>
-                <div className={style.planos_container}>
-                  {planosInativos.map((plano) => (
-                    <Plano
-                      key={plano.planoId}
-                      titulo={plano.titulo}
-                      ativo={false}
-                      materias={plano.materias}
-                      botao={
-                        <button
-                          className={style.botao_exibir}
-                          onClick={() => handleClickPlano(plano.planoId)}
-                        >
-                          <FaPlay /> Visualizar plano
-                        </button>
-                      }
-                    />
-                  ))}
+                <div className={style.ledger}>
+                  <div className={style.panelHead}>
+                    <div className={style.panelTitulo}>
+                      <span className={style.panelIcone}>
+                        <LuArchive />
+                      </span>
+                      <div>
+                        <h3>Outros planos</h3>
+                        <span>Arquivados — ative quando quiser retomar</span>
+                      </div>
+                    </div>
+                    <span className={style.panelBadge}>
+                      {planosInativos.length}{" "}
+                      {planosInativos.length === 1 ? "plano" : "planos"}
+                    </span>
+                  </div>
+                  <div className={style.ledgerHead}>
+                    <span>Plano</span>
+                    <span>Matérias</span>
+                    <span>Horas</span>
+                    <span>Progresso</span>
+                    <span aria-hidden="true" />
+                  </div>
+                  {planosInativos.map((plano) => {
+                    const horasTotais = plano.materias.reduce(
+                      (acc, m) => acc + (m.horasTotais || 0),
+                      0,
+                    );
+                    const horasConcluidas = plano.materias.reduce(
+                      (acc, m) => acc + (m.horasConcluidas || 0),
+                      0,
+                    );
+                    const pct =
+                      horasTotais > 0
+                        ? Math.round((horasConcluidas / horasTotais) * 100)
+                        : 0;
+                    return (
+                      <button
+                        type="button"
+                        key={plano.planoId}
+                        className={style.ledgerRow}
+                        onClick={() => handleClickPlano(plano.planoId)}
+                      >
+                        <span className={style.ledgerTitulo}>
+                          {plano.titulo}
+                        </span>
+                        <span className={style.ledgerMeta}>
+                          {plano.materias.length}
+                        </span>
+                        <span className={style.ledgerMeta}>
+                          {horasConcluidas}/{horasTotais}h
+                        </span>
+                        <span className={style.ledgerProg}>
+                          <span className={style.ledgerTrack}>
+                            <span
+                              className={style.ledgerFill}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </span>
+                          <em>{pct}%</em>
+                        </span>
+                        <span className={style.ledgerLink}>
+                          <FaPlay /> Abrir
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </section>
             )}

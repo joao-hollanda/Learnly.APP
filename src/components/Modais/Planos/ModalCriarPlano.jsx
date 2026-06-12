@@ -24,6 +24,8 @@ function ModalCriarPlano({
       show={show}
       onHide={onHide}
       title="Criar plano"
+      subtitle="Defina o objetivo e o período de estudo"
+      kicker="Planos"
       iconType="success"
       icon={<BsJournalPlus />}
       footer={
@@ -37,30 +39,38 @@ function ModalCriarPlano({
         </>
       }
     >
-      <input
-        className="form-control mb-3"
-        placeholder="Título do plano"
-        value={titulo}
-        onChange={(e) => setTitulo(e.target.value)}
-      />
-      <input
-        className="form-control mb-3"
-        placeholder="Objetivo"
-        value={objetivo}
-        onChange={(e) => setObjetivo(e.target.value)}
-      />
-      <div className="row g-3">
-        <div className="col-6">
-          <label className="form-label fw-semibold" style={{ fontSize: "0.8125rem", color: "#475569" }}>
-            Data de início
-          </label>
+      <div className={style.campo}>
+        <span className={style.label}>Título</span>
+        <input
+          className="form-control"
+          placeholder="Ex: Rumo ao ENEM 2026"
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+        />
+      </div>
+
+      <div className={style.campo}>
+        <span className={style.label}>Objetivo</span>
+        <input
+          className="form-control"
+          placeholder="Ex: Medicina na UFPE"
+          value={objetivo}
+          onChange={(e) => setObjetivo(e.target.value)}
+        />
+      </div>
+
+      <div className={style.grid2}>
+        <div className={style.campo}>
+          <span className={style.label}>Data de início</span>
           <DatePicker value={dataInicio} onChange={setDataInicio} min={hoje} />
         </div>
-        <div className="col-6">
-          <label className="form-label fw-semibold" style={{ fontSize: "0.8125rem", color: "#475569" }}>
-            Data final
-          </label>
-          <DatePicker value={dataFim} onChange={setDataFim} min={dataInicio || hoje} />
+        <div className={style.campo}>
+          <span className={style.label}>Data final</span>
+          <DatePicker
+            value={dataFim}
+            onChange={setDataFim}
+            min={dataInicio || hoje}
+          />
         </div>
       </div>
     </ModalBase>

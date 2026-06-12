@@ -22,6 +22,8 @@ function ModalCriarEvento({ show, onHide, novoEvento, setNovoEvento, onConfirmar
       show={show}
       onHide={onHide}
       title="Criar evento de estudo"
+      subtitle="Eventos recorrentes até o fim do plano ativo"
+      kicker="Agenda"
       iconType="info"
       icon={<FaRegCalendarAlt />}
       size="lg"

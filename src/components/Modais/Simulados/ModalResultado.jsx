@@ -8,6 +8,7 @@ export default function ModalResultado({ resultado, onFinalizar }) {
     <ModalBase
       show={!!resultado}
       title="Resultado"
+      kicker="Simulados"
       iconType="success"
       icon={<BsTrophyFill />}
       backdrop="static"

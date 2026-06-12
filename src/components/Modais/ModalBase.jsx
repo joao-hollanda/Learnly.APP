@@ -1,11 +1,19 @@
 import { Modal } from "react-bootstrap";
 import { IoClose } from "react-icons/io5";
 
+const KICKER_PADRAO = {
+  info: "Learnly",
+  success: "Tudo certo",
+  danger: "Atenção",
+  warning: "Confirmação",
+};
+
 export default function ModalBase({
   show,
   onHide,
   title,
   subtitle,
+  kicker,
   icon,
   iconType = "info",
   children,
@@ -26,13 +34,16 @@ export default function ModalBase({
       keyboard={keyboard}
       scrollable={scrollable}
     >
-      <div className="ly-modal-header">
+      <div className={`ly-modal-header ly-modal-header-${iconType}`}>
         {icon && (
           <span className={`ly-modal-icon ly-modal-icon-${iconType}`}>
             {icon}
           </span>
         )}
         <div className="ly-modal-heading">
+          <span className="ly-modal-kicker">
+            {kicker ?? KICKER_PADRAO[iconType] ?? "Learnly"}
+          </span>
           <h2 className="ly-modal-title">{title}</h2>
           {subtitle && <p className="ly-modal-subtitle">{subtitle}</p>}
         </div>

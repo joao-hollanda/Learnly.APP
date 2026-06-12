@@ -26,49 +26,42 @@ const Plano = ({ tamanho, titulo, objetivo, botao, materias, ativo = false }) =>
   const progressoGeral =
     horasTotaisPlano > 0 ? (horasConcluidasPlano / horasTotaisPlano) * 100 : 0;
 
-  return (
-    <div
-      className={`${style.plano} ${cardSizeClass} ${ativo ? style.ativoCard : ""}`}
-    >
-      <div className={style.topo}>
-        <div className={style.tituloBloco}>
-          <h4 className={style.titulo}>{titulo}</h4>
-          {ativo && objetivo && <p className={style.objetivo}>{objetivo}</p>}
-        </div>
-        {ativo && <span className={style.badgeAtivo}>Ativo</span>}
-      </div>
+  if (ativo) {
+    return (
+      <div className={`${style.plano} ${style.ativoCard}`}>
+        <div className={style.mastTopo}>
+          <div className={style.mastInfo}>
+            <span className={style.kicker}>Plano ativo — Em andamento</span>
+            <h4 className={style.titulo}>{titulo}</h4>
+            {objetivo && <p className={style.objetivo}>{objetivo}</p>}
 
-      {ativo ? (
-        <>
-          <div className={style.stats}>
-            <div className={style.stat}>
-              <span className={style.statNum}>{progressoGeral.toFixed(0)}%</span>
-              <span className={style.statLabel}>Concluído</span>
+            <div className={style.progressoBloco}>
+              <div className={style.progressoLinha}>
+                <span className={style.materiasLabel}>Progresso geral</span>
+                <span className={style.progressoPct}>
+                  {progressoGeral.toFixed(0)}%
+                </span>
+              </div>
+              <div className={style.progress}>
+                <div
+                  className={style.progress_bar}
+                  style={{ width: `${progressoGeral}%` }}
+                />
+              </div>
             </div>
-            <div className={style.stat}>
-              <span className={style.statNum}>{horasConcluidasPlano}h</span>
-              <span className={style.statLabel}>Estudadas</span>
-            </div>
-            <div className={style.stat}>
-              <span className={style.statNum}>{horasTotaisPlano}h</span>
-              <span className={style.statLabel}>Total</span>
-            </div>
-            <div className={style.stat}>
-              <span className={style.statNum}>{materiasPlano.length}</span>
-              <span className={style.statLabel}>Matérias</span>
-            </div>
+
+            <div className={style.ctaLinha}>{botao}</div>
           </div>
 
-          <div className={style.progress}>
-            <div
-              className={style.progress_bar}
-              style={{ width: `${progressoGeral}%` }}
-            />
-          </div>
-
-          <div className={style.materias_container}>
+          <div className={style.mastMaterias}>
             <p className={style.materiasLabel}>Matérias do plano</p>
             <div className={style.materiasGrid}>
+              {materiasPlano.length === 0 && (
+                <p className={style.materiasVazio}>
+                  Nenhuma matéria ainda — adicione pelo botão de configurar o
+                  plano.
+                </p>
+              )}
               {materiasPlano.map((materia, index) => {
                 const pct =
                   materia.horasTotais > 0
@@ -95,29 +88,61 @@ const Plano = ({ tamanho, titulo, objetivo, botao, materias, ativo = false }) =>
               })}
             </div>
           </div>
-        </>
-      ) : (
-        <>
-          <div className={style.progressoTopo}>
-            <span className={style.progressoLabel}>Progresso</span>
-            <span className={style.percentual}>
-              {progressoGeral.toFixed(0)}%
+        </div>
+
+        <div className={style.mastStats}>
+          <div className={style.statCell}>
+            <span className={style.statLabel}>Concluído</span>
+            <span className={style.statNum}>
+              {progressoGeral.toFixed(0)}
+              <em>%</em>
             </span>
           </div>
-          <div className={style.progress}>
-            <div
-              className={style.progress_bar}
-              style={{ width: `${progressoGeral}%` }}
-            />
+          <div className={style.statCell}>
+            <span className={style.statLabel}>Estudadas</span>
+            <span className={style.statNum}>
+              {horasConcluidasPlano}
+              <em>h</em>
+            </span>
           </div>
-          <p className={style.metaInativo}>
-            {horasConcluidasPlano}h de {horasTotaisPlano}h •{" "}
-            {materiasPlano.length}{" "}
-            {materiasPlano.length === 1 ? "matéria" : "matérias"}
-          </p>
-        </>
-      )}
+          <div className={style.statCell}>
+            <span className={style.statLabel}>Total</span>
+            <span className={style.statNum}>
+              {horasTotaisPlano}
+              <em>h</em>
+            </span>
+          </div>
+          <div className={style.statCell}>
+            <span className={style.statLabel}>Matérias</span>
+            <span className={style.statNum}>{materiasPlano.length}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
+  return (
+    <div className={`${style.plano} ${cardSizeClass}`}>
+      <div className={style.topo}>
+        <div className={style.tituloBloco}>
+          <h4 className={style.titulo}>{titulo}</h4>
+        </div>
+      </div>
+
+      <div className={style.progressoTopo}>
+        <span className={style.progressoLabel}>Progresso</span>
+        <span className={style.percentual}>{progressoGeral.toFixed(0)}%</span>
+      </div>
+      <div className={style.progress}>
+        <div
+          className={style.progress_bar}
+          style={{ width: `${progressoGeral}%` }}
+        />
+      </div>
+      <p className={style.metaInativo}>
+        {horasConcluidasPlano}h de {horasTotaisPlano}h • {materiasPlano.length}{" "}
+        {materiasPlano.length === 1 ? "matéria" : "matérias"}
+      </p>
       {botao}
     </div>
   );

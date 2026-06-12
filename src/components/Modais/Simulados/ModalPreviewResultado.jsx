@@ -22,6 +22,7 @@ export default function ModalPreviewSimulado({
             })}`
           : ""
       }
+      kicker="Simulados · Correção"
       iconType="info"
       icon={<BsClipboardCheck />}
       size="lg"

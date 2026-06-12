@@ -22,6 +22,493 @@
   display: inline-block;
 }
 
+/* ══════════════════════════════════════════
+   SISTEMA DE FORMULÁRIO DOS MODAIS
+   ══════════════════════════════════════════ */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1.05rem;
+  text-align: left;
+}
+
+.campo:last-child {
+  margin-bottom: 0.25rem;
+}
+
+/* rótulo técnico (mono + uppercase) */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hint {
+  font-size: 0.76rem;
+  color: var(--faint);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* ── Chips de preset (valores rápidos) ── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.32rem 0.8rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.chipAtivo,
+.chipAtivo:hover {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+
+/* ── Abas segmentadas ── */
+.abas {
+  display: flex;
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  padding: 4px;
+  gap: 4px;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.aba {
+  flex: 1;
+  padding: 0.5rem 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.abaAtiva,
+.abaAtiva:hover {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.3);
+}
+
+/* ══════════════════════════════════════════
+   SELETOR DE MATÉRIAS — tiles com ícone
+   ══════════════════════════════════════════ */
+.selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.selTile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-sans);
+  overflow: hidden;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.12s ease;
+}
+
+.selTile:hover {
+  border-color: var(--brand-light);
+  background: var(--brand-50);
+}
+
+.selTile:active {
+  transform: scale(0.98);
+}
+
+.selIcone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: var(--radius-sm);
+  font-size: 1.05rem;
+  color: var(--brand);
+  background: var(--brand-100);
+  box-shadow: inset 0 0 0 1px var(--brand-200);
+  flex-shrink: 0;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.selTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.selNome {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+  transition: color 0.18s ease;
+}
+
+.selArea {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  transition: color 0.18s ease;
+}
+
+/* marca de seleção no canto */
+.selCheck {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--brand);
+  font-size: 0.6rem;
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* ── Tile selecionado: bloco cobalto ── */
+.selTileAtivo,
+.selTileAtivo:hover {
+  border-color: var(--brand-strong);
+  background: var(--grad-brand);
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.32);
+}
+
+.selTileAtivo .selIcone {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
+.selTileAtivo .selNome {
+  color: #fff;
+}
+
+.selTileAtivo .selArea {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.selTileAtivo .selCheck {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ══════════════════════════════════════════
+   PICKER DE MATÉRIAS DO PLANO — busca + grid
+   ══════════════════════════════════════════ */
+.labelLinha {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.contador {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.buscaWrap {
+  position: relative;
+}
+
+.buscaIcone {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--faint);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.buscaInput {
+  padding-left: 2.2rem !important;
+}
+
+.pickerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  max-height: 226px;
+  overflow-y: auto;
+  padding: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+
+.pickerTile {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+  font-family: var(--font-sans);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+.pickerTile:hover {
+  border-color: var(--brand-light);
+  background: var(--brand-50);
+}
+
+.pickerTile:active {
+  transform: scale(0.98);
+}
+
+.pickerDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.pickerNome {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s ease;
+}
+
+.pickerCheck {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--brand);
+  font-size: 0.55rem;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.15s ease,
+    transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.pickerTileAtivo,
+.pickerTileAtivo:hover {
+  border-color: var(--brand-strong);
+  background: var(--grad-brand);
+  box-shadow: 0 3px 10px rgba(29, 78, 216, 0.28);
+}
+
+.pickerTileAtivo .pickerNome {
+  color: #fff;
+}
+
+.pickerTileAtivo .pickerDot {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
+
+.pickerTileAtivo .pickerCheck {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pickerVazio {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 1.2rem 0;
+  color: var(--faint);
+  font-size: 0.82rem;
+}
+
+/* faixa de resumo da seleção atual */
+.resumoSelecao {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px dashed var(--brand-200);
+  border-radius: var(--radius-sm);
+  background: var(--brand-50);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 1.05rem;
+}
+
+.resumoHoras {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--brand);
+  white-space: nowrap;
+}
+
+.resumoPendente {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════
+   LISTA DE MATÉRIAS DO PLANO (configurar)
+   ══════════════════════════════════════════ */
+.listaMaterias {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.35rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.materiaLinha {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.materiaLinha:nth-child(even) {
+  background: var(--surface-2);
+}
+
+.materiaLinha:last-child {
+  border-bottom: none;
+}
+
+.materiaDotLinha {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px var(--brand-100);
+}
+
+.materiaNomeLinha {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.materiaHorasLinha {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.materiaBarra {
+  display: block;
+  width: 56px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.materiaBarraFill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.listaVazia {
+  color: var(--faint);
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+/* ── Retrocompatibilidade (chips antigos de matéria) ── */
 .materias {
   display: flex;
   flex-wrap: wrap;
@@ -32,7 +519,7 @@
 .materia {
   flex: 1 1 calc(50% - 0.5rem);
   padding: 0.625rem 0.875rem;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-2);
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--ink-strong);
@@ -44,12 +531,14 @@
 }
 
 .materia:hover {
-  border-color: var(--brand-200);
+  border-color: var(--brand);
+  color: var(--brand);
 }
 
-.materiaSelecionada {
+.materiaSelecionada,
+.materiaSelecionada:hover {
   border-color: var(--brand);
-  background: var(--brand-100);
-  color: var(--brand);
+  background: var(--brand);
+  color: #fff;
   font-weight: 600;
 }

@@ -1,4 +1,4 @@
-import logo from "../../img/LearnlyLogo.svg";
+import logoBranca from "../../img/LearnlyLogoBranca.svg";
 import style from "./_header.module.css";
 import { NavLink } from "react-router-dom";
 import { MdMenu, MdClose } from "react-icons/md";
@@ -39,7 +39,7 @@ const Header = () => {
           <MdMenu size={24} />
         </button>
         <NavLink to="/home" className={style.topbarLogo}>
-          <img src={logo} alt="Learnly" />
+          <img src={logoBranca} alt="Learnly" />
         </NavLink>
         <span className={style.topbarSpacer} />
       </header>
@@ -49,7 +49,7 @@ const Header = () => {
       <aside className={`${style.sidebar} ${aberto ? style.sidebarAberta : ""}`}>
         <div className={style.brand}>
           <NavLink to="/home" onClick={fechar} className={style.brandLink}>
-            <img src={logo} alt="Learnly" className={style.brandLogo} />
+            <img src={logoBranca} alt="Learnly" className={style.brandLogo} />
           </NavLink>
           <button
             className={style.fechar}
@@ -60,14 +60,19 @@ const Header = () => {
           </button>
         </div>
 
+        <span className={style.navLabel}>Menu</span>
+
         <nav className={style.nav}>
-          {NAV.map((item) => (
+          {NAV.map((item, i) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={linkClass}
               onClick={fechar}
             >
+              <span className={style.linkIndex}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <span className={style.linkIcon}>{item.icon}</span>
               <span className={style.linkLabel}>{item.label}</span>
             </NavLink>

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { LuClock3 } from "react-icons/lu";
-import Card from "../../components/Card/Card";
 import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 import Header from "../../components/Header/Header";
 import style from "./_inicio.module.css";
@@ -9,7 +8,6 @@ import { RiFilePaper2Fill } from "react-icons/ri";
 import { FaBrain } from "react-icons/fa6";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
-import Bolinha from "../../components/Bolinha/Bolinha";
 import CalendarView from "../../components/Calendario/Calendario";
 import { IoSchool } from "react-icons/io5";
 import PlanoAPI from "../../services/PlanoService";
@@ -19,9 +17,16 @@ import SimuladoAPI from "../../services/SimuladoService";
 import EventoEstudoAPI from "../../services/EventoService";
 import { MdOutlineRestartAlt } from "react-icons/md";
 import { getUserData } from "../../utils/cookieHelper";
+import { identificarUsuario } from "../../utils/analytics";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ModalCriarEvento from "../../components/Modais/Inicio/ModalCriarEvento";
 import ModalResetEventos from "../../components/Modais/Inicio/ModalResetEventos";
+
+const STATUS_EVENTO = {
+  concluido: "Concluído",
+  atual: "Agora",
+  proximo: "Próximo",
+};
 
 function Inicio() {
   const [loading, setLoading] = useState(false);
@@ -43,6 +48,14 @@ function Inicio() {
     staleTime: Infinity,
     gcTime: Infinity,
   });
+
+  useEffect(() => {
+    if (userData?.id)
+      identificarUsuario(userData.id, {
+        nome: userData.nome,
+        email: userData.email,
+      });
+  }, [userData]);
 
   const { data: planoAtivo, isPending: loadPlano } = useQuery({
     queryKey: ["planoAtivo"],
@@ -107,19 +120,6 @@ function Inicio() {
       (evento) => evento.start.toDateString() === horaAtual.toDateString(),
     )
     .sort((a, b) => a.start.getTime() - b.start.getTime());
-
-  const getColor = (status) => {
-    switch (status) {
-      case "concluido":
-        return "#16a34a";
-      case "atual":
-        return "#2563eb";
-      case "proximo":
-        return "#dc2626";
-      default:
-        return "#94a3b8";
-    }
-  };
 
   const percentualGeral =
     resumo && resumo.horasTotais > 0
@@ -247,25 +247,17 @@ function Inicio() {
     month: "long",
   });
 
+  const fmtHora = (d) =>
+    d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
   const carregandoStats = loadPlano || loadTotal || loadResumo || loadHoras;
   const carregandoConteudo = loadEventos;
 
   return (
     //#region JSX
-    <div className="page">
+    <div className={`page ${style.pageInicio}`}>
       <Header />
       <div className={style.container}>
-        <header className={style.hero}>
-          <span className="eyebrow">{dataFormatada}</span>
-          <h2 className={style.saudacao}>
-            Olá, {userData?.nome || "Estudante"}
-          </h2>
-          <p className={style.sub}>
-            Aqui está o resumo do seu progresso. Vamos continuar de onde você
-            parou.
-          </p>
-        </header>
-
         {carregandoStats ? (
           <section className={style.statsGrid}>
             {Array.from({ length: 4 }).map((_, i) => (
@@ -273,46 +265,81 @@ function Inicio() {
             ))}
           </section>
         ) : (
-        <section className={style.statsGrid}>
-              <Card
-                titulo={"Horas de estudo hoje"}
-                children={<span>{comparacaoHoras.horasHoje}h</span>}
-                adicional={
-                  comparacaoHoras.diferenca === 0
+          <section className={style.masthead}>
+            <div className={style.mastTopo}>
+              <div className={style.mastTexto}>
+                <span className={style.mastKicker}>{dataFormatada}</span>
+                <h2 className={style.saudacao}>
+                  Olá, {userData?.nome || "Estudante"}
+                </h2>
+                <p className={style.sub}>
+                  Aqui está o resumo do seu progresso. Vamos continuar de onde
+                  você parou.
+                </p>
+              </div>
+              <span className={style.mastIndice}>01 / Início</span>
+            </div>
+
+            <div className={style.mastStats}>
+              <div className={style.mastCell}>
+                <span className={style.mastLabel}>
+                  <LuClock3 /> Horas hoje
+                </span>
+                <span className={style.mastValor}>
+                  {comparacaoHoras.horasHoje}
+                  <em>h</em>
+                </span>
+                <span className={style.mastExtra}>
+                  {comparacaoHoras.diferenca === 0
                     ? "Mesmo que ontem"
                     : comparacaoHoras.diferenca > 0
                       ? `+${comparacaoHoras.diferenca}h desde ontem`
-                      : `${comparacaoHoras.diferenca}h desde ontem`
-                }
-                icon={<LuClock3 />}
-              />
+                      : `${comparacaoHoras.diferenca}h desde ontem`}
+                </span>
+              </div>
 
-              <Card
-                titulo={"Plano Atual"}
-                children={<span>{planoAtivo ? planoAtivo.titulo : "-"}</span>}
-                tamanho="medio"
-                icon={<RiFilePaper2Fill />}
-              />
+              <div className={style.mastCell}>
+                <span className={style.mastLabel}>
+                  <RiFilePaper2Fill /> Plano atual
+                </span>
+                <span className={`${style.mastValor} ${style.mastTexto2}`}>
+                  {planoAtivo ? planoAtivo.titulo : "—"}
+                </span>
+                <span className={style.mastExtra}>
+                  {planoAtivo ? "Em andamento" : "Nenhum plano ativo"}
+                </span>
+              </div>
 
-              <Card
-                titulo={"Progresso geral"}
-                children={<span>{percentualGeral}%</span>}
-                tamanho="medio"
-                adicional={
-                  resumo
+              <div className={style.mastCell}>
+                <span className={style.mastLabel}>
+                  <GiProgression /> Progresso geral
+                </span>
+                <span className={style.mastValor}>
+                  {percentualGeral}
+                  <em>%</em>
+                </span>
+                <span className={style.mastBarra}>
+                  <span
+                    className={style.mastBarraFill}
+                    style={{ width: `${percentualGeral}%` }}
+                  />
+                </span>
+                <span className={style.mastExtra}>
+                  {resumo
                     ? `${resumo.horasConcluidas}/${resumo.horasTotais} horas concluídas`
-                    : "Carregando..."
-                }
-                icon={<GiProgression />}
-              />
+                    : "Carregando..."}
+                </span>
+              </div>
 
-              <Card
-                titulo={"Simulados concluidos"}
-                children={<span>{totalSimulados}</span>}
-                tamanho="medio"
-                icon={<FaBrain />}
-              />
-        </section>
+              <div className={style.mastCell}>
+                <span className={style.mastLabel}>
+                  <FaBrain /> Simulados
+                </span>
+                <span className={style.mastValor}>{totalSimulados}</span>
+                <span className={style.mastExtra}>Concluídos até hoje</span>
+              </div>
+            </div>
+          </section>
         )}
 
         {carregandoConteudo ? (
@@ -321,51 +348,69 @@ function Inicio() {
             <SkeletonCard chart={260} grande />
           </section>
         ) : (
-        <section className={style.contentGrid}>
-            <Card
-              titulo={"Cronograma de hoje"}
-              tamanho="grande"
-              icon={<IoSchool />}
-              subtitulo="Suas sessões de estudo para hoje"
-              children={
-                <div className={style.cronograma}>
-                  {eventosHoje.length === 0 ? (
-                    <div className={style.cronogramaVazio}>
-                      <FaRegCalendarAlt />
-                      <p>Nenhuma sessão de estudo programada para hoje.</p>
+          <section className={style.contentGrid}>
+            <div className={style.panel}>
+              <div className={style.panelHead}>
+                <div className={style.panelTitulo}>
+                  <span className={style.panelIcone}>
+                    <IoSchool />
+                  </span>
+                  <div>
+                    <h3>Cronograma de hoje</h3>
+                    <span>Suas sessões de estudo</span>
+                  </div>
+                </div>
+                <span className={style.panelBadge}>
+                  {eventosHoje.length}{" "}
+                  {eventosHoje.length === 1 ? "sessão" : "sessões"}
+                </span>
+              </div>
+
+              {eventosHoje.length === 0 ? (
+                <div className={style.cronogramaVazio}>
+                  <FaRegCalendarAlt />
+                  <p>Nenhuma sessão de estudo programada para hoje.</p>
+                </div>
+              ) : (
+                <div className={style.timeline}>
+                  {eventosHoje.map((e, i) => (
+                    <div
+                      key={i}
+                      className={`${style.tlItem} ${style[`tl_${e.status}`]}`}
+                    >
+                      <span className={style.tlHora}>{fmtHora(e.start)}</span>
+                      <span className={style.tlRail}>
+                        <span className={style.tlDot} />
+                      </span>
+                      <div className={style.tlBody}>
+                        <div className={style.tlLinha1}>
+                          <strong className={style.tlTitulo}>{e.title}</strong>
+                          <span className={style.tlStatus}>
+                            {STATUS_EVENTO[e.status]}
+                          </span>
+                        </div>
+                        <span className={style.tlIntervalo}>
+                          {fmtHora(e.start)} — {fmtHora(e.end)}
+                        </span>
+                      </div>
                     </div>
-                  ) : (
-                    eventosHoje.map((e, i) => {
-                      const inicio = e.start.getHours();
-                      const fim = e.end.getHours();
-
-                      return (
-                        <Card
-                          key={i}
-                          tamanho="pequeno"
-                          titulo={e.title}
-                          subtitulo={`${inicio}h - ${fim}h`}
-                          detalhe={<Bolinha cor={getColor(e.status)} />}
-                        />
-                      );
-                    })
-                  )}
+                  ))}
                 </div>
-              }
-            />
+              )}
+            </div>
 
-            <Card
-              titulo={"Calendário"}
-              children={
-                <div className={style.calendario_container}>
-                  <CalendarView eventos={eventosComStatus} />
+            <div className={style.panel}>
+              <div className={style.panelHead}>
+                <div className={style.panelTitulo}>
+                  <span className={style.panelIcone}>
+                    <FaRegCalendarAlt />
+                  </span>
+                  <div>
+                    <h3>Calendário</h3>
+                    <span>Visão geral do mês</span>
+                  </div>
                 </div>
-              }
-              tamanho="grande"
-              icon={<FaRegCalendarAlt />}
-              className={style.calendario_card}
-              detalhe={
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className={style.panelAcoes}>
                   <button
                     className={style.botao_criar}
                     onClick={() => setMostrarModalEvento(true)}
@@ -373,7 +418,6 @@ function Inicio() {
                   >
                     <FaPlus />
                   </button>
-
                   <button
                     className={style.botao_reset}
                     onClick={() => setMostrarModalReset(true)}
@@ -382,9 +426,13 @@ function Inicio() {
                     <MdOutlineRestartAlt />
                   </button>
                 </div>
-              }
-            />
-        </section>
+              </div>
+
+              <div className={style.calendario_container}>
+                <CalendarView eventos={eventosComStatus} />
+              </div>
+            </div>
+          </section>
         )}
       </div>
 

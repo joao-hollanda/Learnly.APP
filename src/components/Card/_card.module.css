@@ -1,8 +1,8 @@
 .card_example {
   position: relative;
   margin: 0;
-  padding: 1.4rem 1.5rem;
-  border: 1px solid var(--line);
+  padding: 1.35rem 1.5rem;
+  border: 1px solid var(--line-2);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
@@ -12,31 +12,31 @@
   background: var(--surface);
   box-shadow: var(--shadow-sm);
   transition:
-    box-shadow 0.25s ease,
-    transform 0.25s ease,
-    border-color 0.25s ease;
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
   overflow: hidden;
 }
 
-/* faixa de acento que aparece no hover */
+/* régua de acento no topo, revelada no hover */
 .card_example::before {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--grad-brand);
-  opacity: 0;
-  transition: opacity 0.25s ease;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 3px;
+  background: var(--brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .card_example:hover {
+  border-color: var(--brand-200);
   box-shadow: var(--shadow);
-  border-color: var(--line-2);
-  transform: translateY(-3px);
 }
 
 .card_example:hover::before {
-  opacity: 1;
+  transform: scaleX(1);
 }
 
 .header {
@@ -65,15 +65,15 @@
 
 .icon {
   color: var(--brand);
-  font-size: 1.05rem;
+  font-size: 1rem;
   flex-shrink: 0;
   margin-left: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 12px;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: var(--radius-sm);
   background: var(--brand-100);
   box-shadow: inset 0 0 0 1px var(--brand-200);
 }
@@ -93,25 +93,25 @@
 }
 
 .card_example h4 {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
   color: var(--muted);
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
+  letter-spacing: 0.14em;
+  line-height: 1.3;
 }
 
 .card_example > span {
   font-family: var(--font-display);
   font-optical-sizing: auto;
-  font-size: 2.1rem;
-  font-weight: 600;
+  font-size: 2.15rem;
+  font-weight: 700;
   color: var(--ink-strong);
   margin-top: 0.15rem;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
 }
 
 .card_example p {
@@ -127,7 +127,7 @@
   font-size: 0.8rem;
   color: var(--faint);
   font-weight: 500;
-  margin-top: 0.1rem;
+  margin-top: 0.15rem;
   text-transform: none;
   letter-spacing: 0;
 }
@@ -139,7 +139,7 @@
 
 /* ── Cards aninhados (linhas de evento no cronograma) ── */
 .pequeno {
-  padding: 0.85rem 1rem;
+  padding: 0.8rem 1rem;
   gap: 0.15rem;
   background: var(--surface-2);
   border-color: var(--line);
@@ -147,13 +147,12 @@
 }
 
 .pequeno:hover {
-  transform: none;
   box-shadow: none;
   border-color: var(--brand-200);
 }
 
 .pequeno:hover::before {
-  opacity: 0;
+  transform: scaleX(0);
 }
 
 .pequeno h4 {
@@ -166,6 +165,8 @@
 }
 
 .pequeno .subtitulo span {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
   color: var(--muted);
   font-weight: 600;
 }

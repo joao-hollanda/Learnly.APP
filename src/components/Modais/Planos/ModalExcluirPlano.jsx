@@ -9,6 +9,7 @@ function ModalExcluirPlano({ show, onHide, planoParaExcluir, onExcluir, loading 
       show={show}
       onHide={onHide}
       title="Excluir plano"
+      kicker="Planos"
       iconType="danger"
       icon={<BsExclamationTriangle />}
       footer={

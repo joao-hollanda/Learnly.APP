@@ -1,85 +1,560 @@
 .container {
-  padding: 0 1.5rem;
+  padding: 0 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* ── Hero de saudação ── */
-.hero {
-  margin-bottom: 1.75rem;
+/* ══════════════════════════════════════════
+   AJUSTE DE VIEWPORT — Início sem overflow
+   (desktop: tudo cabe na tela; painéis com
+   scroll interno quando necessário)
+   ══════════════════════════════════════════ */
+@media (min-width: 1025px) {
+  .pageInicio {
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .pageInicio .container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .pageInicio .masthead {
+    flex-shrink: 0;
+    margin-bottom: 1.25rem;
+  }
+
+  /* masthead um pouco mais compacto para caber na viewport */
+  .pageInicio .mastTopo {
+    padding: 1.55rem 2rem 1.3rem;
+  }
+
+  .pageInicio .mastCell {
+    padding: 1rem 1.5rem 0.9rem;
+  }
+
+  .pageInicio .mastValor {
+    font-size: 1.9rem;
+  }
+
+  .pageInicio .saudacao {
+    font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  }
+
+  .pageInicio .contentGrid {
+    flex: 1;
+    min-height: 380px;
+  }
+
+  .pageInicio .panel {
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* timeline rola por dentro, sem estourar o painel */
+  .pageInicio .timeline {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .pageInicio .cronogramaVazio {
+    flex: 1;
+  }
+
+  /* calendário acompanha a altura do painel */
+  .pageInicio .calendario_container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pageInicio .calendario_container > div {
+    height: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+/* ══════════════════════════════════════════
+   MASTHEAD — capa cobalto com métricas embutidas
+   ══════════════════════════════════════════ */
+.masthead {
+  position: relative;
+  background:
+    radial-gradient(
+      820px 380px at 100% 0%,
+      rgba(96, 165, 250, 0.22),
+      transparent 60%
+    ),
+    var(--grad-navy);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--navy-800);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
   animation: lyRevealUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* dot-grid técnico */
+.masthead::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(147, 197, 253, 0.16) 1px,
+    transparent 1.4px
+  );
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+
+.mastTopo {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.9rem 2rem 1.6rem;
+}
+
+.mastTexto {
+  min-width: 0;
+}
+
+.mastKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: capitalize;
+  color: #93c5fd;
+}
+
+.mastKicker::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  background: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.22);
+}
+
+.mastIndice {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(147, 197, 253, 0.6);
 }
 
 .saudacao {
   font-family: var(--font-display);
   font-optical-sizing: auto;
-  font-size: clamp(1.9rem, 3.5vw, 2.9rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-  color: var(--ink-strong);
-  margin: 0.6rem 0 0;
-}
-
-.hero .eyebrow {
-  text-transform: capitalize;
+  font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  color: #fff;
+  margin: 0.7rem 0 0;
 }
 
 .sub {
-  font-size: 1.02rem;
-  color: var(--muted);
+  font-size: 0.98rem;
+  color: rgba(255, 255, 255, 0.66);
   margin: 0.55rem 0 0;
-  max-width: 46ch;
+  max-width: 48ch;
   line-height: 1.55;
 }
 
-/* ── Grids ── */
+/* ── Faixa de métricas embutida ── */
+.mastStats {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(7, 16, 56, 0.25);
+}
+
+.mastCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.2rem 1.5rem 1.1rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 0;
+}
+
+.mastCell:last-child {
+  border-right: none;
+}
+
+.mastLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(147, 197, 253, 0.85);
+}
+
+.mastLabel svg {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.mastValor {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-size: 2.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #fff;
+}
+
+.mastValor em {
+  font-style: normal;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #93c5fd;
+  margin-left: 0.1rem;
+}
+
+.mastTexto2 {
+  font-size: 1.25rem;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.mastExtra {
+  margin-top: auto;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.mastBarra {
+  display: block;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+.mastBarraFill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #60a5fa, #93c5fd);
+  transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Skeleton (carregamento) ── */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
+/* ══════════════════════════════════════════
+   PAINÉIS DE CONTEÚDO
+   ══════════════════════════════════════════ */
 .contentGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 5fr 7fr;
   gap: 1.25rem;
+  align-items: stretch;
 }
 
-/* revelações escalonadas */
-.statsGrid > *,
 .contentGrid > * {
   animation: lyRevealUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.statsGrid > *:nth-child(1) {
-  animation-delay: 0.05s;
-}
-.statsGrid > *:nth-child(2) {
-  animation-delay: 0.12s;
-}
-.statsGrid > *:nth-child(3) {
-  animation-delay: 0.19s;
-}
-.statsGrid > *:nth-child(4) {
-  animation-delay: 0.26s;
-}
 .contentGrid > *:nth-child(1) {
-  animation-delay: 0.32s;
+  animation-delay: 0.14s;
 }
 .contentGrid > *:nth-child(2) {
-  animation-delay: 0.4s;
+  animation-delay: 0.22s;
 }
 
-/* ── Cronograma do dia ── */
-.cronograma {
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  margin-top: 0.25rem;
+  min-height: 0;
 }
 
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+  flex-shrink: 0;
+}
+
+.panelTitulo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.panelIcone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 1.05rem;
+  color: var(--brand);
+  background: var(--brand-100);
+  box-shadow: inset 0 0 0 1px var(--brand-200);
+  flex-shrink: 0;
+}
+
+.panelTitulo h3 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink-strong);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.panelTitulo > div > span {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--faint);
+  margin-top: 0.1rem;
+}
+
+.panelBadge {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand);
+  background: var(--brand-100);
+  border: 1px solid var(--brand-200);
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-sm);
+}
+
+.panelAcoes {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   TIMELINE DO DIA
+   ══════════════════════════════════════════ */
+/* a timeline rola por dentro e não dita a altura do painel —
+   o painel do cronograma acompanha a altura do calendário */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  padding: 1.1rem 1.4rem 1.2rem;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.tlItem {
+  display: grid;
+  grid-template-columns: 3.2rem 1.1rem 1fr;
+  gap: 0 0.85rem;
+  align-items: stretch;
+}
+
+.tlHora {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: right;
+  padding-top: 0.95rem;
+  white-space: nowrap;
+}
+
+/* trilho vertical contínuo */
+.tlRail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.tlRail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--line-2);
+}
+
+.tlItem:first-child .tlRail::before {
+  top: 1.1rem;
+}
+
+.tlItem:last-child .tlRail::before {
+  bottom: calc(100% - 1.4rem);
+}
+
+.tlDot {
+  position: relative;
+  z-index: 1;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--faint);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 2px var(--line-2);
+  margin-top: 1.05rem;
+  flex-shrink: 0;
+}
+
+.tlBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 0.9rem;
+  margin: 0.35rem 0;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  min-width: 0;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.tlLinha1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.tlTitulo {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tlIntervalo {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--faint);
+}
+
+.tlStatus {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* ── Estado: concluído ── */
+.tl_concluido .tlDot {
+  background: var(--success);
+  box-shadow: 0 0 0 2px var(--success-line);
+}
+
+.tl_concluido .tlTitulo {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--line-2);
+}
+
+.tl_concluido .tlStatus {
+  color: var(--success);
+  background: var(--success-bg);
+  border: 1px solid var(--success-line);
+}
+
+/* ── Estado: agora ── */
+.tl_atual .tlBody {
+  background: var(--brand-50);
+  border-color: var(--brand-200);
+}
+
+.tl_atual .tlDot {
+  background: var(--brand);
+  box-shadow: 0 0 0 2px var(--brand-200);
+  animation: tlPulse 2s ease-in-out infinite;
+}
+
+.tl_atual .tlTitulo {
+  color: var(--ink-strong);
+}
+
+.tl_atual .tlStatus {
+  color: #fff;
+  background: var(--brand);
+}
+
+@keyframes tlPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--brand-200);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18);
+  }
+}
+
+/* ── Estado: próximo ── */
+.tl_proximo .tlDot {
+  background: var(--surface);
+  box-shadow: 0 0 0 2px var(--brand-light);
+}
+
+.tl_proximo .tlStatus {
+  color: var(--brand);
+  background: var(--brand-100);
+  border: 1px solid var(--brand-200);
+}
+
+/* ── Vazio ── */
 .cronogramaVazio {
   display: flex;
   flex-direction: column;
@@ -87,16 +562,18 @@
   justify-content: center;
   text-align: center;
   gap: 0.65rem;
-  padding: 2.25rem 1rem;
+  padding: 2.5rem 1rem;
   color: var(--faint);
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .cronogramaVazio svg {
-  font-size: 1.6rem;
-  color: var(--brand-light);
+  font-size: 1.5rem;
+  color: var(--brand);
   background: var(--brand-100);
   padding: 0.7rem;
-  border-radius: 14px;
+  border-radius: var(--radius);
   box-shadow: inset 0 0 0 1px var(--brand-200);
 }
 
@@ -106,18 +583,18 @@
 }
 
 .calendario_container {
-  margin-top: 0.25rem;
+  padding: 1.1rem 1.4rem 1.3rem;
 }
 
-/* ── Botões do card de calendário ── */
+/* ── Botões do painel de calendário ── */
 .botao_criar,
 .botao_reset {
-  background: none;
+  background: var(--surface);
   color: var(--brand);
   border: 1px solid var(--line-2);
-  border-radius: 12px;
-  width: 2.25rem;
-  height: 2.25rem;
+  border-radius: var(--radius-sm);
+  width: 2.15rem;
+  height: 2.15rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -130,7 +607,6 @@
   background-color: var(--brand);
   border-color: var(--brand);
   color: #fff;
-  transform: translateY(-1px);
 }
 
 .botao_reset {
@@ -141,7 +617,6 @@
   background-color: var(--danger);
   border-color: var(--danger);
   color: #fff;
-  transform: translateY(-1px);
 }
 
 /* ── Formulário (usado por ModalCriarEvento) ── */
@@ -157,7 +632,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 700;
   box-sizing: border-box;
   min-width: 100px;
   min-height: 38px;
@@ -165,27 +640,27 @@
 }
 
 .botao_modal {
-  background: var(--grad-brand);
+  background: var(--brand);
   color: #fff;
   padding: 0.5rem 1.2rem;
   font-size: 0.875rem;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
 }
 
 .botao_modal:hover {
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.38);
-  transform: translateY(-1px);
+  background: var(--brand-strong);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35);
 }
 
 .botao_cancelar {
-  background: var(--surface-2);
+  background: var(--surface);
   color: var(--text);
   border: 1px solid var(--line-2);
   padding: 0.5rem 1.2rem;
 }
 
 .botao_cancelar:hover {
-  background: var(--line);
+  border-color: var(--faint);
+  color: var(--ink);
 }
 
 .form_group {
@@ -202,7 +677,7 @@
 }
 
 .input {
-  border: 1.5px solid var(--line-2);
+  border: 1px solid var(--line-2);
   border-radius: var(--radius-sm);
   padding: 0.6rem 0.8rem;
   font-size: 0.9rem;
@@ -237,10 +712,13 @@
 
 .dia,
 .dia_ativo {
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   padding: 0.4rem 0.85rem;
-  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -260,7 +738,6 @@
   background: var(--brand);
   border: 1px solid var(--brand);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
 }
 
 @keyframes spin {
@@ -283,12 +760,31 @@
   visibility: hidden;
 }
 
+/* ── Responsivo ── */
+@media (max-width: 1024px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 900px) {
   .statsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .contentGrid {
-    grid-template-columns: 1fr;
+  .mastStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .mastCell {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .mastCell:nth-child(2n) {
+    border-right: none;
+  }
+  .mastCell:nth-child(n + 3) {
+    border-bottom: none;
+  }
+  .mastIndice {
+    display: none;
   }
 }
 
@@ -306,5 +802,34 @@
   .statsGrid {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+  .mastTopo {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+  .mastStats {
+    grid-template-columns: 1fr;
+  }
+  .mastCell {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 1rem 1.25rem;
+  }
+  .mastCell:nth-child(n + 3) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .mastCell:last-child {
+    border-bottom: none;
+  }
+  .timeline {
+    padding: 1rem;
+  }
+  .tlHora {
+    display: none;
+  }
+  .tlItem {
+    grid-template-columns: 1.1rem 1fr;
+  }
+  .calendario_container {
+    padding: 1rem;
   }
 }

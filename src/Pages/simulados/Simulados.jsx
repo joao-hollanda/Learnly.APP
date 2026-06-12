@@ -4,9 +4,10 @@ import { FaPlus, FaCheck } from "react-icons/fa6";
 import { useState } from "react";
 import SimuladoAPI from "../../services/SimuladoService";
 import { getApiError } from "../../services/client";
+import { registrarEvento } from "../../utils/analytics";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
-import { LuClipboardList } from "react-icons/lu";
+import { LuClipboardList, LuHistory } from "react-icons/lu";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 import ModalCriarSimulado from "../../components/Modais/Simulados/ModalCriarSimulado";
@@ -77,6 +78,10 @@ export default function Simulados() {
       salvarSimulado(data);
       salvarRespostas({});
       setMostrarCriar(false);
+      registrarEvento("simulado_criado", {
+        questoes: Number(quantidade),
+        materias: materiasSelecionadas,
+      });
       toast.success("Simulado gerado com sucesso");
     } catch (erro) {
       toast.error(getApiError(erro, "Erro ao gerar simulado"));
@@ -98,6 +103,7 @@ export default function Simulados() {
         alternativaId: a,
       }));
       const r = await SimuladoAPI.Responder(simulado.simuladoId, payload);
+      registrarEvento("simulado_finalizado", { nota: r?.notaFinal });
       setResultado(r);
     } catch (erro) {
       toast.error(getApiError(erro, "Erro ao enviar respostas"));
@@ -112,6 +118,7 @@ export default function Simulados() {
     salvarRespostas({});
     queryClient.invalidateQueries({ queryKey: ["simulados"] });
     queryClient.invalidateQueries({ queryKey: ["totalSimulados"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboardDesempenho"] });
   };
 
   const totalQuestoes = simulado?.questoes?.length ?? 0;
@@ -119,6 +126,36 @@ export default function Simulados() {
     ? simulado.questoes.filter((q) => respostas[q.questaoId] !== undefined)
         .length
     : 0;
+
+  const abrirSimulado = async (s) => {
+    try {
+      setAbrindoId(s.simuladoId);
+      const completo = await SimuladoAPI.Obter(s.simuladoId);
+      const respostasMap = {};
+      (completo.respostas || []).forEach((r) => {
+        respostasMap[r.questaoId] = r.alternativaId;
+      });
+      setPreviewRespostas(respostasMap);
+      setSimuladoPreview(completo);
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao carregar o simulado."));
+    } finally {
+      setAbrindoId(null);
+    }
+  };
+
+  const fmtData = (d) =>
+    new Date(d).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+  const ordenados = [...simulados].sort(
+    (a, b) => new Date(b.data) - new Date(a.data),
+  );
+  const [destaque, ...anteriores] = ordenados;
+  const historico = anteriores.slice(0, 4);
 
   return (
     <div className="page">
@@ -135,15 +172,18 @@ export default function Simulados() {
                 acompanhe sua evolução.
               </p>
             </div>
-            {simulados.length > 0 && (
-              <button
-                className={style.botaoNovo}
-                onClick={() => setMostrarCriar(true)}
-              >
-                <FaPlus />
-                <span className={style.botaoNovoTexto}>Novo simulado</span>
-              </button>
-            )}
+            <div className={style.pageHeadAcoes}>
+              <span className={style.heroIndice}>04 / Simulados</span>
+              {simulados.length > 0 && (
+                <button
+                  className={style.botaoNovo}
+                  onClick={() => setMostrarCriar(true)}
+                >
+                  <FaPlus />
+                  <span className={style.botaoNovoTexto}>Novo simulado</span>
+                </button>
+              )}
+            </div>
           </header>
 
           {carregandoLista ? (
@@ -167,68 +207,99 @@ export default function Simulados() {
               </button>
             </div>
           ) : (
-            <div className={style.listaGrid}>
-              {simulados.map((s) => {
-                const aprovado = s.notaFinal >= 6;
-                return (
-                  <button
-                    type="button"
-                    key={s.simuladoId}
-                    className={style.cardSimulado}
-                    disabled={abrindoId === s.simuladoId}
-                    onClick={async () => {
-                      try {
-                        setAbrindoId(s.simuladoId);
-                        const completo = await SimuladoAPI.Obter(s.simuladoId);
-                        const respostasMap = {};
-                        (completo.respostas || []).forEach((r) => {
-                          respostasMap[r.questaoId] = r.alternativaId;
-                        });
-                        setPreviewRespostas(respostasMap);
-                        setSimuladoPreview(completo);
-                      } catch (erro) {
-                        toast.error(
-                          getApiError(erro, "Erro ao carregar o simulado."),
-                        );
-                      } finally {
-                        setAbrindoId(null);
-                      }
-                    }}
+            <>
+              <button
+                type="button"
+                className={style.destaque}
+                disabled={abrindoId === destaque.simuladoId}
+                onClick={() => abrirSimulado(destaque)}
+              >
+                <div className={style.destaqueInfo}>
+                  <span className={style.destaqueKicker}>
+                    Mais recente — {fmtData(destaque.data)}
+                  </span>
+                  <span
+                    className={`${style.cardStatus} ${destaque.notaFinal >= 6 ? style.aprovadoDark : style.revisarDark}`}
                   >
-                    <div className={style.cardTopo}>
-                      <span className={style.cardData}>
-                        {new Date(s.data).toLocaleDateString("pt-BR", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
+                    {destaque.notaFinal >= 6 ? "Aprovado" : "Revisar"}
+                  </span>
+                  <p className={style.destaqueMeta}>
+                    {destaque.quantidadeQuestoes} questões respondidas
+                  </p>
+                  <span className={style.destaqueLink}>
+                    {abrindoId === destaque.simuladoId
+                      ? "Carregando..."
+                      : "Ver correção →"}
+                  </span>
+                </div>
+                <div className={style.destaqueNota}>
+                  <span className={style.destaqueNotaNum}>
+                    {destaque.notaFinal.toFixed(1)}
+                  </span>
+                  <span className={style.destaqueNotaMax}>/ 10</span>
+                </div>
+              </button>
+
+              {historico.length > 0 && (
+                <div className={style.ledger}>
+                  <div className={style.panelHead}>
+                    <div className={style.panelTitulo}>
+                      <span className={style.panelIcone}>
+                        <LuHistory />
                       </span>
-                      <span
-                        className={`${style.cardStatus} ${aprovado ? style.aprovado : style.revisar}`}
+                      <div>
+                        <h3>Histórico</h3>
+                        <span>Seus simulados mais recentes</span>
+                      </div>
+                    </div>
+                    <span className={style.panelBadge}>
+                      {historico.length}{" "}
+                      {historico.length === 1 ? "simulado" : "simulados"}
+                    </span>
+                  </div>
+                  <div className={style.ledgerHead}>
+                    <span>Data</span>
+                    <span>Questões</span>
+                    <span>Status</span>
+                    <span>Nota</span>
+                    <span aria-hidden="true" />
+                  </div>
+                  {historico.map((s) => {
+                    const aprovado = s.notaFinal >= 6;
+                    return (
+                      <button
+                        type="button"
+                        key={s.simuladoId}
+                        className={style.ledgerRow}
+                        disabled={abrindoId === s.simuladoId}
+                        onClick={() => abrirSimulado(s)}
                       >
-                        {aprovado ? "Aprovado" : "Revisar"}
-                      </span>
-                    </div>
-                    <div className={style.cardNotaBloco}>
-                      <span className={style.cardNota}>
-                        {s.notaFinal.toFixed(1)}
-                      </span>
-                      <span className={style.cardNotaMax}>/ 10</span>
-                    </div>
-                    <div className={style.cardRodape}>
-                      <span className={style.cardMeta}>
-                        {s.quantidadeQuestoes} questões
-                      </span>
-                      <span className={style.cardLink}>
-                        {abrindoId === s.simuladoId
-                          ? "Carregando..."
-                          : "Ver correção →"}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                        <span className={style.ledgerData}>
+                          {fmtData(s.data)}
+                        </span>
+                        <span className={style.ledgerMeta}>
+                          {s.quantidadeQuestoes}
+                        </span>
+                        <span
+                          className={`${style.cardStatus} ${aprovado ? style.aprovado : style.revisar}`}
+                        >
+                          {aprovado ? "Aprovado" : "Revisar"}
+                        </span>
+                        <span className={style.ledgerNota}>
+                          {s.notaFinal.toFixed(1)}
+                          <em>/10</em>
+                        </span>
+                        <span className={style.ledgerLink}>
+                          {abrindoId === s.simuladoId
+                            ? "Carregando..."
+                            : "Ver correção →"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
@@ -241,7 +312,16 @@ export default function Simulados() {
               <h1 className={style.quizTitle}>Simulado</h1>
             </div>
             <div className={style.quizContador}>
-              <strong>{respondidas}</strong> / {totalQuestoes} respondidas
+              <span className={style.quizContadorTexto}>
+                <strong>{respondidas}</strong> / {totalQuestoes} respondidas
+              </span>
+              <span className={style.quizContadorBarra}>
+                <span
+                  style={{
+                    width: `${totalQuestoes > 0 ? (respondidas / totalQuestoes) * 100 : 0}%`,
+                  }}
+                />
+              </span>
             </div>
           </header>
 

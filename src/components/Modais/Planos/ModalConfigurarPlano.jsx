@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
-import { BsGear, BsCheckLg, BsPlus, BsTrash } from "react-icons/bs";
+import { BsGear, BsCheckLg, BsPlus, BsTrash, BsSearch } from "react-icons/bs";
+import { FaCheck } from "react-icons/fa6";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../../services/PlanoService";
@@ -8,33 +9,7 @@ import ModalBase from "../ModalBase";
 import DatePicker from "../../DatePicker/DatePicker";
 import style from "../_modal.module.css";
 
-const labelStyle = {
-  fontSize: "0.8125rem",
-  fontWeight: 600,
-  color: "#475569",
-  marginBottom: 4,
-  display: "block",
-};
-
-const tabBase = {
-  flex: 1,
-  padding: "7px 0",
-  borderRadius: 6,
-  border: "none",
-  background: "none",
-  fontSize: "0.8125rem",
-  fontWeight: 600,
-  color: "#94a3b8",
-  cursor: "pointer",
-  transition: "all 0.15s",
-};
-
-const tabAtivo = {
-  ...tabBase,
-  background: "#fff",
-  color: "#1e293b",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-};
+const PRESETS_HORAS = [10, 20, 40, 60, 80, 100];
 
 function ModalConfigurarPlano({
   show,
@@ -56,6 +31,7 @@ function ModalConfigurarPlano({
 
   const [materiaId, setMateriaId] = useState("");
   const [horasTotais, setHorasTotais] = useState("");
+  const [busca, setBusca] = useState("");
   const [loadingMateria, setLoadingMateria] = useState(false);
 
   const { data: materiasDisponiveis = [] } = useQuery({
@@ -73,6 +49,7 @@ function ModalConfigurarPlano({
       setHorasPorSemana(String(plano.horasPorSemana ?? ""));
       setMateriaId("");
       setHorasTotais("");
+      setBusca("");
       setAba("editar");
     }
   }, [show]);
@@ -84,11 +61,14 @@ function ModalConfigurarPlano({
   );
   const todasAdicionadas = materiasDisponiveis.length > 0 && matOptions.length === 0;
 
+  const normalizar = (s) =>
+    s.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+  const matFiltradas = matOptions.filter((m) =>
+    normalizar(m.nome).includes(normalizar(busca))
+  );
+  const materiaSel = matOptions.find((m) => m.materiaId === materiaId);
+
   const handleAdicionarMateria = async () => {
-    if (!materiaId || !horasTotais) {
-      toast.warn("Selecione a matéria e as horas");
-      return;
-    }
     try {
       setLoadingMateria(true);
       await PlanoAPI.AdicionarMateria(plano.planoId, {
@@ -96,6 +76,9 @@ function ModalConfigurarPlano({
         horasTotais: Number(horasTotais),
       });
       queryClient.invalidateQueries({ queryKey: ["planos"] });
+      queryClient.invalidateQueries({ queryKey: ["planoAtivo"] });
+      queryClient.invalidateQueries({ queryKey: ["resumo"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardDesempenho"] });
       setMateriaId("");
       setHorasTotais("");
       toast.success("Matéria adicionada!");
@@ -111,6 +94,8 @@ function ModalConfigurarPlano({
       show={show}
       onHide={onHide}
       title="Configurar plano"
+      subtitle={plano?.titulo}
+      kicker="Planos"
       iconType="info"
       icon={<BsGear />}
       footer={
@@ -141,12 +126,12 @@ function ModalConfigurarPlano({
           </>
         ) : (
           <Button
-            variant="secondary"
+            variant="primary"
             onClick={handleAdicionarMateria}
-            disabled={loadingMateria}
+            disabled={loadingMateria || !materiaId || !horasTotais}
           >
             {loadingMateria ? (
-              <span className={style.spinner_dark} />
+              <span className={style.spinner} />
             ) : (
               <><BsPlus /> Adicionar</>
             )}
@@ -154,29 +139,27 @@ function ModalConfigurarPlano({
         )
       }
     >
-      {/* Abas */}
-      <div
-        style={{
-          display: "flex",
-          backgroundColor: "#f1f5f9",
-          borderRadius: 8,
-          padding: 3,
-          width: "100%",
-          marginBottom: 12,
-        }}
-      >
-        <button style={aba === "editar" ? tabAtivo : tabBase} onClick={() => setAba("editar")}>
+      <div className={style.abas}>
+        <button
+          type="button"
+          className={`${style.aba} ${aba === "editar" ? style.abaAtiva : ""}`}
+          onClick={() => setAba("editar")}
+        >
           Editar
         </button>
-        <button style={aba === "materias" ? tabAtivo : tabBase} onClick={() => setAba("materias")}>
+        <button
+          type="button"
+          className={`${style.aba} ${aba === "materias" ? style.abaAtiva : ""}`}
+          onClick={() => setAba("materias")}
+        >
           Matérias
         </button>
       </div>
 
       {aba === "editar" ? (
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10, textAlign: "left" }}>
-          <div>
-            <label style={labelStyle}>Título</label>
+        <>
+          <div className={style.campo}>
+            <span className={style.label}>Título</span>
             <input
               className="form-control"
               value={titulo}
@@ -184,8 +167,8 @@ function ModalConfigurarPlano({
               placeholder="Título do plano"
             />
           </div>
-          <div>
-            <label style={labelStyle}>Objetivo</label>
+          <div className={style.campo}>
+            <span className={style.label}>Objetivo</span>
             <textarea
               className="form-control"
               rows={3}
@@ -194,41 +177,83 @@ function ModalConfigurarPlano({
               placeholder="Objetivo"
             />
           </div>
-          <div>
-            <label style={labelStyle}>Data final</label>
+          <div className={style.campo}>
+            <span className={style.label}>Data final</span>
             <DatePicker value={dataFim} onChange={setDataFim} />
           </div>
-        </div>
+        </>
       ) : (
-        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10, textAlign: "left" }}>
+        <>
           {todasAdicionadas ? (
-            <p style={{ color: "#94a3b8", fontSize: "0.875rem", textAlign: "center" }}>
+            <p className={style.listaVazia}>
               Todas as matérias já foram adicionadas.
             </p>
           ) : (
             <>
-              <div>
-                <label style={labelStyle}>Matéria</label>
-                <select
-                  className="form-select"
-                  value={materiaId}
-                  onChange={(e) => setMateriaId(e.target.value)}
-                >
-                  <option value="">Selecione a matéria</option>
-                  {matOptions.map((m) => (
-                    <option key={m.materiaId} value={m.materiaId}>
-                      {m.nome}
-                    </option>
-                  ))}
-                </select>
+              <div className={style.campo}>
+                <div className={style.labelLinha}>
+                  <span className={style.label}>Matéria</span>
+                  <span className={style.contador}>
+                    {matFiltradas.length} disponíve{matFiltradas.length === 1 ? "l" : "is"}
+                  </span>
+                </div>
+                <div className={style.buscaWrap}>
+                  <BsSearch className={style.buscaIcone} />
+                  <input
+                    className={`form-control ${style.buscaInput}`}
+                    placeholder="Buscar matéria..."
+                    value={busca}
+                    onChange={(e) => setBusca(e.target.value)}
+                  />
+                </div>
+                <div className={style.pickerGrid}>
+                  {matFiltradas.length === 0 ? (
+                    <p className={style.pickerVazio}>
+                      Nenhuma matéria encontrada para "{busca}".
+                    </p>
+                  ) : (
+                    matFiltradas.map((m) => {
+                      const ativa = m.materiaId === materiaId;
+                      return (
+                        <button
+                          key={m.materiaId}
+                          type="button"
+                          className={`${style.pickerTile} ${ativa ? style.pickerTileAtivo : ""}`}
+                          onClick={() => setMateriaId(ativa ? "" : m.materiaId)}
+                        >
+                          <span
+                            className={style.pickerDot}
+                            style={{ backgroundColor: m.cor || "var(--brand)" }}
+                          />
+                          <span className={style.pickerNome}>{m.nome}</span>
+                          <span className={style.pickerCheck}>
+                            <FaCheck />
+                          </span>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
               </div>
-              <div>
-                <label style={labelStyle}>Horas totais</label>
+              <div className={style.campo}>
+                <span className={style.label}>Horas totais</span>
+                <div className={style.chips}>
+                  {PRESETS_HORAS.map((h) => (
+                    <button
+                      key={h}
+                      type="button"
+                      className={`${style.chip} ${horasTotais === h ? style.chipAtivo : ""}`}
+                      onClick={() => setHorasTotais(h)}
+                    >
+                      {h}h
+                    </button>
+                  ))}
+                </div>
                 <input
                   type="number"
                   className="form-control"
                   value={horasTotais}
-                  placeholder="5 – 200h"
+                  placeholder="Ou digite um valor (5 – 200h)"
                   min={5}
                   max={200}
                   onChange={(e) => {
@@ -239,78 +264,54 @@ function ModalConfigurarPlano({
                     setHorasTotais(num);
                   }}
                 />
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                  {[10, 20, 40, 60, 80, 100].map((h) => (
-                    <button
-                      key={h}
-                      style={{
-                        padding: "4px 12px",
-                        borderRadius: 6,
-                        border: "1px solid",
-                        borderColor: horasTotais === h ? "#2563eb" : "#e2e8f0",
-                        background: horasTotais === h ? "#2563eb" : "#fff",
-                        color: horasTotais === h ? "#fff" : "#475569",
-                        fontSize: "0.75rem",
-                        fontWeight: 500,
-                        cursor: "pointer",
-                      }}
-                      onClick={() => setHorasTotais(h)}
-                    >
-                      {h}h
-                    </button>
-                  ))}
-                </div>
               </div>
+
+              {materiaSel && (
+                <div className={style.resumoSelecao}>
+                  <span
+                    className={style.pickerDot}
+                    style={{ backgroundColor: materiaSel.cor || "var(--brand)" }}
+                  />
+                  {materiaSel.nome}
+                  {horasTotais ? (
+                    <span className={style.resumoHoras}>{horasTotais}h totais</span>
+                  ) : (
+                    <span className={style.resumoPendente}>defina as horas</span>
+                  )}
+                </div>
+              )}
             </>
           )}
 
           {materias.length > 0 && (
-            <div style={{ marginTop: 8 }}>
-              <span
-                style={{
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  color: "#94a3b8",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                  display: "block",
-                  marginBottom: 8,
-                }}
-              >
-                Matérias do plano
-              </span>
-              {materias.map((m) => (
-                <div
-                  key={m.planoMateriaId}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    paddingBottom: 8,
-                    borderBottom: "1px solid #f1f5f9",
-                    marginBottom: 4,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      backgroundColor: m.cor || "#2563eb",
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span style={{ flex: 1, fontSize: "0.875rem", color: "#1e293b", fontWeight: 500 }}>
-                    {m.nome}
-                  </span>
-                  <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
-                    {m.horasConcluidas}h / {m.horasTotais}h
-                  </span>
-                </div>
-              ))}
+            <div className={style.campo}>
+              <span className={style.label}>Matérias do plano</span>
+              <div className={style.listaMaterias}>
+                {materias.map((m) => (
+                  <div key={m.planoMateriaId} className={style.materiaLinha}>
+                    <span
+                      className={style.materiaDotLinha}
+                      style={{ backgroundColor: m.cor || "var(--brand)" }}
+                    />
+                    <span className={style.materiaNomeLinha}>{m.nome}</span>
+                    <span className={style.materiaBarra}>
+                      <span
+                        className={style.materiaBarraFill}
+                        style={{
+                          width: `${Math.min(100, (m.horasConcluidas / m.horasTotais) * 100 || 0)}%`,
+                          backgroundColor: m.cor || "var(--brand)",
+                        }}
+                      />
+                    </span>
+                    <span className={style.materiaHorasLinha}>
+                      {m.horasConcluidas}h / {m.horasTotais}h
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-        </div>
+        </>
       )}
     </ModalBase>
   );

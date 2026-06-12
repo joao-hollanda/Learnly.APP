@@ -32,7 +32,7 @@
   border: 1px solid var(--line-2);
   background: var(--surface);
   color: var(--muted);
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   cursor: pointer;
   transition:
@@ -65,8 +65,11 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
@@ -87,7 +90,7 @@
 .calendarEvent {
   color: #fff;
   font-size: 0.64rem;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 2px 6px;
   overflow: hidden;
   white-space: nowrap;
@@ -227,18 +230,19 @@
 }
 
 :global(.rbc-month-view) {
-  border: 1px solid var(--line) !important;
-  border-radius: 14px;
+  border: 1px solid var(--line-2) !important;
+  border-radius: var(--radius);
   overflow: hidden;
   background: var(--surface);
 }
 
 :global(.rbc-header) {
-  font-size: 0.66rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
   color: var(--faint);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   border-bottom: 1px solid var(--line) !important;
   padding: 0.55rem 0 !important;
   background: var(--surface-2) !important;

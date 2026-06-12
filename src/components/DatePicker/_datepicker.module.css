@@ -11,8 +11,8 @@
   gap: 0.5rem;
   padding: 0.6rem 0.8rem;
   background: var(--surface);
-  border: 1.5px solid var(--line-2);
-  border-radius: 11px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
   font-family: var(--font-sans);
   font-size: 0.9rem;
   cursor: pointer;
@@ -48,8 +48,8 @@
   position: fixed;
   z-index: 2000;
   background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 0.85rem;
   animation: dpReveal 0.14s ease both;

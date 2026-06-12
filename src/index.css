@@ -1,22 +1,28 @@
-@import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 
 :root {
-  /* ── Tipografia (display geométrica/tech + sans humanista) ── */
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-  --font-display: "Sora", "Plus Jakarta Sans", system-ui, sans-serif;
+  /* ── Tipografia (display editorial + sans humanista + mono técnico) ── */
+  --font-sans: "Figtree", system-ui, -apple-system, sans-serif;
+  --font-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
   /* aliases retrocompatíveis */
   --font-primary: var(--font-sans);
   --font-secondary: var(--font-display);
 
-  /* ── Marca (mesmos azuis de sempre, agora tokenizados) ── */
+  /* ── Marca (mesmos azuis de sempre) ── */
   --brand: #2563eb;
   --brand-strong: #1d4ed8;
   --brand-light: #60a5fa;
   --brand-50: #f5f9ff;
   --brand-100: #eff6ff;
   --brand-200: #bfdbfe;
-  --grad-brand: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+  --grad-brand: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+
+  /* ── Cobalto profundo (mesmos navies do painel de login) ── */
+  --navy-900: #0f1f5c;
+  --navy-700: #1a3a8f;
+  --navy-800: #0d2d6e;
+  --grad-navy: linear-gradient(165deg, #0f1f5c 0%, #1a3a8f 58%, #0d2d6e 100%);
 
   /* ── Tinta e texto ── */
   --ink-strong: #0f172a;
@@ -44,18 +50,17 @@
   --accent-ia: #6c5ce7;
   --accent-ia-2: #8e7dff;
 
-  /* ── Forma ── */
-  --radius-sm: 10px;
-  --radius: 14px;
-  --radius-lg: 18px;
+  /* ── Forma (mais precisa, menos bolha) ── */
+  --radius-sm: 8px;
+  --radius: 10px;
+  --radius-lg: 14px;
   --radius-pill: 999px;
 
-  /* ── Profundidade ── */
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 16px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 4px 10px rgba(15, 23, 42, 0.06),
-    0 18px 40px rgba(15, 23, 42, 0.1);
-  --ring-brand: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  /* ── Profundidade (tinta curta, sem névoa) ── */
+  --shadow-sm: 0 1px 2px rgba(15, 31, 92, 0.05);
+  --shadow: 0 2px 6px rgba(15, 31, 92, 0.06), 0 10px 24px -12px rgba(15, 31, 92, 0.14);
+  --shadow-lg: 0 6px 16px -4px rgba(15, 31, 92, 0.1), 0 24px 48px -16px rgba(15, 31, 92, 0.2);
+  --ring-brand: 0 0 0 3px rgba(37, 99, 235, 0.14);
 
   /* ── Shell ── */
   --sidebar-w: 256px;
@@ -87,33 +92,25 @@ h6 {
 }
 
 ::selection {
-  background: var(--brand-200);
-  color: var(--ink-strong);
+  background: var(--brand);
+  color: #fff;
 }
 
-/* ── Plano de fundo educacional: papel quadriculado + brilho de marca ── */
+/* ── Plano de fundo: branco com dot-grid azul (caderno técnico) ── */
 .page {
-  padding-top: 24px;
-  padding-bottom: 24px;
+  padding-top: 28px;
+  padding-bottom: 28px;
   padding-left: var(--sidebar-w);
   background-color: var(--bg);
   background-image:
-    linear-gradient(rgba(37, 99, 235, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 99, 235, 0.045) 1px, transparent 1px),
+    radial-gradient(rgba(37, 99, 235, 0.12) 1px, transparent 1.4px),
     radial-gradient(
-      1100px 520px at 100% -8%,
-      rgba(37, 99, 235, 0.07),
-      transparent 62%
-    ),
-    radial-gradient(
-      900px 480px at -10% 110%,
-      rgba(96, 165, 250, 0.06),
+      1000px 480px at 100% -10%,
+      rgba(37, 99, 235, 0.05),
       transparent 60%
     );
   background-size:
-    32px 32px,
-    32px 32px,
-    100% 100%,
+    24px 24px,
     100% 100%;
   background-attachment: fixed;
   min-height: 100vh;
@@ -163,25 +160,26 @@ h6 {
   }
 }
 
-/* ── Rótulo editorial (eyebrow) ── */
+/* ── Kicker técnico (eyebrow): mono + quadrado de marca ── */
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  font-family: var(--font-sans);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--brand);
 }
 
 .eyebrow::before {
   content: "";
-  width: 1.35rem;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--grad-brand);
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  background: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-100);
 }
 
 /* ── Revelações escalonadas no carregamento ── */
@@ -214,22 +212,22 @@ h6 {
 }
 
 /* ══════════════════════════════════════════
-   MODAIS — sistema novo
+   MODAIS — flat editorial
    ══════════════════════════════════════════ */
 .modal-backdrop {
   background-color: transparent !important;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
 }
 
 .modal-backdrop.show {
-  background-color: rgba(15, 23, 42, 0.5) !important;
+  background-color: rgba(15, 31, 92, 0.45) !important;
 }
 
 .modal.fade .modal-dialog {
-  transform: translateY(14px) scale(0.985);
+  transform: translateY(12px) scale(0.99);
   transition:
-    transform 0.3s cubic-bezier(0.34, 1.3, 0.64, 1),
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.2s ease;
 }
 
@@ -239,52 +237,84 @@ h6 {
 
 .modal-content {
   border: none !important;
-  border-radius: 22px !important;
+  border-radius: var(--radius-lg) !important;
   overflow: hidden;
   background: var(--surface);
-  box-shadow:
-    0 0 0 1px rgba(15, 23, 42, 0.05),
-    0 24px 64px rgba(15, 23, 42, 0.24) !important;
+  box-shadow: var(--shadow-lg) !important;
 }
 
-/* ── Cabeçalho ── */
+/* ── Cabeçalho: banda cobalto (padrão do site) ── */
 .ly-modal-header {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  padding: 1.4rem 1.5rem 1.1rem;
+  padding: 1.3rem 1.5rem;
+  background:
+    radial-gradient(
+      520px 240px at 100% 0%,
+      rgba(96, 165, 250, 0.22),
+      transparent 60%
+    ),
+    var(--grad-navy);
+  border-bottom: 3px solid var(--brand-light);
+}
+
+/* dot-grid técnico sobre a banda */
+.ly-modal-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(147, 197, 253, 0.16) 1px,
+    transparent 1.4px
+  );
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+.ly-modal-header > * {
+  position: relative;
+}
+
+/* cor da régua inferior por tipo */
+.ly-modal-header-info {
+  border-bottom-color: var(--brand-light);
+}
+.ly-modal-header-success {
+  border-bottom-color: #4ade80;
+}
+.ly-modal-header-danger {
+  border-bottom-color: var(--danger);
+}
+.ly-modal-header-warning {
+  border-bottom-color: var(--warning);
 }
 
 .ly-modal-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 14px;
-  font-size: 1.3rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 1.2rem;
   flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
 }
 
 .ly-modal-icon-info {
-  background: var(--brand-100);
-  color: var(--brand);
-  box-shadow: inset 0 0 0 1px var(--brand-200);
+  color: #93c5fd;
 }
 .ly-modal-icon-success {
-  background: var(--success-bg);
-  color: var(--success);
-  box-shadow: inset 0 0 0 1px var(--success-line);
+  color: #86efac;
 }
 .ly-modal-icon-danger {
-  background: var(--danger-bg);
-  color: var(--danger);
-  box-shadow: inset 0 0 0 1px var(--danger-line);
+  color: #fca5a5;
 }
 .ly-modal-icon-warning {
-  background: #fffbeb;
-  color: var(--warning);
-  box-shadow: inset 0 0 0 1px #fde68a;
+  color: #fcd34d;
 }
 
 .ly-modal-heading {
@@ -292,30 +322,45 @@ h6 {
   min-width: 0;
 }
 
+.ly-modal-kicker {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(147, 197, 253, 0.8);
+  margin-bottom: 0.25rem;
+}
+
 .ly-modal-title {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--ink-strong);
+  letter-spacing: -0.02em;
+  color: #fff;
   margin: 0;
   line-height: 1.2;
 }
 
 .ly-modal-subtitle {
-  font-size: 0.85rem;
-  color: var(--muted);
+  font-size: 0.84rem;
+  color: rgba(255, 255, 255, 0.65);
   margin: 0.2rem 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.ly-modal-close {
+.ly-modal-close,
+.ly-modal-headbtn {
   flex-shrink: 0;
   width: 2.1rem;
   height: 2.1rem;
-  border: none;
-  background: var(--surface-2);
-  color: var(--muted);
-  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -324,18 +369,31 @@ h6 {
   transition:
     background 0.15s ease,
     color 0.15s ease,
+    border-color 0.15s ease,
     transform 0.25s ease;
 }
 
 .ly-modal-close:hover {
-  background: var(--line);
-  color: var(--ink);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
   transform: rotate(90deg);
+}
+
+.ly-modal-headbtn {
+  font-size: 1.05rem;
+}
+
+.ly-modal-headbtn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  transform: rotate(45deg);
 }
 
 /* ── Corpo ── */
 .modal-body {
-  padding: 0.25rem 1.5rem 0.75rem !important;
+  padding: 1.35rem 1.5rem 1rem !important;
   font-size: 0.92rem;
   line-height: 1.65;
   color: var(--text);
@@ -356,20 +414,20 @@ h6 {
 
 /* ── Rodapé ── */
 .modal-footer {
-  padding: 1.1rem 1.5rem 1.4rem !important;
+  padding: 1rem 1.5rem 1.25rem !important;
   border-top: 1px solid var(--line) !important;
-  background: var(--surface);
-  justify-content: center !important;
+  background: var(--surface-2);
+  justify-content: flex-end !important;
   gap: 0.6rem;
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .modal-footer .btn {
   font-family: var(--font-sans);
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 0.6rem 1.2rem;
-  border-radius: 11px;
+  border-radius: var(--radius-sm);
   border: none;
   display: inline-flex;
   align-items: center;
@@ -393,44 +451,44 @@ h6 {
 }
 
 .modal-footer .btn-secondary {
-  background: var(--surface-2) !important;
+  background: var(--surface) !important;
   color: var(--text) !important;
   border: 1px solid var(--line-2) !important;
   box-shadow: none !important;
 }
 
 .modal-footer .btn-secondary:hover {
-  background: var(--line) !important;
+  border-color: var(--faint) !important;
+  color: var(--ink) !important;
 }
 
 .modal-footer .btn-primary {
-  background: var(--grad-brand) !important;
+  background: var(--brand) !important;
   color: #fff !important;
-  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3) !important;
+  box-shadow: none !important;
 }
 
 .modal-footer .btn-primary:hover {
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.42) !important;
-  transform: translateY(-1px);
+  background: var(--brand-strong) !important;
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35) !important;
 }
 
 .modal-footer .btn-danger {
   background: var(--danger) !important;
   color: #fff !important;
-  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3) !important;
+  box-shadow: none !important;
 }
 
 .modal-footer .btn-danger:hover {
   background: var(--danger-strong) !important;
-  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.42) !important;
-  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35) !important;
 }
 
 /* ── Campos de formulário dentro dos modais ── */
 .modal-content .form-control,
 .modal-content .form-select {
-  border: 1.5px solid var(--line-2);
-  border-radius: 11px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
   padding: 0.6rem 0.8rem;
   font-size: 0.9rem;
   color: var(--ink);
@@ -461,8 +519,8 @@ h6 {
   align-items: center;
   gap: 0.6rem;
   padding: 0.6rem 0.85rem !important;
-  border: 1.5px solid var(--line-2);
-  border-radius: 11px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
   margin-bottom: 0.5rem;
   min-height: auto;
   cursor: pointer;
@@ -481,7 +539,7 @@ h6 {
   height: 1.15rem;
   margin: 0;
   float: none;
-  border: 1.5px solid var(--line-2);
+  border: 1px solid var(--line-2);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -508,9 +566,11 @@ h6 {
   align-items: center;
   gap: 0.35rem;
   padding: 0.32rem 0.78rem;
-  border-radius: var(--radius-pill);
-  font-size: 0.78rem;
-  font-weight: 700;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -558,12 +618,11 @@ h6 {
   min-height: auto;
   padding: 1rem 2.6rem 1rem 1.05rem;
   margin-bottom: 0.85rem;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
-  box-shadow:
-    0 0 0 1px var(--line),
-    var(--shadow-lg);
+  border: 1px solid var(--line-2);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
@@ -576,7 +635,7 @@ h6 {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 11px;
+  border-radius: var(--radius-sm);
   background: var(--brand-100);
   box-shadow: inset 0 0 0 1px var(--brand-200);
 }
@@ -637,7 +696,7 @@ h6 {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 6px;
   color: var(--faint);
   opacity: 1;
   transition:
@@ -671,5 +730,15 @@ h6 {
 }
 .Toastify__progress-bar--info,
 .Toastify__progress-bar--default {
-  background: var(--grad-brand);
+  background: var(--brand);
+}
+
+/* ── Recharts: remove o retângulo de foco ao clicar nos gráficos ── */
+.recharts-wrapper,
+.recharts-wrapper svg,
+.recharts-surface,
+.recharts-sector,
+.recharts-layer {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
 }
