@@ -65,6 +65,21 @@ const PlanoAPI = {
   async ObterPlanoAtivo() {
     const resposta = await HTTPClient.get(`Plano/plano-ativo`)
     return resposta.data;
+  },
+
+  async Compartilhar(planoId) {
+    const resposta = await HTTPClient.post(`Plano/${planoId}/compartilhar`);
+    return resposta.data;
+  },
+
+  async Resgatar(chave) {
+    const resposta = await HTTPClient.post(`Plano/resgatar`, { chave });
+    return resposta.data;
+  },
+
+  async ObterGrupo(grupoId) {
+    const resposta = await HTTPClient.get(`Plano/grupo/${grupoId}`);
+    return resposta.data;
   }
 };
 

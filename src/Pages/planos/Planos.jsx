@@ -4,6 +4,7 @@ import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 import style from "./_planos.module.css";
 import { useState } from "react";
 import { FaPlay, FaPlus } from "react-icons/fa6";
+import { BsBoxArrowInDown } from "react-icons/bs";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast } from "react-toastify";
 import PlanoAPI from "../../services/PlanoService";
@@ -18,6 +19,9 @@ import ModalConfigurarPlano from "../../components/Modais/Planos/ModalConfigurar
 import ModalCriarPlano from "../../components/Modais/Planos/ModalCriarPlano";
 import ModalVisualizarPlano from "../../components/Modais/Planos/ModalVisualizarPlano";
 import ModalCriarPlanoIA from "../../components/Modais/Planos/ModalCriarPlanoIA";
+import ModalCompartilharPlano from "../../components/Modais/Planos/ModalCompartilharPlano";
+import ModalResgatarPlano from "../../components/Modais/Planos/ModalResgatarPlano";
+import ModalGrupoProgresso from "../../components/Modais/Planos/ModalGrupoProgresso";
 import IAAPI from "../../services/IAService";
 
 const mapPlanoBackend = (plano) => ({
@@ -28,6 +32,7 @@ const mapPlanoBackend = (plano) => ({
   dataFim: plano.dataFim,
   horasPorSemana: plano.horasPorSemana,
   ativo: plano.ativo,
+  grupoId: plano.grupoId ?? null,
   materias: (plano.planoMaterias ?? []).map((pm) => ({
     planoMateriaId: pm.planoMateriaId,
     materiaId: pm.materiaId,
@@ -51,6 +56,16 @@ function Planos() {
   const [mostrarHoras, setMostrarHoras] = useState(false);
   const [mostrarExcluir, setMostrarExcluir] = useState(false);
   const [mostrarIa, setMostrarIa] = useState(false);
+  const [mostrarCompartilhar, setMostrarCompartilhar] = useState(false);
+  const [mostrarResgatar, setMostrarResgatar] = useState(false);
+  const [mostrarGrupo, setMostrarGrupo] = useState(false);
+
+  // Compartilhamento
+  const [chaveCompartilhada, setChaveCompartilhada] = useState("");
+  const [grupoIdAtual, setGrupoIdAtual] = useState(null);
+  const [chaveResgate, setChaveResgate] = useState("");
+  const [grupoData, setGrupoData] = useState(null);
+  const [carregandoGrupo, setCarregandoGrupo] = useState(false);
 
   // ID do plano sendo visualizado / configurado
   const [viewingPlanoId, setViewingPlanoId] = useState(null);
@@ -336,6 +351,73 @@ function Planos() {
     }
   };
 
+  // ── Compartilhamento ──────────────────────────────────────────────────────
+
+  const handleCompartilhar = async () => {
+    if (!planoVisualizado) return;
+    try {
+      setLoading(true);
+      const resultado = await PlanoAPI.Compartilhar(planoVisualizado.planoId);
+      setChaveCompartilhada(resultado.chave);
+      setGrupoIdAtual(resultado.grupoId);
+      setMostrarPlano(false);
+      setMostrarCompartilhar(true);
+      registrarEvento("plano_compartilhado", {});
+      invalidarPlanos();
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao compartilhar plano"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const abrirResgatar = () => {
+    setChaveResgate("");
+    setMostrarResgatar(true);
+  };
+
+  const handleResgatar = async () => {
+    const chave = chaveResgate.trim();
+    if (!chave) return toast.warn("Informe a chave de compartilhamento.");
+    if (planosList.length >= 5) {
+      toast.warn("Você já atingiu o limite de 5 planos.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await PlanoAPI.Resgatar(chave);
+      setMostrarResgatar(false);
+      setChaveResgate("");
+      invalidarPlanos();
+      invalidarInicio();
+      registrarEvento("plano_resgatado", {});
+      toast.success("Plano resgatado!");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao resgatar plano"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAbrirGrupo = async (grupoId) => {
+    if (!grupoId) return;
+    setMostrarCompartilhar(false);
+    setMostrarPlano(false);
+    setGrupoData(null);
+    setCarregandoGrupo(true);
+    setMostrarGrupo(true);
+    try {
+      const dados = await PlanoAPI.ObterGrupo(grupoId);
+      setGrupoData(dados);
+    } catch (erro) {
+      toast.error(getApiError(erro, "Erro ao carregar o grupo"));
+      setMostrarGrupo(false);
+    } finally {
+      setCarregandoGrupo(false);
+    }
+  };
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   const planosInativos = planosList.filter((p) => !p.ativo);
@@ -367,6 +449,10 @@ function Planos() {
           </div>
           <div className={style.pageHeadAcoes}>
             <span className={style.heroIndice}>03 / Planos</span>
+            <button className={style.botaoNovo} onClick={abrirResgatar}>
+              <BsBoxArrowInDown />
+              <span className={style.botaoNovoTexto}>Resgatar</span>
+            </button>
             {planosList.length > 0 && (
               <button className={style.botaoNovo} onClick={abrirCriarPlano}>
                 <FaPlus />
@@ -494,6 +580,8 @@ function Planos() {
         plano={planoVisualizado}
         onConfigurar={abrirConfigurar}
         onLancarHoras={abrirLancamentoHoras}
+        onCompartilhar={handleCompartilhar}
+        onVerGrupo={handleAbrirGrupo}
       />
 
       <ModalConfigurarPlano
@@ -560,6 +648,31 @@ function Planos() {
         planoParaExcluir={planoParaExcluir}
         onExcluir={handleExcluirPlano}
         loading={loading}
+      />
+
+      <ModalCompartilharPlano
+        show={mostrarCompartilhar}
+        onHide={() => setMostrarCompartilhar(false)}
+        chave={chaveCompartilhada}
+        onVerGrupo={
+          grupoIdAtual ? () => handleAbrirGrupo(grupoIdAtual) : undefined
+        }
+      />
+
+      <ModalResgatarPlano
+        show={mostrarResgatar}
+        onHide={() => setMostrarResgatar(false)}
+        chave={chaveResgate}
+        setChave={setChaveResgate}
+        onResgatar={handleResgatar}
+        loading={loading}
+      />
+
+      <ModalGrupoProgresso
+        show={mostrarGrupo}
+        onHide={() => setMostrarGrupo(false)}
+        grupo={grupoData}
+        loading={carregandoGrupo}
       />
     </div>
   );

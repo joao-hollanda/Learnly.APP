@@ -1,9 +1,25 @@
-import { BsClock, BsBookHalf, BsGear, BsJournalX, BsPlus } from "react-icons/bs";
+import {
+  BsClock,
+  BsBookHalf,
+  BsGear,
+  BsJournalX,
+  BsPlus,
+  BsShare,
+  BsPeople,
+} from "react-icons/bs";
 import Card from "../../Card/Card";
 import ModalBase from "../ModalBase";
 import style from "../../../Pages/planos/_planos.module.css";
 
-function ModalVisualizarPlano({ show, onHide, plano, onConfigurar, onLancarHoras }) {
+function ModalVisualizarPlano({
+  show,
+  onHide,
+  plano,
+  onConfigurar,
+  onLancarHoras,
+  onCompartilhar,
+  onVerGrupo,
+}) {
   const materias = plano?.materias ?? [];
 
   return (
@@ -17,15 +33,39 @@ function ModalVisualizarPlano({ show, onHide, plano, onConfigurar, onLancarHoras
       icon={<BsBookHalf />}
       size="xl"
       headerAction={
-        <button
-          type="button"
-          className="ly-modal-headbtn"
-          onClick={onConfigurar}
-          title="Configurar plano"
-          aria-label="Configurar plano"
-        >
-          <BsGear />
-        </button>
+        <>
+          {plano?.grupoId && onVerGrupo && (
+            <button
+              type="button"
+              className="ly-modal-headbtn"
+              onClick={() => onVerGrupo(plano.grupoId)}
+              title="Progresso do grupo"
+              aria-label="Progresso do grupo"
+            >
+              <BsPeople />
+            </button>
+          )}
+          {onCompartilhar && (
+            <button
+              type="button"
+              className="ly-modal-headbtn"
+              onClick={onCompartilhar}
+              title="Compartilhar plano"
+              aria-label="Compartilhar plano"
+            >
+              <BsShare />
+            </button>
+          )}
+          <button
+            type="button"
+            className="ly-modal-headbtn"
+            onClick={onConfigurar}
+            title="Configurar plano"
+            aria-label="Configurar plano"
+          >
+            <BsGear />
+          </button>
+        </>
       }
     >
       {materias.length === 0 ? (
