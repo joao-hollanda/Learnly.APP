@@ -13,6 +13,8 @@ import Desempenho from "./Pages/desempenho/Desempenho";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MentorIA from "./Pages/MentorIA/MentorIA";
+import Comunidade from "./Pages/comunidade/Comunidade";
+import Chat from "./Pages/chat/Chat";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
@@ -82,6 +84,22 @@ root.render(
             element={
               <ProtectedRoute>
                 <Desempenho />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/comunidade"
+            element={
+              <ProtectedRoute>
+                <Comunidade />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chat />
               </ProtectedRoute>
             }
           />

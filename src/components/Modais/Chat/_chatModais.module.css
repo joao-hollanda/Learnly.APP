@@ -1,0 +1,142 @@
+.abas {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--line-2);
+}
+
+.aba {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.55rem 0.6rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.aba:hover {
+  color: var(--ink);
+}
+
+.abaAtiva {
+  color: var(--brand-strong);
+  border-bottom-color: var(--brand);
+}
+
+.abaConteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 120px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 0.7rem 0.85rem;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.item:hover:not(:disabled) {
+  border-color: var(--brand-light);
+  background: var(--brand-50);
+}
+
+.item:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.itemIcone {
+  font-size: 1.3rem;
+  color: var(--brand);
+  flex-shrink: 0;
+}
+
+.itemTexto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.itemTexto strong {
+  color: var(--ink-strong);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.itemTexto small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vazio {
+  color: var(--muted);
+  font-size: 0.88rem;
+  padding: 1rem 0;
+  margin: 0;
+  text-align: center;
+}
+
+.sessao {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.sessaoMsg {
+  border-radius: var(--radius);
+  padding: 0.65rem 0.85rem;
+  max-width: 90%;
+}
+
+.sessaoMsg p {
+  margin: 0.2rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+.sessaoAutor {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sessaoAluno {
+  align-self: flex-end;
+  background: var(--brand-100);
+  border: 1px solid var(--brand-200);
+}
+
+.sessaoIa {
+  align-self: flex-start;
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
+}

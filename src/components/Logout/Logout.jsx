@@ -5,6 +5,7 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import LoginAPI from "../../services/LoginService";
 import { stopTokenRefresh } from "../../utils/tokenRefresh";
 import { limparIdentidade, registrarEvento } from "../../utils/analytics";
+import { pararChat } from "../../services/chatHub";
 
 const Logout = () => {
     const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Logout = () => {
     async function handleLogout() {
         try {
             stopTokenRefresh();
+            await pararChat();
             await LoginAPI.Logout();
         } catch (error) {
             console.error("Erro ao fazer logout:", error);

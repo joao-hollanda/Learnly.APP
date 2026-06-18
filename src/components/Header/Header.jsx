@@ -8,6 +8,8 @@ import {
   LuFileText,
   LuSparkles,
   LuChartLine,
+  LuUsers,
+  LuMessageSquare,
 } from "react-icons/lu";
 import { useState } from "react";
 import Logout from "../Logout/Logout";
@@ -18,6 +20,8 @@ const NAV = [
   { to: "/planos", label: "Planos", icon: <LuClipboardList /> },
   { to: "/simulados", label: "Simulados", icon: <LuFileText /> },
   { to: "/mentoria", label: "MentorIA", icon: <LuSparkles /> },
+  { to: "/comunidade", label: "Amigos", icon: <LuUsers /> },
+  { to: "/chat", label: "Chat", icon: <LuMessageSquare /> },
 ];
 
 const Header = () => {
