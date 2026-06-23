@@ -4,9 +4,17 @@ import { HTTPClient } from "../../services/client";
 import { startTokenRefresh } from "../../utils/tokenRefresh";
 
 export default function ProtectedRoute({ children }) {
-  const [auth, setAuth] = useState(null);
+  const [auth, setAuth] = useState(() =>
+    sessionStorage.getItem("recemLogado") === "1" ? true : null,
+  );
 
   useEffect(() => {
+    if (sessionStorage.getItem("recemLogado") === "1") {
+      sessionStorage.removeItem("recemLogado");
+      startTokenRefresh();
+      return;
+    }
+
     const checkAuth = async () => {
       try {
         await HTTPClient.get("Login/AuthCheck");
@@ -16,11 +24,11 @@ export default function ProtectedRoute({ children }) {
         setAuth(false);
       }
     };
-    
+
     checkAuth();
   }, []);
 
-  if (auth === null) return <div>Carregando...</div>;
+  if (auth === null) return null;
 
   if (!auth) return <Navigate to="/" replace />;
 

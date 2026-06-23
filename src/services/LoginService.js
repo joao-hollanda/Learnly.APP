@@ -22,8 +22,8 @@ const LoginAPI = {
     },
 
     async Awake() {
-        const resposta = await HTTPClient.get(`Login/ping`);
-        
+        const resposta = await HTTPClient.get(`Login/warmup`);
+
         return resposta.data;
     },
 

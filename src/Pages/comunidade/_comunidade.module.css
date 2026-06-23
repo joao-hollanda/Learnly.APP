@@ -353,3 +353,36 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 520px) {
+  .container {
+    padding: 0 0.85rem;
+  }
+
+  .panel {
+    padding: 1.1rem 1rem;
+  }
+
+  .linha {
+    flex-wrap: wrap;
+  }
+
+  .linhaInfo {
+    flex: 1 1 auto;
+  }
+
+  .linhaAcoes {
+    flex: 1 0 100%;
+    justify-content: flex-end;
+  }
+
+  .btnSecundario {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .grupoAcoes .chip {
+    flex: 1;
+    justify-content: center;
+  }
+}

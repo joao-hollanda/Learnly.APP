@@ -26,6 +26,7 @@ import {
 } from "../../services/chatHub";
 import ModalCompartilhar from "../../components/Modais/Chat/ModalCompartilhar";
 import ModalVerSessaoIA from "../../components/Modais/Chat/ModalVerSessaoIA";
+import ModalPreviewSimulado from "../../components/Modais/Simulados/ModalPreviewResultado";
 import style from "./_chat.module.css";
 
 const TIPO = { TEXTO: 0, PLANO: 1, SIMULADO: 2, SESSAO_IA: 3 };
@@ -50,6 +51,14 @@ const parseAnexo = (payload) => {
   }
 };
 
+const mapaRespostas = (s) => {
+  const map = {};
+  (s?.respostas ?? []).forEach((r) => {
+    map[r.questaoId] = r.alternativaId;
+  });
+  return map;
+};
+
 function Chat() {
   const meuId = Number(sessionStorage.getItem("id"));
   const [searchParams, setSearchParams] = useSearchParams();
@@ -64,6 +73,7 @@ function Chat() {
   const [texto, setTexto] = useState("");
   const [modalShare, setModalShare] = useState(false);
   const [sessaoView, setSessaoView] = useState(null);
+  const [simuladoView, setSimuladoView] = useState(null);
 
   const activeIdRef = useRef(activeId);
   const chatRef = useRef(null);
@@ -200,6 +210,8 @@ function Chat() {
     }
 
     if (m.tipo === TIPO.SIMULADO) {
+      const totalQ =
+        anexo.questoes?.length ?? anexo.desempenho?.quantidadeDeQuestoes ?? 0;
       return (
         <div className={style.anexo}>
           <div className={style.anexoCab}>
@@ -208,6 +220,19 @@ function Chat() {
           <strong className={style.anexoTitulo}>
             Nota {anexo.notaFinal?.toFixed(1)} / 10
           </strong>
+          {totalQ > 0 && (
+            <p className={style.anexoSub}>
+              {totalQ} {totalQ === 1 ? "questão" : "questões"}
+            </p>
+          )}
+          {anexo.questoes?.length > 0 && (
+            <button
+              className={style.anexoBtn}
+              onClick={() => setSimuladoView(anexo)}
+            >
+              Ver respostas
+            </button>
+          )}
         </div>
       );
     }
@@ -382,6 +407,11 @@ function Chat() {
         show={!!sessaoView}
         onHide={() => setSessaoView(null)}
         sessao={sessaoView}
+      />
+      <ModalPreviewSimulado
+        simuladoPreview={simuladoView}
+        previewRespostas={simuladoView ? mapaRespostas(simuladoView) : {}}
+        onHide={() => setSimuladoView(null)}
       />
     </div>
   );

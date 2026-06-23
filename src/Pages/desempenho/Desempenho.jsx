@@ -34,6 +34,7 @@ import {
   LuCrosshair,
   LuCalendarClock,
   LuArrowRight,
+  LuPenLine,
 } from "react-icons/lu";
 
 const BRAND = "#2563eb";
@@ -41,6 +42,7 @@ const ACCENT = "#1d4ed8";
 const SUCCESS = "#16a34a";
 const WARNING = "#f59e0b";
 const DANGER = "#dc2626";
+const ACCENT_IA = "#6c5ce7";
 
 const tooltipStyle = {
   borderRadius: 10,
@@ -233,6 +235,17 @@ function Desempenho() {
     };
   });
 
+  const totalRedacoes = dash.totalRedacoes ?? 0;
+  const mediaRedacao = dash.mediaRedacao ?? 0;
+  const melhorRedacao = dash.melhorRedacao ?? 0;
+  const evolucaoRedacoes = (dash.evolucaoRedacoes ?? []).map((e, i) => ({
+    idx: i,
+    rotulo: e.rotulo,
+    nota: Number(e.nota),
+  }));
+  const mediaPorCompetencia = dash.mediaPorCompetencia ?? [];
+  const corCompetencia = (m) => (m >= 160 ? SUCCESS : m >= 120 ? BRAND : WARNING);
+
   const spark = notas.slice(-8);
   const sparkPath =
     spark.length >= 2
@@ -310,6 +323,21 @@ function Desempenho() {
                   <em>%</em>
                 </span>
                 <span className={style.statExtra}>Média geral de acertos</span>
+              </div>
+
+              <div className={style.statCell}>
+                <span className={style.statLabel}>
+                  <LuPenLine /> Redação
+                </span>
+                <span className={style.statValor}>
+                  <Contador valor={dash.mediaRedacao} />
+                  <em>/1000</em>
+                </span>
+                <span className={style.statExtra}>
+                  {(dash.totalRedacoes ?? 0) > 0
+                    ? `${dash.totalRedacoes} ${dash.totalRedacoes === 1 ? "corrigida" : "corrigidas"} · melhor ${dash.melhorRedacao}`
+                    : "Nenhuma redação ainda"}
+                </span>
               </div>
 
               <div className={style.statCell}>
@@ -760,6 +788,123 @@ function Desempenho() {
 
         <div className={style.secaoDivisor}>
           <span className={style.secaoNum}>05</span>
+          <h3 className={style.secaoNome}>Redação</h3>
+          <span className={style.secaoLinha} />
+        </div>
+
+        <section className={`${style.chartsRow} ${style.cols21}`}>
+          <Card
+            titulo="Evolução das redações"
+            subtitulo={
+              totalRedacoes > 0
+                ? `${totalRedacoes} ${totalRedacoes === 1 ? "redação corrigida" : "redações corrigidas"} · média ${mediaRedacao} · melhor ${melhorRedacao} /1000`
+                : "Nenhuma redação corrigida"
+            }
+            icon={<LuPenLine />}
+          >
+            <div className={style.chartBoxAlto}>
+              {evolucaoRedacoes.length === 0 ? (
+                <Vazio texto="Envie redações para acompanhar sua evolução." />
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart
+                    data={evolucaoRedacoes}
+                    margin={{ top: 10, right: 12, left: -8, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="gradRedacao" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={ACCENT_IA} stopOpacity={0.3} />
+                        <stop offset="100%" stopColor={ACCENT_IA} stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" vertical={false} />
+                    <XAxis
+                      dataKey="idx"
+                      type="number"
+                      domain={[0, "dataMax"]}
+                      ticks={evolucaoRedacoes.map((e) => e.idx)}
+                      tickFormatter={(i) => evolucaoRedacoes[i]?.rotulo ?? ""}
+                      tick={eixoStyle}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis tick={eixoStyle} axisLine={false} tickLine={false} domain={[0, 1000]} />
+                    <Tooltip
+                      contentStyle={tooltipStyle}
+                      labelFormatter={(i) => evolucaoRedacoes[i]?.rotulo ?? ""}
+                    />
+                    <ReferenceLine
+                      y={mediaRedacao}
+                      stroke={DANGER}
+                      strokeDasharray="6 4"
+                      label={{
+                        value: `média ${mediaRedacao}`,
+                        position: "insideTopRight",
+                        fontSize: 10,
+                        fill: DANGER,
+                        fontFamily: "var(--font-mono)",
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      name="Nota"
+                      dataKey="nota"
+                      stroke={ACCENT_IA}
+                      strokeWidth={3}
+                      fill="url(#gradRedacao)"
+                      dot={{ r: 4, fill: ACCENT_IA, strokeWidth: 0 }}
+                      activeDot={{ r: 6 }}
+                    >
+                      <LabelList
+                        dataKey="nota"
+                        position="top"
+                        offset={10}
+                        style={{ fontSize: 11, fontWeight: 600, fill: "#475569" }}
+                      />
+                    </Area>
+                  </ComposedChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </Card>
+
+          <Card
+            titulo="Médias por competência"
+            subtitulo="Média das suas notas em cada competência (0–200)"
+            icon={<LuTarget />}
+          >
+            {mediaPorCompetencia.length === 0 ? (
+              <Vazio texto="Envie redações para ver suas médias por competência." />
+            ) : (
+              <div className={style.miraList}>
+                {mediaPorCompetencia.map((c) => {
+                  const cor = corCompetencia(c.media);
+                  return (
+                    <div key={c.numero} className={style.miraItem}>
+                      <div className={style.miraTopo}>
+                        <span className={style.miraNome}>
+                          C{c.numero} · {c.nome}
+                        </span>
+                        <span className={style.miraInfo}>
+                          <em style={{ color: cor }}>{c.media}</em>/200
+                        </span>
+                      </div>
+                      <div className={style.miraTrilha}>
+                        <span
+                          className={style.miraFill}
+                          style={{ width: `${(c.media / 200) * 100}%`, background: cor }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
+        </section>
+
+        <div className={style.secaoDivisor}>
+          <span className={style.secaoNum}>06</span>
           <h3 className={style.secaoNome}>Plano em andamento</h3>
           <span className={style.secaoLinha} />
         </div>

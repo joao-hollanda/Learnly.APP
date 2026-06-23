@@ -9,12 +9,14 @@ import { iniciarAnalytics, registrarPageview } from "./utils/analytics";
 import Inicio from "./Pages/inicio/Inicio";
 import Planos from "./Pages/planos/Planos";
 import Simulados from "./Pages/simulados/Simulados";
+import Redacao from "./Pages/redacao/Redacao";
 import Desempenho from "./Pages/desempenho/Desempenho";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import MentorIA from "./Pages/MentorIA/MentorIA";
 import Comunidade from "./Pages/comunidade/Comunidade";
 import Chat from "./Pages/chat/Chat";
+import NotFound from "./Pages/notFound/NotFound";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
@@ -72,6 +74,14 @@ root.render(
             }
           />
           <Route
+            path="/redacao"
+            element={
+              <ProtectedRoute>
+                <Redacao />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/mentoria"
             element={
               <ProtectedRoute>
@@ -103,6 +113,7 @@ root.render(
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

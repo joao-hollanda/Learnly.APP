@@ -195,7 +195,7 @@
 .statStrip {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(7, 16, 56, 0.25);
 }
@@ -1007,7 +1007,7 @@
   .statCell:nth-child(2n) {
     border-right: none;
   }
-  .statCell:nth-child(n + 3) {
+  .statCell:last-child {
     border-bottom: none;
   }
   .cols21,

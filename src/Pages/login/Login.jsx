@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import estilo from "./_login.module.css";
 import service from "../../services/LoginService";
 import { getApiError } from "../../services/client";
@@ -55,6 +56,7 @@ const Login = () => {
   const loginRef = useRef(null);
   const cadastroRef = useRef(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     service.Awake();
@@ -124,7 +126,13 @@ const Login = () => {
 
     try {
       if (modo === "login") {
-        await service.Login(email, senha);
+        const dados = await service.Login(email, senha);
+        if (dados?.id) {
+          sessionStorage.setItem("id", dados.id);
+          sessionStorage.setItem("nome", dados.nome ?? "");
+          queryClient.setQueryData(["userData"], dados);
+        }
+        sessionStorage.setItem("recemLogado", "1");
         startTokenRefresh();
         registrarEvento("login_realizado");
         navigate("/home");

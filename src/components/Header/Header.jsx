@@ -6,6 +6,7 @@ import {
   LuLayoutDashboard,
   LuClipboardList,
   LuFileText,
+  LuPenLine,
   LuSparkles,
   LuChartLine,
   LuUsers,
@@ -22,6 +23,7 @@ const NAV = [
   { to: "/mentoria", label: "MentorIA", icon: <LuSparkles /> },
   { to: "/comunidade", label: "Amigos", icon: <LuUsers /> },
   { to: "/chat", label: "Chat", icon: <LuMessageSquare /> },
+  { to: "/redacao", label: "Redação", icon: <LuPenLine /> },
 ];
 
 const Header = () => {

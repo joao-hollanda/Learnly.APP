@@ -455,7 +455,7 @@
   .shell {
     grid-template-columns: 1fr;
     padding: 0 1rem;
-    height: calc(100vh - var(--topbar-h) - 24px);
+    height: calc(100dvh - var(--topbar-h) - 44px);
   }
 
   .ocultoMobile {
@@ -464,5 +464,34 @@
 
   .voltar {
     display: flex;
+  }
+}
+
+@media (max-width: 520px) {
+  .shell {
+    padding: 0 0.6rem;
+  }
+
+  .mensagens {
+    padding: 0.85rem 0.7rem;
+  }
+
+  .bolha {
+    max-width: 86%;
+  }
+
+  .anexo {
+    min-width: 0;
+  }
+
+  .composer {
+    padding: 0.6rem;
+    gap: 0.4rem;
+  }
+
+  .attach,
+  .send {
+    width: 2.4rem;
+    height: 2.4rem;
   }
 }

@@ -18,6 +18,36 @@ const lerSessaoIA = () => {
   }
 };
 
+const montarSnapshotSimulado = (s) => ({
+  simuladoId: s.simuladoId,
+  data: s.data,
+  notaFinal: s.notaFinal,
+  desempenho: s.desempenho
+    ? {
+        quantidadeDeAcertos: s.desempenho.quantidadeDeAcertos,
+        quantidadeDeQuestoes: s.desempenho.quantidadeDeQuestoes,
+      }
+    : null,
+  questoes: (s.questoes ?? []).map((q) => ({
+    questaoId: q.questaoId,
+    titulo: q.titulo,
+    contexto: q.contexto,
+    introducaoAlternativa: q.introducaoAlternativa,
+    alternativas: (q.alternativas ?? []).map((a) => ({
+      alternativaId: a.alternativaId,
+      letra: a.letra,
+      texto: a.texto,
+      arquivo: a.arquivo,
+      correta: a.correta,
+    })),
+  })),
+  respostas: (s.respostas ?? []).map((r) => ({
+    questaoId: r.questaoId,
+    alternativaId: r.alternativaId,
+    explicacao: r.explicacao,
+  })),
+});
+
 export default function ModalCompartilhar({ show, onHide, onCompartilhar }) {
   const [aba, setAba] = useState("plano");
   const [enviando, setEnviando] = useState(false);
@@ -56,10 +86,11 @@ export default function ModalCompartilhar({ show, onHide, onCompartilhar }) {
   const compartilharSimulado = async (s) => {
     setEnviando(true);
     try {
-      await onCompartilhar(2, { simuladoId: s.simuladoId, notaFinal: s.notaFinal });
+      const completo = await SimuladoAPI.Obter(s.simuladoId);
+      await onCompartilhar(2, montarSnapshotSimulado(completo));
       onHide();
-    } catch {
-      toast.error("Não foi possível compartilhar.");
+    } catch (e) {
+      toast.error(getApiError(e));
     } finally {
       setEnviando(false);
     }
@@ -151,8 +182,10 @@ export default function ModalCompartilhar({ show, onHide, onCompartilhar }) {
               >
                 <LuFileText className={style.itemIcone} />
                 <span className={style.itemTexto}>
-                  <strong>Simulado</strong>
-                  <small>Nota {s.notaFinal?.toFixed(1)} / 10</small>
+                  <strong>Simulado · Nota {s.notaFinal?.toFixed(1)}</strong>
+                  <small>
+                    {s.quantidadeQuestoes} questões · suas respostas e a correção
+                  </small>
                 </span>
               </button>
             ))
