@@ -13,7 +13,10 @@ import {
   LuMessageSquare,
 } from "react-icons/lu";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Logout from "../Logout/Logout";
+import Avatar from "../Avatar/Avatar";
+import { getUserData } from "../../utils/cookieHelper";
 
 const NAV = [
   { to: "/home", label: "Início", icon: <LuLayoutDashboard /> },
@@ -28,6 +31,13 @@ const NAV = [
 
 const Header = () => {
   const [aberto, setAberto] = useState(false);
+
+  const { data: usuario } = useQuery({
+    queryKey: ["userData"],
+    queryFn: getUserData,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
 
   const linkClass = ({ isActive }) =>
     `${style.link} ${isActive ? style.active : ""}`;
@@ -86,6 +96,23 @@ const Header = () => {
         </nav>
 
         <div className={style.sidebarFooter}>
+          <NavLink
+            to="/perfil"
+            onClick={fechar}
+            className={({ isActive }) =>
+              `${style.userCard} ${isActive ? style.userCardAtivo : ""}`
+            }
+          >
+            <Avatar nome={usuario?.nome} foto={usuario?.foto} size={38} />
+            <span className={style.userInfo}>
+              <span className={style.userNome}>
+                {usuario?.nome || "Meu perfil"}
+              </span>
+              {usuario?.email && (
+                <span className={style.userEmail}>{usuario.email}</span>
+              )}
+            </span>
+          </NavLink>
           <Logout />
         </div>
       </aside>

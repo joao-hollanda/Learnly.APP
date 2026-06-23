@@ -1,0 +1,259 @@
+.tela {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  box-sizing: border-box;
+  overflow: auto;
+  background:
+    radial-gradient(
+      900px 520px at 100% 0%,
+      rgba(96, 165, 250, 0.22),
+      transparent 60%
+    ),
+    var(--grad-navy);
+}
+
+.logo {
+  height: 10rem;
+  flex-shrink: 0;
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px rgba(8, 15, 40, 0.35);
+  padding: 2.4rem 2.2rem;
+  box-sizing: border-box;
+  animation: surge 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes surge {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.titulo {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink-strong);
+  margin: 0.5rem 0 0;
+}
+
+.subtitulo {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0.6rem 0 0;
+}
+
+.form {
+  margin-top: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.campo label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.9rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--surface);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-100);
+}
+
+.olho {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  padding: 0.3rem;
+}
+
+.olho:hover {
+  color: var(--brand);
+}
+
+.dica {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: -0.2rem 0 0;
+}
+
+.botao {
+  position: relative;
+  margin-top: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 2.9rem;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.botao:hover:not(:disabled) {
+  background: var(--brand-strong);
+  box-shadow: 0 6px 18px rgba(29, 78, 216, 0.35);
+}
+
+.botao:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.3rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--brand);
+}
+
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+}
+
+.estadoIcone {
+  display: flex;
+  font-size: 2.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.estado .botao {
+  margin-top: 1.4rem;
+}
+
+.ok {
+  color: #16a34a;
+}
+
+.erro {
+  color: #dc2626;
+}
+
+.spinnerWrap {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--brand-100);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+.botaoSpinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 1.8rem 1.4rem;
+  }
+}

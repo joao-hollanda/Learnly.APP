@@ -16,7 +16,11 @@ import { ToastContainer } from "react-toastify";
 import MentorIA from "./Pages/MentorIA/MentorIA";
 import Comunidade from "./Pages/comunidade/Comunidade";
 import Chat from "./Pages/chat/Chat";
+import Perfil from "./Pages/perfil/Perfil";
 import NotFound from "./Pages/notFound/NotFound";
+import ConfirmarEmail from "./Pages/auth/ConfirmarEmail";
+import EsqueciSenha from "./Pages/auth/EsqueciSenha";
+import RedefinirSenha from "./Pages/auth/RedefinirSenha";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
@@ -49,6 +53,9 @@ root.render(
 
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/confirmar-email" element={<ConfirmarEmail />} />
+          <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+          <Route path="/redefinir-senha" element={<RedefinirSenha />} />
           <Route
             path="/home"
             element={
@@ -110,6 +117,14 @@ root.render(
             element={
               <ProtectedRoute>
                 <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/perfil"
+            element={
+              <ProtectedRoute>
+                <Perfil />
               </ProtectedRoute>
             }
           />

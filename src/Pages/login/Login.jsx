@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import estilo from "./_login.module.css";
 import service from "../../services/LoginService";
 import { getApiError } from "../../services/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { startTokenRefresh } from "../../utils/tokenRefresh";
 import { registrarEvento } from "../../utils/analytics";
@@ -139,16 +139,25 @@ const Login = () => {
       } else {
         await service.Register(usuario, email, senha);
         registrarEvento("cadastro_realizado");
-        toast.success("Usuário criado com sucesso!");
+        toast.success(
+          "Conta criada! Enviamos um link de confirmação para o seu e-mail.",
+        );
         alternarModo("login");
       }
     } catch (erro) {
       if (modo === "login") {
-        toast.warning(
-          erro.response
-            ? "Usuário ou senha incorretos!"
-            : "Erro ao conectar ao servidor.",
-        );
+        if (erro.response?.status === 403) {
+          toast.info(
+            "Confirme seu e-mail para entrar. Reenviamos o link de confirmação para você.",
+          );
+          try {
+            await service.ReenviarConfirmacao(email);
+          } catch {}
+        } else if (erro.response) {
+          toast.warning("Usuário ou senha incorretos!");
+        } else {
+          toast.warning("Erro ao conectar ao servidor.");
+        }
       } else {
         toast.error(getApiError(erro, "Erro ao registrar."));
       }
@@ -270,6 +279,19 @@ const Login = () => {
                   aoAlterar={(e) => setSenha(e.target.value)}
                   autoComplete="current-password"
                 />
+                <div style={{ textAlign: "right", margin: "-0.35rem 0 0.7rem" }}>
+                  <Link
+                    to="/esqueci-senha"
+                    style={{
+                      fontSize: "0.82rem",
+                      fontWeight: 600,
+                      color: "var(--brand)",
+                      textDecoration: "none",
+                    }}
+                  >
+                    Esqueci a senha
+                  </Link>
+                </div>
                 <button
                   className={estilo.botaoEnviar}
                   type="submit"
