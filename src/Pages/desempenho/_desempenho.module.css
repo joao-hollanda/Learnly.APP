@@ -941,6 +941,20 @@
   transition: width 0.4s ease;
 }
 
+.metaProjecao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.metaAtrasada {
+  color: var(--danger, #dc2626);
+}
+
 /* ── Gauge radial (progresso do plano) ── */
 .gaugeWrap {
   position: relative;

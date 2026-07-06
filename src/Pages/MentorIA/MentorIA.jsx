@@ -20,6 +20,7 @@ import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
+import { normalizarMatematica } from "../../utils/markdown";
 import { useQueryClient } from "@tanstack/react-query";
 
 const PROTOCOLOS = [
@@ -37,12 +38,6 @@ const SESSAO_KEY = "mentorSessao";
 
 const horaAgora = () =>
   new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-
-// Groq costuma emitir LaTeX com \( \) e \[ \] — remark-math só entende $ e $$
-const normalizarMatematica = (texto = "") =>
-  texto
-    .replace(/\\\[([\s\S]*?)\\\]/g, (_, m) => `$$${m}$$`)
-    .replace(/\\\(([\s\S]*?)\\\)/g, (_, m) => `$${m}$`);
 
 function MentorIA() {
   const queryClient = useQueryClient();

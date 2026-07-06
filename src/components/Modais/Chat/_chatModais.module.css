@@ -120,6 +120,63 @@
   white-space: pre-wrap;
 }
 
+.sessaoMd {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.sessaoMd > :first-child {
+  margin-top: 0.2rem;
+}
+
+.sessaoMd p {
+  white-space: normal;
+  margin: 0.5rem 0 0;
+}
+
+.sessaoMd ul,
+.sessaoMd ol {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.sessaoMd li {
+  margin-top: 0.2rem;
+}
+
+.sessaoMd h1,
+.sessaoMd h2,
+.sessaoMd h3 {
+  margin: 0.6rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.sessaoMd code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: 0.35rem;
+  padding: 0.05rem 0.3rem;
+}
+
+.sessaoMd pre {
+  margin: 0.5rem 0 0;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+.sessaoMd pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
 .sessaoAutor {
   font-family: var(--font-mono);
   font-size: 0.66rem;

@@ -1,5 +1,10 @@
 import { LuSparkles } from "react-icons/lu";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import ModalBase from "../ModalBase";
+import { normalizarMatematica } from "../../../utils/markdown";
 import style from "./_chatModais.module.css";
 
 export default function ModalVerSessaoIA({ show, onHide, sessao }) {
@@ -25,7 +30,18 @@ export default function ModalVerSessaoIA({ show, onHide, sessao }) {
             <span className={style.sessaoAutor}>
               {m.autor === "aluno" ? "Você" : "Mentor IA"}
             </span>
-            <p>{m.texto}</p>
+            {m.autor === "aluno" ? (
+              <p>{m.texto}</p>
+            ) : (
+              <div className={style.sessaoMd}>
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[[rehypeKatex, { errorColor: "#64748b" }]]}
+                >
+                  {normalizarMatematica(m.texto)}
+                </ReactMarkdown>
+              </div>
+            )}
           </div>
         ))}
       </div>

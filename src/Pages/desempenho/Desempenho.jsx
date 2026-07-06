@@ -35,6 +35,7 @@ import {
   LuCalendarClock,
   LuArrowRight,
   LuPenLine,
+  LuTriangleAlert,
 } from "react-icons/lu";
 
 const BRAND = "#2563eb";
@@ -56,6 +57,17 @@ const tooltipStyle = {
 const eixoStyle = { fontSize: 11, fill: "#94a3b8", fontFamily: "var(--font-mono)" };
 
 const Vazio = ({ texto }) => <div className={style.vazio}>{texto}</div>;
+
+const slugDisciplina = (d) => {
+  const s = (d || "").toLowerCase();
+  if (s.includes("matem")) return "matematica";
+  if (s.includes("linguag") || s.includes("portug")) return "linguagens";
+  if (s.includes("natur") || s.includes("fisic") || s.includes("biolog"))
+    return "ciencias-natureza";
+  if (s.includes("human") || s.includes("histor") || s.includes("geograf"))
+    return "ciencias-humanas";
+  return null;
+};
 
 // Tilt 3D: perspectiva segue o mouse via CSS vars
 const tilt = (e) => {
@@ -187,6 +199,23 @@ function Desempenho() {
       }),
     };
   }
+
+  const dataFimPlano = progresso.dataFim ? new Date(progresso.dataFim) : null;
+  const materiasComResto = materias.filter(
+    (m) => m.horasTotais - m.horasConcluidas > 0,
+  ).length;
+  const paceMateria =
+    materiasComResto > 0 && ritmoSemanal > 0
+      ? ritmoSemanal / materiasComResto
+      : 0;
+  const projetarMateria = (m) => {
+    const resto = m.horasTotais - m.horasConcluidas;
+    if (resto <= 0) return { concluida: true };
+    if (paceMateria <= 0) return null;
+    const semanas = Math.ceil(resto / paceMateria);
+    const data = new Date(Date.now() + semanas * 7 * 86400000);
+    return { semanas, atrasada: dataFimPlano ? data > dataFimPlano : false };
+  };
 
   const metaSemana = dash.metaHorasSemana ?? 0;
   const pctMeta =
@@ -411,7 +440,13 @@ function Desempenho() {
                 <button
                   type="button"
                   className={style.insightCta}
-                  onClick={() => navigate("/simulados")}
+                  onClick={() => {
+                    const slug = slugDisciplina(foco.disciplina);
+                    navigate(
+                      "/simulados",
+                      slug ? { state: { disciplinaFoco: slug } } : undefined,
+                    );
+                  }}
                 >
                   Criar simulado dirigido <LuArrowRight />
                 </button>
@@ -912,7 +947,7 @@ function Desempenho() {
         <section className={`${style.chartsRow} ${style.cols21}`}>
           <Card
             titulo="Progresso por matéria"
-            subtitulo="Horas concluídas vs. planejadas"
+            subtitulo="Horas concluídas vs. planejadas · projeção no ritmo atual"
             icon={<LuListChecks />}
           >
             {materias.length === 0 ? (
@@ -924,6 +959,7 @@ function Desempenho() {
                     m.horasTotais > 0
                       ? Math.min(Math.round((m.horasConcluidas / m.horasTotais) * 100), 100)
                       : 0;
+                  const proj = projetarMateria(m);
                   return (
                     <div key={m.materia} className={style.metaItem}>
                       <div className={style.metaTopo}>
@@ -941,6 +977,17 @@ function Desempenho() {
                           }}
                         />
                       </div>
+                      {proj?.concluida ? (
+                        <span className={style.metaProjecao}>Concluída ✓</span>
+                      ) : proj ? (
+                        <span
+                          className={`${style.metaProjecao} ${proj.atrasada ? style.metaAtrasada : ""}`}
+                        >
+                          {proj.atrasada && <LuTriangleAlert />}≈ {proj.semanas}{" "}
+                          {proj.semanas === 1 ? "semana" : "semanas"} no ritmo atual
+                          {proj.atrasada && " · passa do prazo do plano"}
+                        </span>
+                      ) : null}
                     </div>
                   );
                 })}

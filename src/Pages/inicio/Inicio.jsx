@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { LuClock3 } from "react-icons/lu";
 import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 import Header from "../../components/Header/Header";
@@ -41,6 +42,7 @@ function Inicio() {
   });
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: userData } = useQuery({
     queryKey: ["userData"],
@@ -48,6 +50,23 @@ function Inicio() {
     staleTime: Infinity,
     gcTime: Infinity,
   });
+
+  const { data: planos, isPending: loadPlanos } = useQuery({
+    queryKey: ["planosOnboarding"],
+    queryFn: () => PlanoAPI.Listar5(),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+
+  useEffect(() => {
+    if (
+      !loadPlanos &&
+      Array.isArray(planos) &&
+      planos.length === 0 &&
+      sessionStorage.getItem("onboardingPulado") !== "1"
+    )
+      navigate("/onboarding", { replace: true });
+  }, [loadPlanos, planos, navigate]);
 
   useEffect(() => {
     if (userData?.id)

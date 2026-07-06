@@ -1,8 +1,10 @@
 import Header from "../../components/Header/Header";
 import style from "./_simulados.module.css";
 import { FaPlus, FaCheck } from "react-icons/fa6";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import SimuladoAPI from "../../services/SimuladoService";
+import EventoEstudoAPI from "../../services/EventoService";
 import { getApiError } from "../../services/client";
 import { registrarEvento } from "../../utils/analytics";
 import ReactMarkdown from "react-markdown";
@@ -16,8 +18,30 @@ import ModalPreviewSimulado from "../../components/Modais/Simulados/ModalPreview
 
 const getImagemAlternativa = (a) => a.arquivo || null;
 
+const ROTULO_DISCIPLINA = {
+  matematica: "Matemática",
+  linguagens: "Linguagens",
+  "ciencias-natureza": "Ciências da Natureza",
+  "ciencias-humanas": "Ciências Humanas",
+};
+const rotuloDisciplina = (d) => ROTULO_DISCIPLINA[d] ?? d;
+
+const disciplinasErradas = (simulado, respostas) => {
+  const set = new Set();
+  for (const q of simulado.questoes) {
+    const escolhidaId = respostas[q.questaoId];
+    if (escolhidaId === undefined) continue;
+    const alt = q.alternativas.find((a) => a.alternativaId === escolhidaId);
+    if (alt && !alt.correta && q.disciplina) set.add(q.disciplina);
+  }
+  return [...set];
+};
+
 export default function Simulados() {
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const focoAplicado = useRef(false);
 
   const [mostrarCriar, setMostrarCriar] = useState(false);
   const [quantidade, setQuantidade] = useState("");
@@ -28,6 +52,20 @@ export default function Simulados() {
   const [simuladoPreview, setSimuladoPreview] = useState(null);
   const [previewRespostas, setPreviewRespostas] = useState({});
   const [abrindoId, setAbrindoId] = useState(null);
+  const [disciplinasRevisao, setDisciplinasRevisao] = useState([]);
+  const [agendandoRevisoes, setAgendandoRevisoes] = useState(false);
+  const [revisoesAgendadas, setRevisoesAgendadas] = useState(false);
+
+  useEffect(() => {
+    if (focoAplicado.current) return;
+    const foco = location.state?.disciplinaFoco;
+    if (foco) {
+      focoAplicado.current = true;
+      setMateriasSelecionadas([foco]);
+      setMostrarCriar(true);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   const [simulado, setSimulado] = useState(() => {
     const salvo = sessionStorage.getItem("simulado");
@@ -104,6 +142,8 @@ export default function Simulados() {
       }));
       const r = await SimuladoAPI.Responder(simulado.simuladoId, payload);
       registrarEvento("simulado_finalizado", { nota: r?.notaFinal });
+      setDisciplinasRevisao(disciplinasErradas(simulado, respostas));
+      setRevisoesAgendadas(false);
       setResultado(r);
     } catch (erro) {
       toast.error(getApiError(erro, "Erro ao enviar respostas"));
@@ -114,11 +154,38 @@ export default function Simulados() {
 
   const finalizar = () => {
     setResultado(null);
+    setDisciplinasRevisao([]);
+    setRevisoesAgendadas(false);
     salvarSimulado(null);
     salvarRespostas({});
     queryClient.invalidateQueries({ queryKey: ["simulados"] });
     queryClient.invalidateQueries({ queryKey: ["totalSimulados"] });
     queryClient.invalidateQueries({ queryKey: ["dashboardDesempenho"] });
+  };
+
+  const agendarRevisoes = async () => {
+    const titulo = `Revisão: ${disciplinasRevisao.map(rotuloDisciplina).join(", ")}`;
+    const eventos = [1, 7, 16].map((dias) => {
+      const inicio = new Date();
+      inicio.setDate(inicio.getDate() + dias);
+      inicio.setHours(18, 0, 0, 0);
+      const fim = new Date(inicio);
+      fim.setHours(19, 0, 0, 0);
+      return { titulo, inicio: inicio.toISOString(), fim: fim.toISOString() };
+    });
+
+    try {
+      setAgendandoRevisoes(true);
+      await EventoEstudoAPI.CriarEmLote({ eventos });
+      setRevisoesAgendadas(true);
+      queryClient.invalidateQueries({ queryKey: ["eventos"] });
+      registrarEvento("revisoes_agendadas", { disciplinas: disciplinasRevisao });
+      toast.success("Revisões agendadas no seu calendário!");
+    } catch (erro) {
+      toast.error(getApiError(erro, "Não foi possível agendar as revisões."));
+    } finally {
+      setAgendandoRevisoes(false);
+    }
   };
 
   const totalQuestoes = simulado?.questoes?.length ?? 0;
@@ -422,7 +489,14 @@ export default function Simulados() {
         onGerar={handleGerarSimulado}
       />
 
-      <ModalResultado resultado={resultado} onFinalizar={finalizar} />
+      <ModalResultado
+        resultado={resultado}
+        onFinalizar={finalizar}
+        disciplinasRevisao={disciplinasRevisao}
+        onAgendarRevisoes={agendarRevisoes}
+        agendandoRevisoes={agendandoRevisoes}
+        revisoesAgendadas={revisoesAgendadas}
+      />
 
       <ModalPreviewSimulado
         simuladoPreview={simuladoPreview}

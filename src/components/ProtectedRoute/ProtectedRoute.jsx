@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }) {
       startTokenRefresh();
       return;
     }
-
+    
     const checkAuth = async () => {
       try {
         await HTTPClient.get("Login/AuthCheck");
