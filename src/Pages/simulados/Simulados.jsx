@@ -15,6 +15,9 @@ import { SkeletonCard } from "../../components/Skeleton/Skeleton";
 import ModalCriarSimulado from "../../components/Modais/Simulados/ModalCriarSimulado";
 import ModalResultado from "../../components/Modais/Simulados/ModalResultado";
 import ModalPreviewSimulado from "../../components/Modais/Simulados/ModalPreviewResultado";
+import Tour, { useTour } from "../../components/Tour/Tour";
+
+const TINTA_MODAL = "rgba(9, 20, 62, 0.45)";
 
 const getImagemAlternativa = (a) => a.arquivo || null;
 
@@ -224,9 +227,60 @@ export default function Simulados() {
   const [destaque, ...anteriores] = ordenados;
   const historico = anteriores.slice(0, 4);
 
+  const { ativo: tourAtivo, encerrar: encerrarTour } = useTour(
+    "simulados",
+    !carregandoLista && !simulado,
+  );
+
+  const passosTour = [
+    {
+      alvo: '[data-tour="simulados-criar"]',
+      lado: "baixo",
+      titulo: "Treine com prova de verdade",
+      texto:
+        "As questões vêm de provas reais do ENEM (2009–2023). Você monta o simulado do tamanho que quiser.",
+      raio: 10,
+      acao: { texto: "Bora criar", executar: () => setMostrarCriar(true) },
+    },
+    {
+      alvo: '[data-tour="simulado-materias"]',
+      lado: "direita",
+      titulo: "Escolha as áreas",
+      texto:
+        "Pode marcar mais de uma. Dica: comece pelas matérias em que você mais erra — o desempenho mostra quais são.",
+      tinta: TINTA_MODAL,
+      raio: 10,
+      semVoltar: true,
+    },
+    {
+      alvo: '[data-tour="simulado-quantidade"]',
+      lado: "direita",
+      titulo: "Defina o tamanho",
+      texto:
+        "De 1 a 25 questões. Simulados curtos e frequentes rendem mais que uma maratona por mês.",
+      tinta: TINTA_MODAL,
+      raio: 10,
+    },
+    {
+      alvo: '[data-tour="simulado-gerar"]',
+      lado: "cima",
+      titulo: "Depois é só corrigir",
+      texto:
+        "Ao terminar, você vê a correção questão a questão e pode agendar revisões do que errou.",
+      tinta: TINTA_MODAL,
+      raio: 10,
+    },
+  ];
+
   return (
     <div className="page">
       <Header />
+      <Tour
+        id="simulados"
+        passos={passosTour}
+        ativo={tourAtivo}
+        aoEncerrar={encerrarTour}
+      />
 
       {!simulado && (
         <div className={style.listaSimulados}>
@@ -244,6 +298,7 @@ export default function Simulados() {
               {simulados.length > 0 && (
                 <button
                   className={style.botaoNovo}
+                  data-tour="simulados-criar"
                   onClick={() => setMostrarCriar(true)}
                 >
                   <FaPlus />
@@ -268,6 +323,7 @@ export default function Simulados() {
               <p>Crie seu primeiro simulado para começar a praticar.</p>
               <button
                 className={style.botaoCriarVazio}
+                data-tour="simulados-criar"
                 onClick={() => setMostrarCriar(true)}
               >
                 <FaPlus /> Criar simulado

@@ -22,6 +22,7 @@ import { identificarUsuario } from "../../utils/analytics";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ModalCriarEvento from "../../components/Modais/Inicio/ModalCriarEvento";
 import ModalResetEventos from "../../components/Modais/Inicio/ModalResetEventos";
+import Tour, { useTour } from "../../components/Tour/Tour";
 
 const STATUS_EVENTO = {
   concluido: "Concluído",
@@ -52,21 +53,11 @@ function Inicio() {
   });
 
   const { data: planos, isPending: loadPlanos } = useQuery({
-    queryKey: ["planosOnboarding"],
+    queryKey: ["planosResumo"],
     queryFn: () => PlanoAPI.Listar5(),
     staleTime: Infinity,
     gcTime: Infinity,
   });
-
-  useEffect(() => {
-    if (
-      !loadPlanos &&
-      Array.isArray(planos) &&
-      planos.length === 0 &&
-      sessionStorage.getItem("onboardingPulado") !== "1"
-    )
-      navigate("/onboarding", { replace: true });
-  }, [loadPlanos, planos, navigate]);
 
   useEffect(() => {
     if (userData?.id)
@@ -272,10 +263,72 @@ function Inicio() {
   const carregandoStats = loadPlano || loadTotal || loadResumo || loadHoras;
   const carregandoConteudo = loadEventos;
 
+  const semPlano = Array.isArray(planos) && planos.length === 0;
+
+  const { ativo: tourAtivo, encerrar: encerrarTour } = useTour(
+    "inicio",
+    !carregandoStats && !carregandoConteudo && !loadPlanos,
+  );
+
+  const passosTour = [
+    {
+      titulo: `Boas-vindas, ${userData?.nome?.split(" ")[0] || "estudante"}!`,
+      texto:
+        "Em 30 segundos eu te mostro como o Learnly funciona. Você pode sair a qualquer momento.",
+    },
+    {
+      alvo: '[data-tour="menu"]',
+      lado: "direita",
+      titulo: "Seu menu",
+      texto:
+        "Planos, simulados, redação, desempenho e a MentorIA ficam todos no menu.",
+      raio: 12,
+    },
+    {
+      alvo: '[data-tour="inicio-resumo"]',
+      lado: "baixo",
+      titulo: "O resumo do seu dia",
+      texto:
+        "Horas estudadas, plano ativo, progresso geral e simulados feitos — atualizado automaticamente.",
+    },
+    {
+      alvo: '[data-tour="inicio-cronograma"]',
+      lado: "direita",
+      titulo: "Cronograma de hoje",
+      texto:
+        "Suas sessões de estudo do dia aparecem aqui, marcando o que já passou e o que vem agora.",
+    },
+    {
+      alvo: '[data-tour="inicio-novo-evento"]',
+      lado: "esquerda",
+      titulo: "Monte sua rotina",
+      texto:
+        "Por aqui você cria sessões de estudo que se repetem nos dias da semana que escolher.",
+      raio: 10,
+    },
+    semPlano
+      ? {
+          titulo: "Falta o principal: seu plano",
+          texto:
+            "Um plano organiza suas matérias, horas e metas. Vou te levar até lá e te mostro como criar.",
+          acao: { texto: "Criar meu plano", executar: () => navigate("/planos") },
+        }
+      : {
+          titulo: "Tudo pronto",
+          texto:
+            "É isso! Qualquer tela nova que você abrir pela primeira vez também traz um guia rápido.",
+        },
+  ];
+
   return (
-    //#region JSX
     <div className={`page ${style.pageInicio}`}>
       <Header />
+      <Tour
+        id="inicio"
+        passos={passosTour}
+        ativo={tourAtivo}
+        aoEncerrar={encerrarTour}
+      />
       <div className={style.container}>
         {carregandoStats ? (
           <section className={style.statsGrid}>
@@ -299,7 +352,7 @@ function Inicio() {
               <span className={style.mastIndice}>01 / Início</span>
             </div>
 
-            <div className={style.mastStats}>
+            <div className={style.mastStats} data-tour="inicio-resumo">
               <div className={style.mastCell}>
                 <span className={style.mastLabel}>
                   <LuClock3 /> Horas hoje
@@ -368,7 +421,7 @@ function Inicio() {
           </section>
         ) : (
           <section className={style.contentGrid}>
-            <div className={style.panel}>
+            <div className={style.panel} data-tour="inicio-cronograma">
               <div className={style.panelHead}>
                 <div className={style.panelTitulo}>
                   <span className={style.panelIcone}>
@@ -432,6 +485,7 @@ function Inicio() {
                 <div className={style.panelAcoes}>
                   <button
                     className={style.botao_criar}
+                    data-tour="inicio-novo-evento"
                     onClick={() => setMostrarModalEvento(true)}
                     title="Criar eventos"
                   >

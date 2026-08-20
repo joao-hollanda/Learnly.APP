@@ -16,6 +16,7 @@ import {
   LuFileText,
   LuClipboardList,
   LuTriangleAlert,
+  LuCompass,
 } from "react-icons/lu";
 import Header from "../../components/Header/Header";
 import Avatar from "../../components/Avatar/Avatar";
@@ -35,6 +36,7 @@ import {
 import { stopTokenRefresh } from "../../utils/tokenRefresh";
 import { pararChat } from "../../services/chatHub";
 import { limparIdentidade } from "../../utils/analytics";
+import { reiniciarTours } from "../../components/Tour/Tour";
 import LoginAPI from "../../services/LoginService";
 
 const formatarData = (iso) => {
@@ -421,6 +423,36 @@ export default function Perfil() {
                 </div>
               </li>
             </ul>
+          </section>
+
+          <section className={style.card}>
+            <header className={style.cardHead}>
+              <span className={style.cardIcon}>
+                <LuCompass />
+              </span>
+              <div>
+                <h2 className={style.cardTitulo}>Tutoriais</h2>
+                <p className={style.cardSub}>
+                  Os guias que aparecem na primeira visita de cada tela.
+                </p>
+              </div>
+            </header>
+
+            <p className={style.cardTexto}>
+              Quer rever o passo a passo de como criar um plano ou um simulado?
+              Reative os guias e eles voltam a aparecer.
+            </p>
+            <button
+              type="button"
+              className={style.botao}
+              onClick={() => {
+                reiniciarTours();
+                toast.success("Tutoriais reativados!");
+                navigate("/home");
+              }}
+            >
+              Rever tutoriais
+            </button>
           </section>
 
           <section className={`${style.card} ${style.cardPerigo}`}>

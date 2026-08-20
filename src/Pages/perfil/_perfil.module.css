@@ -370,6 +370,7 @@
   background: linear-gradient(180deg, var(--danger-bg), var(--surface) 70%);
 }
 
+.cardTexto,
 .perigoTexto {
   font-size: 0.88rem;
   line-height: 1.6;

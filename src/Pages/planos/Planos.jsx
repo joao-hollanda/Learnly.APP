@@ -23,6 +23,9 @@ import ModalCompartilharPlano from "../../components/Modais/Planos/ModalComparti
 import ModalResgatarPlano from "../../components/Modais/Planos/ModalResgatarPlano";
 import ModalGrupoProgresso from "../../components/Modais/Planos/ModalGrupoProgresso";
 import IAAPI from "../../services/IAService";
+import Tour, { useTour } from "../../components/Tour/Tour";
+
+const TINTA_MODAL = "rgba(9, 20, 62, 0.45)";
 
 const mapPlanoBackend = (plano) => ({
   planoId: plano.planoId,
@@ -49,7 +52,6 @@ function Planos() {
 
   const hoje = new Date().toISOString().split("T")[0];
 
-  // Modais
   const [mostrarPlano, setMostrarPlano] = useState(false);
   const [mostrarCriarPlano, setMostrarCriarPlano] = useState(false);
   const [mostrarConfigurar, setMostrarConfigurar] = useState(false);
@@ -60,21 +62,17 @@ function Planos() {
   const [mostrarResgatar, setMostrarResgatar] = useState(false);
   const [mostrarGrupo, setMostrarGrupo] = useState(false);
 
-  // Compartilhamento
   const [chaveCompartilhada, setChaveCompartilhada] = useState("");
   const [grupoIdAtual, setGrupoIdAtual] = useState(null);
   const [chaveResgate, setChaveResgate] = useState("");
   const [grupoData, setGrupoData] = useState(null);
   const [carregandoGrupo, setCarregandoGrupo] = useState(false);
 
-  // ID do plano sendo visualizado / configurado
   const [viewingPlanoId, setViewingPlanoId] = useState(null);
   const [configurandoPlanoId, setConfigurandoPlanoId] = useState(null);
 
-  // Plano para excluir
   const [planoParaExcluir, setPlanoParaExcluir] = useState(null);
 
-  // Campos de criação de plano
   const [titulo, setTitulo] = useState("");
   const [objetivo, setObjetivo] = useState("");
   const [dataInicio, setDataInicio] = useState("");
@@ -125,15 +123,11 @@ function Planos() {
     });
   };
 
-  // fix 2: sem fallback para planosList[0] — inativo não aparece como "Plano Atual"
   const planoAtivo = planosList.find((p) => p.ativo) ?? null;
-  // fix 1: lookup por ID, não por índice
   const planoVisualizado =
     planosList.find((p) => p.planoId === viewingPlanoId) ?? null;
   const planoParaConfigurar =
     planosList.find((p) => p.planoId === configurandoPlanoId) ?? null;
-
-  // ── Criação ──────────────────────────────────────────────────────────────
 
   const abrirCriarPlano = () => {
     if (planosList.length >= 5) {
@@ -418,17 +412,92 @@ function Planos() {
     }
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
-
   const planosInativos = planosList.filter((p) => !p.ativo);
+
+  const { ativo: tourAtivo, encerrar: encerrarTour } = useTour(
+    "planos",
+    !carregandoPlanos,
+  );
+
+  const passosTour = [
+    {
+      alvo: '[data-tour="planos-criar"]',
+      lado: "baixo",
+      titulo: "Seu plano de estudos",
+      texto:
+        "O plano guarda suas matérias, tópicos e carga horária. Aqui você monta um do zero, no seu ritmo.",
+      raio: 10,
+    },
+    {
+      alvo: '[data-tour="planos-resgatar"]',
+      lado: "baixo",
+      titulo: "Estudando com alguém?",
+      texto:
+        "Se um amigo compartilhou o plano dele, cole a chave aqui e vocês acompanham o progresso juntos.",
+      raio: 10,
+    },
+    {
+      alvo: '[data-tour="planos-ia"]',
+      lado: "esquerda",
+      titulo: "O caminho mais rápido",
+      texto:
+        "A IA monta o plano inteiro pra você: matérias, tópicos e horas distribuídas até a data da prova.",
+      raio: 999,
+      acao: { texto: "Bora criar", executar: abrirPlanoIa },
+    },
+    {
+      alvo: '[data-tour="plano-ia-objetivo"]',
+      lado: "direita",
+      titulo: "Capriche no objetivo",
+      texto:
+        'Quanto mais específico, melhor o plano. Ex.: "Medicina na UFPE, tenho dificuldade em exatas".',
+      tinta: TINTA_MODAL,
+      raio: 10,
+      semVoltar: true,
+    },
+    {
+      alvo: '[data-tour="plano-ia-horas"]',
+      lado: "direita",
+      titulo: "Seja realista nas horas",
+      texto:
+        "É a partir daqui que a IA distribui a carga entre as matérias. Prefira um ritmo que você consiga manter.",
+      tinta: TINTA_MODAL,
+      raio: 10,
+    },
+    {
+      alvo: '[data-tour="plano-ia-periodo"]',
+      lado: "cima",
+      titulo: "Do começo até a prova",
+      texto:
+        "A data final normalmente é o dia do seu vestibular — o cronograma é calculado até lá.",
+      tinta: TINTA_MODAL,
+      raio: 10,
+    },
+    {
+      alvo: '[data-tour="plano-ia-gerar"]',
+      lado: "cima",
+      titulo: "E é só isso",
+      texto:
+        "Clique em Gerar plano e em alguns segundos ele aparece aqui, pronto pra você acompanhar.",
+      tinta: TINTA_MODAL,
+      raio: 10,
+    },
+  ];
 
   return (
     <div className={`page ${style.pagePlanos}`}>
       <Header />
+      <Tour
+        id="planos"
+        passos={passosTour}
+        ativo={tourAtivo}
+        aoEncerrar={encerrarTour}
+      />
 
       <div className={style.fab_container}>
         <button
           className={style.fab}
+          data-tour="planos-ia"
           onClick={abrirPlanoIa}
           title="Gerar plano com IA"
         >
@@ -449,12 +518,20 @@ function Planos() {
           </div>
           <div className={style.pageHeadAcoes}>
             <span className={style.heroIndice}>03 / Planos</span>
-            <button className={style.botaoNovo} onClick={abrirResgatar}>
+            <button
+              className={style.botaoNovo}
+              data-tour="planos-resgatar"
+              onClick={abrirResgatar}
+            >
               <BsBoxArrowInDown />
               <span className={style.botaoNovoTexto}>Resgatar</span>
             </button>
             {planosList.length > 0 && (
-              <button className={style.botaoNovo} onClick={abrirCriarPlano}>
+              <button
+                className={style.botaoNovo}
+                data-tour="planos-criar"
+                onClick={abrirCriarPlano}
+              >
                 <FaPlus />
                 <span className={style.botaoNovoTexto}>Novo plano</span>
               </button>
@@ -473,7 +550,11 @@ function Planos() {
             </div>
             <h3>Nenhum plano ainda</h3>
             <p>Comece criando seu primeiro plano de estudos.</p>
-            <button className={style.botaoCriarVazio} onClick={abrirCriarPlano}>
+            <button
+              className={style.botaoCriarVazio}
+              data-tour="planos-criar"
+              onClick={abrirCriarPlano}
+            >
               <FaPlus /> Criar plano
             </button>
           </div>

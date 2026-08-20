@@ -37,7 +37,12 @@ function ModalCriarPlanoIA({
           <Button variant="secondary" onClick={onHide} disabled={loading}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={onCriar} disabled={loading}>
+          <Button
+            variant="primary"
+            data-tour="plano-ia-gerar"
+            onClick={onCriar}
+            disabled={loading}
+          >
             {loading ? <span className={style.spinner} /> : <><BsStars /> Gerar plano</>}
           </Button>
         </>
@@ -53,7 +58,7 @@ function ModalCriarPlanoIA({
         />
       </div>
 
-      <div className={style.campo}>
+      <div className={style.campo} data-tour="plano-ia-objetivo">
         <span className={style.label}>Objetivo</span>
         <input
           className="form-control"
@@ -66,7 +71,7 @@ function ModalCriarPlanoIA({
         </span>
       </div>
 
-      <div className={style.campo}>
+      <div className={style.campo} data-tour="plano-ia-horas">
         <span className={style.label}>Carga horária semanal</span>
         <div className={style.chips}>
           {PRESETS_HORAS.map((h) => (
@@ -96,7 +101,7 @@ function ModalCriarPlanoIA({
         />
       </div>
 
-      <div className={style.grid2}>
+      <div className={style.grid2} data-tour="plano-ia-periodo">
         <div className={style.campo}>
           <span className={style.label}>Data de início</span>
           <DatePicker value={dataInicio} onChange={setDataInicio} min={hoje} />

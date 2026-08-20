@@ -63,13 +63,18 @@ export default function ModalCriarSimulado({
           <Button variant="secondary" onClick={onHide} disabled={loading}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={onGerar} disabled={loading}>
+          <Button
+            variant="primary"
+            data-tour="simulado-gerar"
+            onClick={onGerar}
+            disabled={loading}
+          >
             {loading ? <span className={style.spinner} /> : <><BsClipboardPlus /> Criar</>}
           </Button>
         </>
       }
     >
-      <div className={style.campo}>
+      <div className={style.campo} data-tour="simulado-materias">
         <span className={style.label}>Matérias</span>
         <div className={style.selector}>
           {materias.map((m) => {
@@ -95,7 +100,7 @@ export default function ModalCriarSimulado({
         </div>
       </div>
 
-      <div className={style.campo}>
+      <div className={style.campo} data-tour="simulado-quantidade">
         <span className={style.label}>Quantidade de questões</span>
         <div className={style.chips}>
           {PRESETS_QUESTOES.map((q) => (

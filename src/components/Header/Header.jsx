@@ -49,6 +49,7 @@ const Header = () => {
       <header className={style.topbar}>
         <button
           className={style.hamburger}
+          data-tour="menu"
           onClick={() => setAberto(true)}
           aria-label="Abrir menu"
         >
@@ -78,7 +79,7 @@ const Header = () => {
 
         <span className={style.navLabel}>Menu</span>
 
-        <nav className={style.nav}>
+        <nav className={style.nav} data-tour="menu">
           {NAV.map((item, i) => (
             <NavLink
               key={item.to}
